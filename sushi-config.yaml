@@ -1,5 +1,5 @@
 id: who.fhir.smart-base
-canonical: http://worldhealthorganization.github.io/smart-base
+canonical: http://smart.who.int/ig/smart-base
 name: SMARTBase
 title: SMART Base
 description: An empty Implementation Guide to be used as a starting point for building SMART Guidelines Implementation Guides
@@ -34,7 +34,7 @@ menu:
 
 meta:
   profile:
-    - SMARTImplementationGuide
+    - http://smart.who.int/ig/smart-base/ImplementationGuide-SMARTImplementationGuide
 
 dependencies:
   hl7.fhir.uv.crmi: 1.0.0-ballot
