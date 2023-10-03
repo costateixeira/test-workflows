@@ -7,7 +7,7 @@ Parent: ImplementationGuide
 
 
 
-// Define the slicing on the resource.type
+// Define the slicing
 * definition.resource
   * ^slicing.discriminator.type = #pattern
   * ^slicing.discriminator.path = "reference.resolve()"
@@ -18,6 +18,7 @@ Parent: ImplementationGuide
   LogicalModel 0..* 
 //  Profile 0..* 
 
+* definition.resource[LogicalModel].reference.type = #StructureDefinition
 * definition.resource[LogicalModel].reference only Reference(SGLogicalModel)
 //* definition.resource[Ppofile].reference only Reference(SGProfile)
 
