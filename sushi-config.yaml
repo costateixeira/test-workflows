@@ -37,7 +37,7 @@ meta:
     - http://smart.who.int/ig/smart-base/ImplementationGuide-SMARTImplementationGuide
 
 dependencies:
-  hl7.fhir.uv.crmi: 1.0.0-ballot
+  hl7.fhir.uv.crmi: dev
 
 
 # ╭───────────────────────────Less Common Implementation Guide Properties──────────────────────────╮
