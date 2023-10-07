@@ -34,7 +34,8 @@ menu:
 
 meta:
   profile:
-    - http://smart.who.int/ig/smart-base/ImplementationGuide-SMARTImplementationGuide
+    - SGImplementationGuide
+#    - http://smart.who.int/ig/smart-base/ImplementationGuide-SMARTImplementationGuide
 
 dependencies:
   hl7.fhir.uv.crmi: dev
