@@ -1,12 +1,11 @@
 # ImplementationGuide Publisher GitHub Action
 
-This GitHub Action facilitates the automatic building and publishing of FHIR Implementation Guides using the HL7 FHIR IG Publisher. It is designed to run the publisher on push or pull request events and publish the output to GitHub Pages.
+This GitHub Action automatically builds and publishes FHIR Implementation Guides using the HL7 FHIR IG Publisher. It is designed to run the publisher on push or pull request events and publish the output to GitHub Pages.
 
 ## Features
 
-- Automatic handling of branch names for publishing.
-- Supports the automatic creation of the `gh-pages` branch if it doesn't exist
-- Deploys the generated IG to GitHub Pages, with support for deploying main and feature branches to different paths.
+- Default branch is published in `https://<owner>.github.io/<repo>`. Branches are published in `https://<owner>.github.io/<repo>/branches/<branch>`
+- Automatically uses the latest versions of sushi and IG publisher
 
 ## Prerequisites
 
@@ -14,6 +13,7 @@ Before you can use this GitHub Action, you need to ensure the following:
 
 - Your repository should have a branch called `gh-pages`.
 - You have configured GitHub Pages to serve from the `gh-pages` branch.
+- Write permissions are granted for workflows
 - Your FHIR IG source files are properly set up in your repository.
 
 ## Setup
@@ -24,12 +24,14 @@ Before you can use this GitHub Action, you need to ensure the following:
 
 2. **Add the Workflow File**
 
-   Create a `.github/workflows` directory in your repository if it doesn't already exist, and add this ro that file:
+   Create a `.github/workflows` directory in your repository if it doesn't already exist, and call this workflow:
 ```yaml
 jobs:
   call_build: 
     uses: WorldHealthOrganization/smart-base/.github/workflows/ghbuild.yml@main
 ```
+
+See [example](https://github.com/WorldHealthOrganization/smart-ig-starter-kit/blob/main/.github/workflows/ghbuild.yml).
 
 3. **GitHub Token**
 
@@ -59,7 +61,7 @@ Here is a step-by-step description of the workflow:
 ### Notes
 
 - The action is currently set up to keep a history of deployments for branches other than `main`. This can be changed by adjusting the `single-commit` and `clean` options in the workflow file.
-- Make sure to keep the FHIR IG source files updated in your repository to avoid build failures.
+
 
 ## Contributing
 
