@@ -11,3 +11,10 @@ on:
   pull_request:
 
   workflow_dispatch:
+
+jobs:
+  do-nothing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder step
+        run: echo "This action does nothing yet"
