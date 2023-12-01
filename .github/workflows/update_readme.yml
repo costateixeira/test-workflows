@@ -1,4 +1,4 @@
-name: CI
+name: Update README
 
 on:
   workflow_call: # Reusable by other workflows
