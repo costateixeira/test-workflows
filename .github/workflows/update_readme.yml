@@ -1,21 +1,45 @@
-# This workflow uses a remote action to do some repository actions like updating the readme files
-
 name: CI
 
-# Controls when the action will run. 
 on:
   workflow_call: # Reusable by other workflows
-  # Triggers the workflow on push or pull request events for any main branch
   push:
     branches-ignore:    
       - 'gh-pages'
   pull_request:
-  
   workflow_dispatch:
 
 jobs:
-  do-nothing:
+  update-readme-badges:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder step
-        run: echo "This action does nothing yet"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Download badges.md
+        run: |
+          curl -o badges.md https://raw.githubusercontent.com/WorldHealthOrganization/smart-ig-empty/main/badges.md
+
+      - name: Replace placeholders in badges.md
+        run: |
+          sed -i "s/\${{REPOSITORY_OWNER}}/${{ github.repository_owner }}/" badges.md
+          sed -i "s/\${{REPOSITORY_SLUG}}/${{ github.event.repository.name }}/" badges.md
+
+      - name: Replace include with content of badges
+        run: |
+          awk 'NR==FNR{new = new $0 ORS; next} /<!--\/badges-->/{f=0} !f{print} /<!--badges-->/{printf "%s",new; f=1}' badges.md README.md > README_NEW.md && mv README_NEW.md README.md
+          cat README.md
+
+      - run: |
+          rm badges.md
+      
+      - name: Stage changed files
+        run: git add ./README.md
+
+      - name: Deploy candidate
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: ${{ github.ref_name }} # The branch the action should deploy to.
+          folder: . # The folder the action should deploy.
+          commit-message: Deploy branch
+          target-folder: .
+          clean: false
