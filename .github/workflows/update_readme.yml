@@ -38,8 +38,8 @@ jobs:
 
       - name: Replace placeholders in badges.md
         run: |
-          sed -i "s/\$\{\{REPOSITORY_OWNER\}\}/$REPOSITORY_OWNER/" badges.md
-          sed -i "s/\$\{\{REPOSITORY_SLUG\}\}/$REPOSITORY_NAME/" badges.md
+          sed -i "s/<REPO_OWNER>/$REPOSITORY_OWNER/" badges.md
+          sed -i "s/<REPO_NAME>/$REPOSITORY_NAME/" badges.md
 
 
 #      - name: Replace include with content of badges
