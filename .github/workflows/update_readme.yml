@@ -30,6 +30,12 @@ jobs:
         run: |
           curl -o badges.md https://raw.githubusercontent.com/WorldHealthOrganization/smart-ig-empty/main/badges.md
 
+      - name: Debug Variables
+        run: |
+          echo "Repository Owner: $REPOSITORY_OWNER"
+          echo "Repository Name: $REPOSITORY_NAME"
+      
+
       - name: Replace placeholders in badges.md
         run: |
           sed -i "s/\${{REPOSITORY_OWNER}}/$REPOSITORY_OWNER/" badges.md
