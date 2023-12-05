@@ -2,6 +2,13 @@ name: Update README
 
 on:
   workflow_call: # Reusable by other workflows
+    inputs:
+      repositoryOwner:
+        required: true
+        type: string
+      repositoryName:
+        required: true
+        type: string
   push:
     branches-ignore:    
       - 'gh-pages'
@@ -12,8 +19,8 @@ jobs:
   update-readme-badges:
     runs-on: ubuntu-latest
     env:
-      REPOSITORY_OWNER: ${{ github.repository_owner }}
-      REPOSITORY_NAME: ${{ github.event.repository.name }}
+      REPOSITORY_OWNER: ${{ inputs.repositoryOwner }}
+      REPOSITORY_NAME: ${{ inputs.repositoryName }}
     
     steps:
       - name: Checkout repository
