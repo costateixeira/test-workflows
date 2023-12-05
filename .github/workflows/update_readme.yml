@@ -36,15 +36,15 @@ jobs:
           echo "Repository Name: $REPOSITORY_NAME"
       
 
-      - name: Replace placeholders in badges.md
-        run: |
-          sed -i "s/\${{REPOSITORY_OWNER}}/$REPOSITORY_OWNER/" badges.md
-          sed -i "s/\${{REPOSITORY_SLUG}}/$REPOSITORY_NAME/" badges.md
+#      - name: Replace placeholders in badges.md
+#        run: |
+#          sed -i "s/\${{REPOSITORY_OWNER}}/$REPOSITORY_OWNER/" badges.md
+#          sed -i "s/\${{REPOSITORY_SLUG}}/$REPOSITORY_NAME/" badges.md
 
-      - name: Replace include with content of badges
-        run: |
-          awk 'NR==FNR{new = new $0 ORS; next} /<!--\/badges-->/{f=0} !f{print} /<!--badges-->/{printf "%s",new; f=1}' badges.md README.md > README_NEW.md && mv README_NEW.md README.md
-          cat README.md
+#      - name: Replace include with content of badges
+#        run: |
+#          awk 'NR==FNR{new = new $0 ORS; next} /<!--\/badges-->/{f=0} !f{print} /<!--badges-->/{printf "%s",new; f=1}' badges.md README.md > README_NEW.md && mv README_NEW.md README.md
+#          cat README.md
 
       - run: |
           rm badges.md
