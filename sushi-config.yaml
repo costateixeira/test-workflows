@@ -15,6 +15,21 @@ publisher:
   url: http://who.int
   # email: test@example.org
 
+dependencies:
+#  hl7.fhir.core:
+#    id: r4b
+#    version: 4.6.0
+#    reason: |
+#      This IG leverages subscription constructs pre-adopted from R4B.  Importing this IG makes the relevant terminologies available.
+  hl7.fhir.uv.crmi:
+    id: crmi
+    version: 1.0.0-ballot
+    reason: This IG uses content management profiles and capabilities provided by CRMI
+  hl7.fhir.uv.cpg:
+    id: cpg
+    version: 1.0.0
+    reason: This IG uses computable guideline profiles and capabilities provided by CPG
+
 pages:
   index.md:
     title: Home
