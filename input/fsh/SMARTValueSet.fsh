@@ -1,3 +1,0 @@
-Profile: SMARTValueSet
-Parent: ValueSet
-

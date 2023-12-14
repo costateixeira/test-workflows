@@ -1,8 +1,8 @@
-id: who.fhir.smart-base
-canonical: http://worldhealthorganization.github.io/smart-base
+id: who.base
+canonical: http://smart.who.int/base
 name: SMARTBase
-title: SMART Base IG
-description: This implementation guide defines conformance requirements and expectations for WHO SMART Guideline computable guidelines
+title: SMART Base
+description: An empty Implementation Guide to be used as a starting point for building SMART Guidelines Implementation Guides
 status: draft # draft | active | retired | unknown
 version: 0.1.0
 fhirVersion: 4.0.1 # https://www.hl7.org/fhir/valueset-FHIR-version.html
@@ -49,7 +49,12 @@ menu:
 
 meta:
   profile:
-    - SMARTImplementationGuide
+    - SGImplementationGuide
+#    - http://smart.who.int/base/ImplementationGuide-SMARTImplementationGuide
+
+dependencies:
+  hl7.fhir.uv.crmi: dev
+
 
 # ╭───────────────────────────Less Common Implementation Guide Properties──────────────────────────╮
 # │  Uncomment the properties below to configure additional properties on the ImplementationGuide  │
@@ -180,3 +185,4 @@ meta:
 #   if InstanceOf references a profile:
 #
 #   setId: always # always | standalone-only
+

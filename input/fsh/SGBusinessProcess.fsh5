@@ -1,0 +1,2 @@
+Profile: SGBusinessProcess
+Parent: PlanDefinition

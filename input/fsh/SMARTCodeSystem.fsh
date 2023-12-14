@@ -1,3 +1,0 @@
-Profile: SMARTCodeSystem
-Parent: CodeSystem
-
