@@ -1,5 +1,5 @@
-id: who.fhir.smart-base
-canonical: http://smart.who.int/smart-base
+id: who.base
+canonical: http://smart.who.int/base
 name: SMARTBase
 title: SMART Base
 description: An empty Implementation Guide to be used as a starting point for building SMART Guidelines Implementation Guides
@@ -35,7 +35,7 @@ menu:
 meta:
   profile:
     - SGImplementationGuide
-#    - http://smart.who.int/ig/smart-base/ImplementationGuide-SMARTImplementationGuide
+#    - http://smart.who.int/base/ImplementationGuide-SMARTImplementationGuide
 
 dependencies:
   hl7.fhir.uv.crmi: dev
