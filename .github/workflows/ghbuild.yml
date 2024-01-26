@@ -1,5 +1,5 @@
 # This is a simple workflow that runs the publisher and copies the output to https://<owner>.github.io/<repo>/index.html
-# Based on the idea from Carl Leitner
+# Based on the idea by Carl Leitner
 # Change log:
 # 2021-06-18: (JCT): publish default branches to / , other branches branches/<branch>
 # 2021-11-26: (JCT): Reusable workflow
@@ -98,4 +98,6 @@ jobs:
           folder: ./output # The folder the action should deploy.
           commit-message: Deploy main branch
           single-commit: true
-          clean-exclude: branches
+          clean-exclude: |
+            branches
+            sitepreview
