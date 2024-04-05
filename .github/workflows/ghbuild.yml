@@ -34,12 +34,27 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Get branch name
-        run: echo ${GITHUB_REF##*/}
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
+      - name: Echo branch name and check if it's the default branch
+        run: |
+          echo "Current Branch: $BRANCH_NAME"
+          DEFAULT_BRANCH=$(git remote show origin | sed -n '/HEAD branch/s/.*: //p')
+          echo "Default Branch: $DEFAULT_BRANCH"
+          if [ "$BRANCH_NAME" == "$DEFAULT_BRANCH" ]; then
+            echo "This is the default branch."
+            echo "IS_DEFAULT_BRANCH=true" >> $GITHUB_ENV
+          else
+            echo "This is NOT the default branch."
+            echo "IS_DEFAULT_BRANCH=false" >> $GITHUB_ENV
+          fi
+
+
 #      - name: Create gh-pages branch if it doesn't exist
 #        run: |
 #          git fetch origin
@@ -81,7 +96,7 @@ jobs:
 
       - name: Deploy candidate
         uses: JamesIves/github-pages-deploy-action@v4.4.2
-        if: ${{ steps.branch-name.outputs.is_default }} == 'false'
+        if: env.IS_DEFAULT_BRANCH == 'false'
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: ./output # The folder the action should deploy.
@@ -92,7 +107,7 @@ jobs:
 
       - name: Deploy main
         uses: JamesIves/github-pages-deploy-action@v4.4.2
-        if: ${{ steps.branch-name.outputs.is_default }} == 'true'
+        if: env.IS_DEFAULT_BRANCH == 'true'
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: ./output # The folder the action should deploy.
