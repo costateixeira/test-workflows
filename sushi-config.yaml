@@ -23,13 +23,19 @@ dependencies:
 #    version: 4.6.0
 #    reason: |
 #      This IG leverages subscription constructs pre-adopted from R4B.  Importing this IG makes the relevant terminologies available.
+  hl7.terminology: 5.5.0
+  hl7.fhir.uv.extensions: 5.1.0-cibuild
+  hl7.fhir.uv.cql:
+    id: cql
+    version: 1.0.0-snapshot
+    reason: This IG uses CQL profiles and capabilities provided by the Using CQL With FHIR IG
   hl7.fhir.uv.crmi:
     id: crmi
-    version: dev
+    version: 1.0.0-snapshot
     reason: This IG uses content management profiles and capabilities provided by CRMI
   hl7.fhir.uv.cpg:
     id: cpg
-    version: 1.0.0
+    version: dev
     reason: This IG uses computable guideline profiles and capabilities provided by CPG
 
 pages:
