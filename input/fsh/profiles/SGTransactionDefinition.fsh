@@ -17,6 +17,7 @@ Description: "SMART Guidelines Transaction Definition"
 
 * link 1..
 * link.extension contains
+    Sgcode named code 1..1 MS and
     Markdown named triggerEvents 1..1 MS and
     Markdown named messageSemantics 1..1 MS and
     Markdown named expectedActions 1..1 MS

@@ -10,6 +10,6 @@ Description: "Smart Guidelines Actor"
 * description 1..1
 * type MS
 * extension contains
-  Sgactorcode named code 1.. MS
+  Sgcode named code 1.. MS
 
 
