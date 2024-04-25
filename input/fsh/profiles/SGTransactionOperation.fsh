@@ -1,4 +1,4 @@
-Profile: SGTrabnsactionOperation
+Profile: SGTransactionOperation
 Parent: OperationDefinition
 Description: "Smart Guidelines Transaction: see https://profiles.ihe.net/ITI/TF/Volume2/ch-2.html for conventions on transactions"
 
