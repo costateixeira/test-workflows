@@ -26,7 +26,7 @@ Description: "Smart Guidelines Transaction: see https://profiles.ihe.net/ITI/TF/
 * extension contains
     Sgactorext named sourceActor 1..1 MS and
     Sgactorext named targetActor 1..1 MS and
-    Markdown named triggerEvent 1..1 MS and
+    Markdown named triggerEvents 1..1 MS and
     Markdown named messageSemantics 1..1 MS and
     Markdown named expectedActions 1..1 MS
 
