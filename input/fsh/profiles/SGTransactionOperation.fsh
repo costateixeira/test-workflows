@@ -1,4 +1,4 @@
-Profile: SGTransaction
+Profile: SGTrabnsactionOperation
 Parent: OperationDefinition
 Description: "Smart Guidelines Transaction: see https://profiles.ihe.net/ITI/TF/Volume2/ch-2.html for conventions on transactions"
 
@@ -14,10 +14,7 @@ Description: "Smart Guidelines Transaction: see https://profiles.ihe.net/ITI/TF/
 * instance MS
 
 * extension contains
-    Sgactorext named sourceActor 1..1 MS and
-    Sgactorext named targetActor 1..1 MS and
-    Markdown named triggerEvents 1..1 MS and
-    Markdown named messageSemantics 1..1 MS and
-    Markdown named expectedActions 1..1 MS
+    Sgtransaction named transaction 1..1 MS
+
 
 
