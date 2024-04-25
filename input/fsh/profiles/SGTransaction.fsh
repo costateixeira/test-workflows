@@ -1,13 +1,3 @@
-Extension: Sgactorext
-Description: "Smart Guidelines Actor extension"
-* value[x] only Reference(SGActor)
-* valueReference 1..1 MS
-
-Extension: Markdown
-Description: "Markdown extension"
-* value[x] only markdown
-* valueMarkdown 1..1 MS
-
 Profile: SGTransaction
 Parent: OperationDefinition
 Description: "Smart Guidelines Transaction: see https://profiles.ihe.net/ITI/TF/Volume2/ch-2.html for conventions on transactions"
