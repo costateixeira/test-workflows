@@ -88,7 +88,7 @@ jobs:
         uses: docker://hl7fhir/ig-publisher-base:latest
         with:
           # Run the publisher - don't run the batch script but run the line directly
-          args: java -Xmx4g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build -repo https://github.com/${{github.repository}} -package-cache-folder ./fhir-package-cache
+          args: java -Xmx6g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build -repo https://github.com/${{github.repository}} -package-cache-folder ./fhir-package-cache
 
       - name: Get branch names
         id: branch-name
