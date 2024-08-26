@@ -1,4 +1,4 @@
-id: who.base
+id: smart.who.int.base
 canonical: http://smart.who.int/base
 name: SMARTBase
 title: SMART Base
@@ -6,8 +6,8 @@ description: An empty Implementation Guide to be used as a starting point for bu
 status: draft # draft | active | retired | unknown
 version: 0.1.1
 #fhirVersion: 4.3.0 # https://www.hl7.org/fhir/valueset-FHIR-version.html
-fhirVersion: 5.0.0 # https://www.hl7.org/fhir/valueset-FHIR-version.html
-# fhirVersion: 4.0.1 # https://www.hl7.org/fhir/valueset-FHIR-version.html
+#fhirVersion: 5.0.0 # https://www.hl7.org/fhir/valueset-FHIR-version.html
+fhirVersion: 4.0.1 # https://www.hl7.org/fhir/valueset-FHIR-version.html
 copyrightYear: 2023+
 releaseLabel: ci-build # ci-build | draft | qa-preview | ballot | trial-use | release | update | normative+trial-use
 # license: CC0-1.0 # https://www.hl7.org/fhir/valueset-spdx-license.html
@@ -24,7 +24,7 @@ dependencies:
 #    reason: |
 #      This IG leverages subscription constructs pre-adopted from R4B.  Importing this IG makes the relevant terminologies available.
   hl7.terminology: 5.5.0
-  hl7.fhir.uv.extensions: 5.1.0
+  hl7.fhir.uv.extensions.r4: 5.1.0
   hl7.fhir.uv.cql:
     id: cql
     version: 1.0.0
@@ -32,11 +32,12 @@ dependencies:
   hl7.fhir.uv.crmi:
     id: crmi
     version: 1.0.0
-    reason: This IG uses content management profiles and capabilities provided by CRMI
-  hl7.fhir.uv.cpg:
-    id: cpg
-    version: dev
-    reason: This IG uses computable guideline profiles and capabilities provided by CPG
+    reason: This IG uses content management profiles and capabilities provided by the Canonical Resource Management Infrastructure (CRMI) IG
+  hl7.fhir.uv.sdc:
+    id: sdc
+    version: 3.0.0
+    reason: This IG uses questionnaire profiles and capabilities provided by the Structure Data Capture (SDC) IG
+# ihe.madx? I cannot find this dependency in the FHIR registry or the IHE github
 
 pages:
   index.md:
