@@ -7,7 +7,7 @@
 ![QA hints](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fworldhealthorganization.github.io%2Fsmart-base%2Fqa.json&query=%24.hints&logoColor=yellow&label=QA%20hints&color=yellow)
 
 [https://build.fhir.org/ig/WorldHealthOrganization/smart-base](https://build.fhir.org/ig/WorldHealthOrganization/smart-base)
-
+ 
 # WHO SMART GUIDELINES - Base IG
 
 This ImplementationGuide contains base profiles and common dependencies to assist in the creation of SMART Implementation Guides. 
