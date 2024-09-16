@@ -1,5 +1,46 @@
 == Suppressed Messages ==
 
-# Add warning and/or information messages here after you've confirmed that they aren't really a problem
-# (And include comments like this justifying why)
-# See https://github.com/FHIR/sample-ig/blob/master/input/ignoreWarnings.txt for examples
+# Markdown extension is intended for use on any element
+WARNING: StructureDefinition/Markdown: StructureDefinition.context[0]: Review the extension type for Markdown: extensions should not have a context of Element unless it's really intended that they can be used anywhere
+
+# Code extension is intended for use on any element
+WARNING: StructureDefinition/Sgcode: StructureDefinition.context[0]: Review the extension type for Sgcode: extensions should not have a context of Element unless it's really intended that they can be used anywhere
+
+# No examples are included
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/Markdown'): The Implementation Guide contains no examples for this extension
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGActivityDefinition'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGBusinessProcess'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGCodeSystem'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGConceptMap'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGImplementationGuide'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGLibrary'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGLogicalModel'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGMeasure'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGPlanDefinition'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGQuestionnaire'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGStructureDefinition'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGStructureMap'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGValueSet'): The Implementation Guide contains no examples for this profile
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/Sgcode'): The Implementation Guide contains no examples for this extension
+WARNING: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGGroupDefinition'): The Implementation Guide contains no examples for this profile
+INFORMATION: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGImplementationGuide'): The Implementation Guide contains no explicitly linked examples for this profile
+INFORMATION: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGLogicalModel'): The Implementation Guide contains no explicitly linked examples for this profile
+INFORMATION: StructureDefinition.where(url = 'http://smart.who.int/base/StructureDefinition/SGStructureDefinition'): The Implementation Guide contains no explicitly linked examples for this profile
+
+# These should all be matching SGStructureDefinition, not sure why they don't...
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[0]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[1]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[2]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[3]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[4]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[5]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[6]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[7]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[8]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[9]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[10]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[11]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[12]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[13]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+INFORMATION: ImplementationGuide/smart.who.int.base: ImplementationGuide.definition.resource[14]: This element does not match any known slice defined in the profile http://smart.who.int/base/StructureDefinition/SGImplementationGuide|1.0.0 (this may not be a problem, but you should check that it's not intended to match a slice)
+
