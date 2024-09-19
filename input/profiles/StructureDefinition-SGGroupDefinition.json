@@ -1,7 +1,7 @@
 {
   "resourceType": "StructureDefinition",
-  "id": "sg-groupdefinition",
-  "url": "http://worldhealthorganization.github.io/smart-base/StructureDefinition/sg-groupdefinition",
+  "id": "SGGroupDefinition",
+  "url": "http://smart.who.int/base/StructureDefinition/SGGroupDefinition",
   "name": "SGGroupDefinition",
   "title": "WHO SMART Guidelines Group Definition",
   "status": "draft",
@@ -11,7 +11,7 @@
   "kind": "resource",
   "abstract": false,
   "type": "Group",
-  "baseDefinition": "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-groupdefinition",
+  "baseDefinition": "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-groupdefinition",
   "derivation": "constraint",
   "differential" : {
     "element" : [
