@@ -90,6 +90,15 @@ jobs:
           # Run the publisher - don't run the batch script but run the line directly
           args: java -Xmx6g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build -repo https://github.com/${{github.repository}}/tree/${{github.ref_name}} -package-cache-folder ./fhir-package-cache
 
+      # Additional step to upload qa.json as an artifact
+      - name: Upload qa.json artifact
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: qa-json-artifact
+          path: ./output/qa.json  # Adjust the path based on where qa.json is located
+
+
       - name: Get branch names
         id: branch-name
         uses: tj-actions/branch-names@v7.0.7
