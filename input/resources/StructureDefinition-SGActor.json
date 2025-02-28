@@ -1,0 +1,48 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "SGActor",
+  "url": "http://smart.who.int/base/StructureDefinition/SGActor",
+  "version": "1.0.0",
+  "name": "SGActor",
+  "description": "Smart Guidelines Actor",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "ActorDefinition",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/ActorDefinition",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "ActorDefinition.name",
+        "path": "ActorDefinition.name",
+        "min": 1
+      },
+      {
+        "id": "ActorDefinition.title",
+        "path": "ActorDefinition.title",
+        "min": 1
+      },
+      {
+        "id": "ActorDefinition.status",
+        "path": "ActorDefinition.status",
+        "mustSupport": true
+      },
+      {
+        "id": "ActorDefinition.experimental",
+        "path": "ActorDefinition.experimental",
+        "min": 1
+      },
+      {
+        "id": "ActorDefinition.description",
+        "path": "ActorDefinition.description",
+        "min": 1
+      },
+      {
+        "id": "ActorDefinition.type",
+        "path": "ActorDefinition.type",
+        "mustSupport": true
+      }
+    ]
+  }
+}
