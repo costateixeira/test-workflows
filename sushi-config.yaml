@@ -87,8 +87,8 @@ meta:
 # it with the correct canonical when generating the IG JSON.
 #
 # global:
-#   Patient: http://example.org/fhir/StructureDefinition/my-patient-profile
-#   Encounter: http://example.org/fhir/StructureDefinition/my-encounter-profile
+#   Patient: http://smart.who.int/base/fhir/StructureDefinition/my-patient-profile
+#   Encounter: http://smart.who.int/base/fhir/StructureDefinition/my-encounter-profile
 #
 #
 # The resources property corresponds to IG.definition.resource.
@@ -128,9 +128,6 @@ meta:
 # resource entries with the corresponding groupIds. If a resource
 # is specified by id or name, SUSHI will replace it with the correct
 # URL when generating the IG JSON.
-#
-# groups:
-#   GroupA:
 #     name: Group A
 #     description: The Alpha Group
 #     resources:
@@ -143,6 +140,98 @@ meta:
 #     - StructureDefinition/bark-control
 #     - StructureDefinition/bee-sting
 #
+
+resources:
+  StructureDefinition/SGActor:
+    name: SMART Guidelines Actor
+    description: Structure and constraints for ActorDefinition resources used in SMART Guidelines
+
+  StructureDefinition/SGGraphDefinition:
+    name: SMART Guidelines GraphDefinition	
+    description: The minimum expectations for GraphDefinition resources used in SMART Guidelines
+
+  StructureDefinition/SGTransaction:
+    name: SMART Guidelines Transaction	
+    description: Structure and constraints for TransactionDefinition resources used in SMART Guidelines
+
+  StructureDefinition/SGActivityDefinition:
+    name: SMART Guidelines ActivityDefinition
+    description: The minimum expectations for ActivityDefinition resources used in SMART Guidelines
+
+  StructureDefinition/SGBusinessProcess:
+    name: SMART Guidelines Business Process
+    description: Structure and constraints for Business Processes represented in SMART Guidelines
+
+  StructureDefinition/SGCodeSystem:
+    name: SMART Guidelines CodeSystem
+    description: Defines the minimum expectations for CodeSystem resources used in SMART Guidelines
+
+  StructureDefinition/SGConceptMap:
+    name: SMART Guidelines ConceptMap
+    description: Defines the minimum expectations for ConceptMap resources used in SMART Guidelines
+
+  StructureDefinition/SGImplementationGuide:
+    name: SMART Guidelines ImplementationGuide
+    description: Defines the minimum expectations for ImplementationGuide resources used in SMART Guidelines
+
+  StructureDefinition/SGLibrary:
+    name: SMART Guidelines Library
+    description: Defines the minimum expectations for Library resources used in SMART Guidelines
+
+  StructureDefinition/SGLogicalModel:
+    name: SMART Guidelines Logical Model
+    description: Defines the minimum expectations for Logical Models used in SMART Guidelines
+
+  StructureDefinition/SGMeasure:
+    name: SMART Guidelines Measure
+    description: Defines the minimum expectations for Measure resources used in SMART Guidelines
+
+  StructureDefinition/SGPlanDefinition:
+    name: SMART Guidelines PlanDefinition
+    description: Defines the minimum expectations for PlanDefinition resources used in SMART Guidelines
+
+  StructureDefinition/SGQuestionnaire:
+    name: SMART Guidelines Questionnaire
+    description: Defines the minimum expectations for Questionnaire resources used in SMART Guidelines
+
+  StructureDefinition/SGStructureDefinition:
+    name: SMART Guidelines StructureDefinition
+    description: Defines the minimum expectations for StructureDefinition resources used in SMART Guidelines
+
+  StructureDefinition/SGStructureMap:
+    name: SMART Guidelines StructureMap
+    description: Defines the minimum expectations for StructureMap resources used in SMART Guidelines
+
+  StructureDefinition/SGValueSet:
+    name: SMART Guidelines ValueSet
+    description: Defines the minimum expectations for ValueSet resources used in SMART Guidelines
+
+  StructureDefinition/SGGroupDefinition:
+    name: SMART Guidelines Group Definition
+    description: Structure and constraints for Group Definitions represented in SMART Guidelines
+
+groups:
+  Conformance:
+    name: Conformance
+    description: constraints and profile structures for SMART Guidelines resources
+    resources:
+      - StructureDefinition/SGActor
+      - StructureDefinition/SGGraphDefinition
+      - StructureDefinition/SGTransaction
+      - StructureDefinition/SGActivityDefinition
+      - StructureDefinition/SGBusinessProcess
+      - StructureDefinition/SGCodeSystem
+      - StructureDefinition/SGConceptMap
+      - StructureDefinition/SGImplementationGuide
+      - StructureDefinition/SGLibrary
+      - StructureDefinition/SGLogicalModel
+      - StructureDefinition/SGMeasure
+      - StructureDefinition/SGPlanDefinition
+      - StructureDefinition/SGQuestionnaire
+      - StructureDefinition/SGStructureDefinition
+      - StructureDefinition/SGStructureMap
+      - StructureDefinition/SGValueSet
+      - StructureDefinition/SGGroupDefinition
 #
 # The ImplementationGuide resource defines several other properties
 # not represented above. These properties can be used as-is and

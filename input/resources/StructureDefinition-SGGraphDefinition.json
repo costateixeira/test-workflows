@@ -1,0 +1,95 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "SGGraphDefinition",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-implements",
+      "valueUri": "http://hl7.org/fhir/StructureDefinition/CanonicalResource"
+    }
+  ],
+  "url": "http://smart.who.int/base/StructureDefinition/SGGraphDefinition",
+  "version": "1.0.0",
+  "name": "SGGraphDefinition",
+  "description": "SMART Guidelines Transaction Definition",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "GraphDefinition",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/GraphDefinition",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "GraphDefinition.name",
+        "path": "GraphDefinition.name",
+        "mustSupport": true
+      },
+      {
+        "id": "GraphDefinition.title",
+        "path": "GraphDefinition.title",
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.status",
+        "path": "GraphDefinition.status",
+        "mustSupport": true
+      },
+      {
+        "id": "GraphDefinition.experimental",
+        "path": "GraphDefinition.experimental",
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.description",
+        "path": "GraphDefinition.description",
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.node",
+        "path": "GraphDefinition.node",
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.node.extension",
+        "path": "GraphDefinition.node.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        },
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.node.extension:actor",
+        "path": "GraphDefinition.node.extension",
+        "sliceName": "actor",
+        "min": 1,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/SGActorExt"
+            ]
+          }
+        ],
+        "mustSupport": true
+      },
+      {
+        "id": "GraphDefinition.node.type",
+        "path": "GraphDefinition.node.type",
+        "patternCode": "ActorDefinition"
+      },
+      {
+        "id": "GraphDefinition.link",
+        "path": "GraphDefinition.link",
+        "min": 1
+      }
+    ]
+  }
+}
