@@ -43,7 +43,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/Satisfies"
+              "http://smart.who.int/base/StructureDefinition/Satisfies"
             ]
           }
         ]
