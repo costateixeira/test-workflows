@@ -1,0 +1,82 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "SGRequirements",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-implements",
+      "valueUri": "http://hl7.org/fhir/StructureDefinition/CanonicalResource"
+    }
+  ],
+  "url": "http://example.org/StructureDefinition/SGRequirements",
+  "version": "1.0.0",
+  "name": "SGRequirements",
+  "description": "Smart Guidelines Requirements",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Requirements",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Requirements",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Requirements.extension",
+        "path": "Requirements.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Requirements.extension:satisfies",
+        "path": "Requirements.extension",
+        "sliceName": "satisfies",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://example.org/StructureDefinition/Satisfies"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Requirements.name",
+        "path": "Requirements.name",
+        "min": 1
+      },
+      {
+        "id": "Requirements.title",
+        "path": "Requirements.title",
+        "min": 1
+      },
+      {
+        "id": "Requirements.status",
+        "path": "Requirements.status",
+        "mustSupport": true
+      },
+      {
+        "id": "Requirements.experimental",
+        "path": "Requirements.experimental",
+        "min": 1
+      },
+      {
+        "id": "Requirements.description",
+        "path": "Requirements.description",
+        "min": 1
+      },
+      {
+        "id": "Requirements.statement.label",
+        "path": "Requirements.statement.label",
+        "min": 1
+      }
+    ]
+  }
+}
