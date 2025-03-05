@@ -11,6 +11,7 @@
   "version": "1.0.0",
   "name": "SGRequirements",
   "description": "Smart Guidelines Requirements",
+  "fhirVersion": "4.0.1",
   "kind": "resource",
   "abstract": false,
   "type": "Requirements",
