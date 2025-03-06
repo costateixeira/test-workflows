@@ -58,6 +58,16 @@
         "patternId": "source"
       },
       {
+        "id": "GraphDefinition.extension:node/source.extension:type",
+        "path": "GraphDefinition.extension.extension",
+        "sliceName": "type"
+      },
+      {
+        "id": "GraphDefinition.extension:node/source.extension:type.value[x]",
+        "path": "GraphDefinition.extension.extension.value[x]",
+        "patternCode": "ActorDefinition"
+      },
+      {
         "id": "GraphDefinition.extension:node/source.extension:actor",
         "path": "GraphDefinition.extension.extension",
         "sliceName": "actor",
@@ -95,6 +105,16 @@
         "id": "GraphDefinition.extension:node/target.extension:nodeId.value[x]",
         "path": "GraphDefinition.extension.extension.value[x]",
         "patternId": "target"
+      },
+      {
+        "id": "GraphDefinition.extension:node/target.extension:type",
+        "path": "GraphDefinition.extension.extension",
+        "sliceName": "type"
+      },
+      {
+        "id": "GraphDefinition.extension:node/target.extension:type.value[x]",
+        "path": "GraphDefinition.extension.extension.value[x]",
+        "patternCode": "ActorDefinition"
       },
       {
         "id": "GraphDefinition.extension:node/target.extension:actor",
