@@ -7,7 +7,7 @@
       "valueUri": "http://hl7.org/fhir/StructureDefinition/CanonicalResource"
     }
   ],
-  "url": "http://example.org/StructureDefinition/SGRequirements",
+  "url": "http://smart.who.int/base/StructureDefinition/SGRequirements",
   "version": "1.0.0",
   "name": "SGRequirements",
   "description": "Smart Guidelines Requirements",
