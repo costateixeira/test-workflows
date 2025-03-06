@@ -106,7 +106,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://smart.who.int/basehttp://example.org/StructureDefinition/SGActorExt"
+              "http://smart.who.int/base/StructureDefinition/SGActorExt"
             ]
           }
         ],
@@ -152,7 +152,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGDocumentation"
+              "http://smart.who.int/base/StructureDefinition/SGDocumentation"
             ]
           }
         ],
@@ -168,7 +168,7 @@
         "path": "GraphDefinition.link.extension.extension.value[x]",
         "patternCoding": {
           "code": "request-trigger",
-          "system": "http://nothing"
+          "system": "http://smart.who.int/base/CodeSystem/DocumentationSections"
         }
       },
       {
@@ -181,7 +181,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGDocumentation"
+              "http://smart.who.int/base/StructureDefinition/SGDocumentation"
             ]
           }
         ],
@@ -197,7 +197,7 @@
         "path": "GraphDefinition.link.extension.extension.value[x]",
         "patternCoding": {
           "code": "request-semantics",
-          "system": "http://nothing"
+          "system": "http://smart.who.int/base/CodeSystem/DocumentationSections"
         }
       },
       {
@@ -210,7 +210,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGDocumentation"
+              "http://smart.who.int/base/StructureDefinition/SGDocumentation"
             ]
           }
         ],
@@ -226,7 +226,7 @@
         "path": "GraphDefinition.link.extension.extension.value[x]",
         "patternCoding": {
           "code": "request-actions",
-          "system": "http://nothing"
+          "system": "http://smart.who.int/base/CodeSystem/DocumentationSections"
         }
       },
       {
@@ -239,7 +239,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGDocumentation"
+              "http://smart.who.int/base/StructureDefinition/SGDocumentation"
             ]
           }
         ],
@@ -255,7 +255,7 @@
         "path": "GraphDefinition.link.extension.extension.value[x]",
         "patternCoding": {
           "code": "response-trigger",
-          "system": "http://nothing"
+          "system": "http://smart.who.int/base/CodeSystem/DocumentationSections"
         }
       },
       {
@@ -268,7 +268,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGDocumentation"
+              "http://smart.who.int/base/StructureDefinition/SGDocumentation"
             ]
           }
         ],
