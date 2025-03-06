@@ -1,7 +1,7 @@
 {
   "resourceType": "StructureDefinition",
   "id": "SGTransaction",
-  "url": "http://example.org/StructureDefinition/SGTransaction",
+  "url": "http://smart.who.int/base/StructureDefinition/SGTransaction",
   "name": "SGTransaction",
   "status": "draft",
   "description": "SMART Guidelines Transaction Definition",
@@ -9,7 +9,7 @@
   "kind": "resource",
   "abstract": false,
   "type": "GraphDefinition",
-  "baseDefinition": "http://example.org/StructureDefinition/SGGraphDefinition",
+  "baseDefinition": "http://smart.who.int/base/StructureDefinition/SGGraphDefinition",
   "derivation": "constraint",
   "differential": {
     "element": [
@@ -67,7 +67,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGActorExt"
+              "http://smart.who.int/base/StructureDefinition/SGActorExt"
             ]
           }
         ],
@@ -106,7 +106,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGActorExt"
+              "http://smart.who.int/basehttp://example.org/StructureDefinition/SGActorExt"
             ]
           }
         ],
@@ -284,7 +284,7 @@
         "path": "GraphDefinition.link.extension.extension.value[x]",
         "patternCoding": {
           "code": "response-semantics",
-          "system": "http://nothing"
+          "system": "http://smart.who.int/base/CodeSystem/DocumentationSections"
         }
       },
       {
@@ -297,7 +297,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGDocumentation"
+              "http://smart.who.int/base/StructureDefinition/SGDocumentation"
             ]
           }
         ],
@@ -313,7 +313,7 @@
         "path": "GraphDefinition.link.extension.extension.value[x]",
         "patternCoding": {
           "code": "response-actions",
-          "system": "http://nothing"
+          "system": "http://smart.who.int/base/CodeSystem/DocumentationSections"
         }
       },
       {
@@ -326,7 +326,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/SGDocumentation"
+              "http://smart.who.int/base/StructureDefinition/SGDocumentation"
             ]
           }
         ],
@@ -342,7 +342,7 @@
         "path": "GraphDefinition.link.extension.extension.value[x]",
         "patternCoding": {
           "code": "security-considerations",
-          "system": "http://nothing"
+          "system": "http://smart.who.int/base/CodeSystem/DocumentationSections"
         }
       }
     ]

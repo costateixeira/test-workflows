@@ -1,7 +1,7 @@
 {
   "resourceType": "StructureDefinition",
   "id": "SGGraphDefinition",
-  "url": "http://example.org/StructureDefinition/SGGraphDefinition",
+  "url": "http://smart.who.int/base/StructureDefinition/SGGraphDefinition",
   "name": "SGGraphDefinition",
   "status": "draft",
   "description": "SMART Guidelines Transaction Definition",
@@ -92,7 +92,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/LinkIdExt"
+              "http://smart.who.int/base/StructureDefinition/LinkIdExt"
             ]
           }
         ]
@@ -107,7 +107,7 @@
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/LinkIdExt"
+              "http://smart.who.int/base/StructureDefinition/LinkIdExt"
             ]
           }
         ]
