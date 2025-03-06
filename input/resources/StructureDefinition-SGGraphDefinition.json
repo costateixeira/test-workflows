@@ -2,8 +2,8 @@
   "resourceType": "StructureDefinition",
   "id": "SGGraphDefinition",
   "url": "http://example.org/StructureDefinition/SGGraphDefinition",
-  "version": "1.0.0",
   "name": "SGGraphDefinition",
+  "status": "draft",
   "description": "SMART Guidelines Transaction Definition",
   "fhirVersion": "4.0.1",
   "kind": "resource",
@@ -25,50 +25,19 @@
           ],
           "ordered": false,
           "rules": "open"
-        },
-        "min": 1
+        }
       },
       {
         "id": "GraphDefinition.extension:node",
         "path": "GraphDefinition.extension",
         "sliceName": "node",
-        "min": 1,
+        "min": 0,
         "max": "*",
         "type": [
           {
             "code": "Extension",
             "profile": [
-              "http://example.org/StructureDefinition/NodeExt"
-            ]
-          }
-        ]
-      },
-      {
-        "id": "GraphDefinition.extension:node.extension",
-        "path": "GraphDefinition.extension.extension",
-        "min": 3
-      },
-      {
-        "id": "GraphDefinition.extension:node.extension:type",
-        "path": "GraphDefinition.extension.extension",
-        "sliceName": "type"
-      },
-      {
-        "id": "GraphDefinition.extension:node.extension:type.value[x]",
-        "path": "GraphDefinition.extension.extension.value[x]",
-        "patternCode": "ActorDefinition"
-      },
-      {
-        "id": "GraphDefinition.extension:node.extension:actor",
-        "path": "GraphDefinition.extension.extension",
-        "sliceName": "actor",
-        "min": 1,
-        "max": "*",
-        "type": [
-          {
-            "code": "Extension",
-            "profile": [
-              "http://example.org/StructureDefinition/SGActorExt"
+              "http://hl7.org/fhir/5.0/StructureDefinition/extension-GraphDefinition.node"
             ]
           }
         ],
@@ -98,6 +67,50 @@
         "id": "GraphDefinition.link",
         "path": "GraphDefinition.link",
         "min": 1
+      },
+      {
+        "id": "GraphDefinition.link.extension",
+        "path": "GraphDefinition.link.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        }
+      },
+      {
+        "id": "GraphDefinition.link.extension:sourceId",
+        "path": "GraphDefinition.link.extension",
+        "sliceName": "sourceId",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://example.org/StructureDefinition/LinkIdExt"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "GraphDefinition.link.extension:targetId",
+        "path": "GraphDefinition.link.extension",
+        "sliceName": "targetId",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://example.org/StructureDefinition/LinkIdExt"
+            ]
+          }
+        ]
       }
     ]
   }
