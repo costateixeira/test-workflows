@@ -27,7 +27,7 @@ dependencies:
 #      This IG leverages subscription constructs pre-adopted from R4B.  Importing this IG makes the relevant terminologies available.
   hl7.terminology: 5.5.0
   hl7.fhir.uv.extensions.r4: 5.1.0
-  hl7.fhir.uv.extensions.r5: 4.0.1
+  hl7.fhir.uv.extensions.r5: 5.2.0
   hl7.fhir.uv.cql:
     id: cql
     version: 1.0.0
