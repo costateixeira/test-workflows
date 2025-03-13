@@ -113,7 +113,7 @@ def extract_functional(functional,functional_file):
         instance += '* title = "'+escape(name)+'"' + "\n"
         instance += '* status = $pubStatus#active' + "\n"
         instance += '* publisher = "WHO"' + "\n"
-        description = "As a " + actorlink + ", I want:\n>" + escape(iwant) + '\nso that\n>' + escape(sothat)
+        description = "As a " + actorlink + ", I want:\n>" + escape(iwant) + '\n\nso that\n\n>' + escape(sothat)
         if (businessprocess):
             description = "Under the business process " + businessprocess + ":\n" + description
         description = '* description = """\n' + description + '\n"""\n\n'
