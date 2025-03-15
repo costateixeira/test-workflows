@@ -38,7 +38,7 @@
       {
         "id": "Extension.extension:capabaility",
         "path": "Extension.extension",
-        "sliceName": "capabaility",
+        "sliceName": "capability",
         "min": 1,
         "max": "1",
         "type": [

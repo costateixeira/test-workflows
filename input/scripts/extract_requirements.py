@@ -35,7 +35,9 @@ def main():
 
     functional_file = open("input/fsh/requirements/Functional-Requirements.fsh",'w')
     nonfunctional_file = open("input/fsh/requirements/NonFunctional-Requirements.fsh",'w')
-    for inputfile_name in glob.glob("input/system-requirements/*xlsx"):
+    inputfile_names = glob.glob("input/system-requirements/*xlsx")
+    print("Found the following files\n  " + "\n  ".join(inputfile_names) )
+    for inputfile_name in inputfile_names:
         try:
             extract_file(inputfile_name,functional_file,nonfunctional_file)
         except ValueError as e:
@@ -114,11 +116,13 @@ def extract_functional(functional,functional_file):
         actorlink='<a href="ActorDefinition-' + name_to_id(asa) + '.html">' + escape(asa) +'</a>'
         instance = "//functional requirment instance generated from row " + str(index+1) + "\n"
         instance += "Instance: " + reqid + "\n"
-        instance += "InstanceOf: Requirements\n"
+        instance += "InstanceOf: SGRequirements\n"
         instance += "Usage: #definition" + "\n"
-        instance += '* title = "' + escape(name) + '"\n'
+        instance += '* title = "' + escape(iwant) + '"\n'
         instance += '* status = $pubStatus#active\n'
+        instance += '* name = "' + escape(iwant) + '"\n'
         instance += '* publisher = "WHO"\n'
+        instance += '* experimental = true\n'
         instance += '* extension[userstory].extension[capability].valueString = "' + escape(iwant) + '"\n'
         instance += '* extension[userstory].extension[benefit].valueString = "' + escape(sothat) + '"\n'
         description = "As a " + actorlink + ", I want:\n>" + escape(iwant) + '\n\nso that\n\n>' + escape(sothat)
