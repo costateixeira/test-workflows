@@ -1,0 +1,13 @@
+Extension: SGUserStory
+Description: "Smart Guidelines extension to support structured User Stories (As a <Actor> I want to <capability> so that <benfit>)  extension"
+* extension contains SGString named capabaility  1..1
+* extension contains SGString named benefit  1..1
+
+
+
+Extension: SGString
+Description: "Smart Guidelines (required) string extension for use in a complex extension"
+* value[x] only string
+* valueString 1..1 MS
+
+

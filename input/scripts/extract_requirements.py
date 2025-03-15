@@ -36,7 +36,11 @@ def main():
     functional_file = open("input/fsh/requirements/Functional-Requirements.fsh",'w')
     nonfunctional_file = open("input/fsh/requirements/NonFunctional-Requirements.fsh",'w')
     for inputfile_name in glob.glob("input/system-requirements/*xlsx"):
-        extract_file(inputfile_name,functional_file,nonfunctional_file)
+        try:
+            extract_file(inputfile_name,functional_file,nonfunctional_file)
+        except ValueError as e:
+            print("Could not process: " +  inputfile_name + "\n" )
+            print(f"\tError: {e}")
         
     functional_file.close()
     nonfunctional_file.close()
@@ -47,8 +51,9 @@ def extract_file(inputfile_name,functional_file,nonfunctional_file):
     try:
         functional = pd.read_excel(inputfile_name, sheet_name='Functional')
         nonfunctional = pd.read_excel(inputfile_name, sheet_name='Non-functional')
-    except IOError:
+    except IOError as e:
         print("Sheets not found or processable:" + inputfile_name + "...aborting")
+        print(f"\tError: {e}")
         return False
     
     if ( list(nonfunctional) != nonfunctional_headers):
@@ -78,6 +83,7 @@ def escape(str):
 
 
 def extract_nonfunctional(nonfunctional,nonfunctional_file):
+    print("Reading non-functional requirements")
     return False
 
 def extract_functional(functional,functional_file):
@@ -107,12 +113,14 @@ def extract_functional(functional,functional_file):
         sothat = row["So that…"]
         actorlink='<a href="ActorDefinition-' + name_to_id(asa) + '.html">' + escape(asa) +'</a>'
         instance = "//functional requirment instance generated from row " + str(index+1) + "\n"
-        instance += "Instance: "+reqid + "\n"
-        instance += "InstanceOf: Requirements" + "\n"
+        instance += "Instance: " + reqid + "\n"
+        instance += "InstanceOf: Requirements\n"
         instance += "Usage: #definition" + "\n"
-        instance += '* title = "'+escape(name)+'"' + "\n"
-        instance += '* status = $pubStatus#active' + "\n"
-        instance += '* publisher = "WHO"' + "\n"
+        instance += '* title = "' + escape(name) + '"\n'
+        instance += '* status = $pubStatus#active\n'
+        instance += '* publisher = "WHO"\n'
+        instance += '* extension[userstory].extension[capability].valueString = "' + escape(iwant) + '"\n'
+        instance += '* extension[userstory].extension[benefit].valueString = "' + escape(sothat) + '"\n'
         description = "As a " + actorlink + ", I want:\n>" + escape(iwant) + '\n\nso that\n\n>' + escape(sothat)
         if (businessprocess):
             description = "Under the business process " + businessprocess + ":\n" + description

@@ -49,6 +49,20 @@
         ]
       },
       {
+        "id": "Requirements.extension:userstory",
+        "path": "Requirements.extension",
+        "sliceName": "userstory",
+        "min": 0,
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/SGUserStory"
+            ]
+          }
+        ]
+      },	
+      {
         "id": "Requirements.name",
         "path": "Requirements.name",
         "min": 1
