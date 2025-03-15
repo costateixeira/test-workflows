@@ -36,7 +36,7 @@
         "min": 2
       },
       {
-        "id": "Extension.extension:capabaility",
+        "id": "Extension.extension:capability",
         "path": "Extension.extension",
         "sliceName": "capability",
         "min": 1,
