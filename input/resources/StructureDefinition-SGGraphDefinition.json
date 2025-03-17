@@ -1,0 +1,117 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "SGGraphDefinition",
+  "url": "http://smart.who.int/base/StructureDefinition/SGGraphDefinition",
+  "name": "SGGraphDefinition",
+  "status": "draft",
+  "description": "SMART Guidelines Transaction Definition",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "GraphDefinition",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/GraphDefinition",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "GraphDefinition.extension",
+        "path": "GraphDefinition.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        }
+      },
+      {
+        "id": "GraphDefinition.extension:node",
+        "path": "GraphDefinition.extension",
+        "sliceName": "node",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://hl7.org/fhir/5.0/StructureDefinition/extension-GraphDefinition.node"
+            ]
+          }
+        ],
+        "mustSupport": true
+      },
+      {
+        "id": "GraphDefinition.name",
+        "path": "GraphDefinition.name",
+        "mustSupport": true
+      },
+      {
+        "id": "GraphDefinition.status",
+        "path": "GraphDefinition.status",
+        "mustSupport": true
+      },
+      {
+        "id": "GraphDefinition.experimental",
+        "path": "GraphDefinition.experimental",
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.description",
+        "path": "GraphDefinition.description",
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.link",
+        "path": "GraphDefinition.link",
+        "min": 1
+      },
+      {
+        "id": "GraphDefinition.link.extension",
+        "path": "GraphDefinition.link.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        }
+      },
+      {
+        "id": "GraphDefinition.link.extension:sourceId",
+        "path": "GraphDefinition.link.extension",
+        "sliceName": "sourceId",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/LinkIdExt"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "GraphDefinition.link.extension:targetId",
+        "path": "GraphDefinition.link.extension",
+        "sliceName": "targetId",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/LinkIdExt"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

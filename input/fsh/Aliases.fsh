@@ -1,10 +1,6 @@
-
-Alias: $smart = http://who.smart.codes/smart
-Alias: $loinc = http://who.smart.codes/loinc
-Alias: $snomed = http://who.smart.codes/snomed
-Alias: $icd-10 = http://who.smart.codes/icd-10
-Alias: $icd-11 = http://who.smart.codes/icd-11
-Alias: $icf = http://who.smart.codes/icf
-Alias: $ichi = http://who.smart.codes/ichi
-Alias: $snomed-gps = http://who.smart.codes/smart-gps
-Alias: $atc = http://who.smart.codes/atc
+Alias: $DocumentationSection = http://smart.who.int/base/CodeSystem/DocumentationSection
+Alias: $SGActor = http://smart.who.int/base/StructureDefinition/SGActor
+Alias: $SGActorExt = http://smart.who.int/base/StructureDefinition/SGActorExt
+Alias: $SGcode = http://smart.who.int/base/StructureDefinition/SGcode
+Alias: $SatisfiesExt = http://smart.who.int/trust-phw/StructureDefinition/Satisfies
+Alias: $pubStatus = http://hl7.org/fhir/publication-status

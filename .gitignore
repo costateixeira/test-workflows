@@ -29,3 +29,21 @@ Thumbs.db
 .vscode/
 .idea/
 .idea/*
+
+
+# word #
+########
+~$*
+
+
+# emacs #
+#########
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.swp

@@ -1,6 +1,7 @@
 Profile: SGLogicalModel
 Parent: StructureDefinition
-
+Title: "SMART Guidelines Logical Model"
+Description: "Defines the minimum expectations for Logical Models used in SMART Guidelines"
 * title 1..1
 * publisher 1..1
 * description 1..1

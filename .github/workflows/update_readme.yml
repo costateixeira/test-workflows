@@ -1,0 +1,63 @@
+name: Update README
+
+on:
+  workflow_call: # Reusable by other workflows
+    inputs:
+      repositoryOwner:
+        required: true
+        type: string
+      repositoryName:
+        required: true
+        type: string
+  push:
+    branches-ignore:    
+      - 'gh-pages'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  update-readme-badges:
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_OWNER: ${{ inputs.repositoryOwner }}
+      REPOSITORY_NAME: ${{ inputs.repositoryName }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Download badges.md
+        run: |
+          curl -o badges.md https://raw.githubusercontent.com/WorldHealthOrganization/smart-ig-empty/main/badges.md
+
+      - name: Debug Variables
+        run: |
+          echo "Repository Owner: $REPOSITORY_OWNER"
+          echo "Repository Name: $REPOSITORY_NAME"
+      
+
+      - name: Replace placeholders in badges.md
+        run: |
+          sed -i "s/<REPO_OWNER>/$REPOSITORY_OWNER/" badges.md
+          sed -i "s/<REPO_NAME>/$REPOSITORY_NAME/" badges.md
+
+
+      - name: Replace include with content of badges
+        run: |
+          awk 'NR==FNR{new = new $0 ORS; next} /<!--\/badges-->/{f=0} !f{print} /<!--badges-->/{printf "%s",new; f=1}' badges.md README.md > README_NEW.md && mv README_NEW.md README.md
+          cat README.md
+
+      - run: |
+          rm badges.md
+      
+      - name: Stage changed files
+        run: git add ./README.md
+
+      - name: Deploy candidate
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: ${{ github.ref_name }} # The branch the action should deploy to.
+          folder: . # The folder the action should deploy.
+          commit-message: Deploy branch
+          target-folder: .
+          clean: false

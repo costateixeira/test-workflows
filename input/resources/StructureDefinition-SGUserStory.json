@@ -1,0 +1,80 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "SGUserStory",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-type-characteristics",
+      "valueCode": "can-bind"
+    }
+  ],
+  "url": "http://smart.who.int/base/StructureDefinition/SGUserStory",
+  "version": "1.0.0",
+  "name": "SGUserStory",
+  "description": "Smart Guidelines extension to support structured User Stories (As a <Actor> I want to <capability> so that <benfit>) extension",
+  "fhirVersion": "4.0.1",
+  "kind": "complex-type",
+  "abstract": false,
+  "context": [
+    {
+      "type": "element",
+      "expression": "Element"
+    }
+  ],
+  "type": "Extension",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Extension",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Extension",
+        "path": "Extension",
+        "definition": "Smart Guidelines extension to support structured User Stories (As a <Actor> I want to <capability> so that <benfit>) extension"
+      },
+      {
+        "id": "Extension.extension",
+        "path": "Extension.extension",
+        "min": 2
+      },
+      {
+        "id": "Extension.extension:capability",
+        "path": "Extension.extension",
+        "sliceName": "capability",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/SGString"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Extension.extension:benefit",
+        "path": "Extension.extension",
+        "sliceName": "benefit",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/SGString"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Extension.url",
+        "path": "Extension.url",
+        "fixedUri": "http://smart.who.int/base/StructureDefinition/SGUserStory"
+      },
+      {
+        "id": "Extension.value[x]",
+        "path": "Extension.value[x]",
+        "max": "0"
+      }
+    ]
+  }
+}

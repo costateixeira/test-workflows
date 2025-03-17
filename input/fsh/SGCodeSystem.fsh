@@ -1,3 +1,0 @@
-Profile: SGCodeSystem
-Parent: CodeSystem
-

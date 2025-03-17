@@ -1,0 +1,97 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "SGRequirements",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/structuredefinition-implements",
+      "valueUri": "http://hl7.org/fhir/StructureDefinition/CanonicalResource"
+    }
+  ],
+  "url": "http://smart.who.int/base/StructureDefinition/SGRequirements",
+  "version": "1.0.0",
+  "name": "SGRequirements",
+  "description": "Smart Guidelines Requirements",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Requirements",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Requirements",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Requirements.extension",
+        "path": "Requirements.extension",
+        "slicing": {
+          "discriminator": [
+            {
+              "type": "value",
+              "path": "url"
+            }
+          ],
+          "ordered": false,
+          "rules": "open"
+        }
+      },
+      {
+        "id": "Requirements.extension:satisfies",
+        "path": "Requirements.extension",
+        "sliceName": "satisfies",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/Satisfies"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Requirements.extension:userstory",
+        "path": "Requirements.extension",
+        "sliceName": "userstory",
+        "min": 0,
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/SGUserStory"
+            ]
+          }
+        ]
+      },	
+      {
+        "id": "Requirements.name",
+        "path": "Requirements.name",
+        "min": 1
+      },
+      {
+        "id": "Requirements.title",
+        "path": "Requirements.title",
+        "min": 1
+      },
+      {
+        "id": "Requirements.status",
+        "path": "Requirements.status",
+        "mustSupport": true
+      },
+      {
+        "id": "Requirements.experimental",
+        "path": "Requirements.experimental",
+        "min": 1
+      },
+      {
+        "id": "Requirements.description",
+        "path": "Requirements.description",
+        "min": 1
+      },
+      {
+        "id": "Requirements.statement.label",
+        "path": "Requirements.statement.label",
+        "min": 1
+      }
+    ]
+  }
+}

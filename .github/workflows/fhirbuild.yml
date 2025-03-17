@@ -18,3 +18,4 @@ jobs:
           --header 'content-type: application/json' \
           --url https://us-central1-fhir-org-starter-project.cloudfunctions.net/ig-commit-trigger \
           --data '{"ref": "${{ github.ref }}", "repository": {"full_name": "${{ github.repository }}"}}'
+
