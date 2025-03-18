@@ -104,6 +104,7 @@ jobs:
           name: qa-json-artifact
           path: ./output/qa.json  # Adjust the path based on where qa.json is located
 
+
       - name: Get branch name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
