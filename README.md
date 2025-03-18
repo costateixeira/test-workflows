@@ -11,7 +11,7 @@
 
 # WHO SMART GUIDELINES - Base IG
 
-
+ 
 This ImplementationGuide contains base profiles and common dependencies to assist in the creation of SMART Implementation Guides. 
 
 ## Publication
