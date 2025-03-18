@@ -55,78 +55,15 @@ jobs:
           fi
 
 
-#      - name: Create gh-pages branch if it doesn't exist
-#        run: |
-#          git fetch origin
-#          exists=`git show-ref refs/heads/gh-pages`
-#          if [ -n "$exists" ]; then
-#            echo 'gh-pages branch exists';
-#          else
-#            echo 'gh-pages branch does not exist, creating it';
-#            git checkout --orphan gh-pages
-#            git reset --hard
-#            git commit --allow-empty -m "Initializing gh-pages branch"
-#            git push origin gh-pages
-#            git checkout ${GITHUB_REF##*/}
-#          fi
-
-      - name: Update the image to the latest publisher
-        uses: docker://hl7fhir/ig-publisher-base:latest
-        with:
-          # Get the latest publisher - don't run the batch script but run the line directly
-          args: curl -L https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar -o ./input-cache/publisher.jar --create-dirs
-
-
-      - name: Create package cache folder
-        uses: docker://hl7fhir/ig-publisher-base:latest
-        with:
-          entrypoint: /bin/sh
-          args: -c "mkdir -p ./fhir-package-cache && chown 1001:127 ./fhir-package-cache"
-
-
-      - name: Run the IG publisher
-        uses: docker://hl7fhir/ig-publisher-base:latest
-        with:
-          entrypoint: /bin/sh
-          args: -c "mkdir -p /var/lib/.fhir && chown $(id -u):$(id -g) /var/lib/.fhir"
-
-      - name: Run the IG publisher
-        uses: docker://hl7fhir/ig-publisher-base:latest
-        with:
-          # Run the publisher - don't run the batch script but run the line directly
-          args: java -Xmx6g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build -repo https://github.com/${{github.repository}}/tree/${{github.ref_name}} -package-cache-folder ./fhir-package-cache
-
-      # Additional step to upload qa.json as an artifact
-      - name: Upload qa.json artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: qa-json-artifact
-          path: ./output/qa.json  # Adjust the path based on where qa.json is located
-
-
       - name: Get branch name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Deploy candidate
-        uses: JamesIves/github-pages-deploy-action@v4.4.2
-        if: env.IS_DEFAULT_BRANCH == 'false'
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: ./output # The folder the action should deploy.
-          commit-message: Deploy candidate branch
-          target-folder: branches/${{ steps.branch-name.outputs.current_branch }}
-          single-commit: true
-          clean: false 
-
-      - name: Deploy main
-        uses: JamesIves/github-pages-deploy-action@v4.4.2
-        if: env.IS_DEFAULT_BRANCH == 'true'
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: ./output # The folder the action should deploy.
-          commit-message: Deploy main branch
-          single-commit: true
-          clean-exclude: |
-            branches
-            sitepreview
+      - name: Print branch information
+        run: |
+          if [ "$IS_DEFAULT_BRANCH" == "true" ]; then
+            echo "This is the default branch: $GITHUB_REF_NAME"
+          else
+            echo "This is not the default branch: $GITHUB_REF_NAME"
+          fi
+        env:
+          IS_DEFAULT_BRANCH: ${{ env.IS_DEFAULT_BRANCH }}
