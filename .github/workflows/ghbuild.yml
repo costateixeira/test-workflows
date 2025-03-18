@@ -115,7 +115,7 @@ jobs:
           branch: gh-pages # The branch the action should deploy to.
           folder: ./output # The folder the action should deploy.
           commit-message: Deploy candidate branch
-          target-folder: branches/${{ steps.branch-name.outputs.current_branch }}
+          target-folder: branches/${{ env.BRANCH_NAME }}
           single-commit: true
           clean: false 
 
