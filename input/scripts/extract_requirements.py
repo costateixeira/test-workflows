@@ -128,7 +128,7 @@ def retrieve_data_frame_by_headers(inputfile_name,column_maps,sheet_names):
             print("\t\tLooking at data frame column id: ",column_id)                                
             #loop through potential names and try to match desired column
             for desired_column_name,possible_column_name in generate_pairs_from_column_maps(column_maps):
-                possible_column_id = name_to_lower_id(possible_column_name) 
+                possible_column_id = name_to_lower_id(possible_column_name)
                 if (possible_column_id == column_id):
                     #we found what we needed
                     print("\t\tMatched input sheet column " + column + " with desired column " + desired_column_name)
@@ -161,7 +161,7 @@ def retrieve_data_frame_by_headers(inputfile_name,column_maps,sheet_names):
 
 def extract_requirements_file_to_resources(inputfile_name,resources):
     functional_column_maps = {
-        'reqid':["Requirement ID"],
+        'reqid':["Requirement ID","Requirement"],
         'activityid-and-name':["Activity ID and name", "Activity ID and description"],
         'as-a': ["As a"],
         'i-want': ["I want","I want to"],
@@ -180,9 +180,9 @@ def extract_requirements_file_to_resources(inputfile_name,resources):
 
 
     nonfunctional_column_maps ={
-        'reqid':["Requirement"],
-        'category':["Category"],
-        'requirement':["Non-functional requirement","Non-functional requirements"]
+        'reqid':["Requirement","Requirement ID"],
+        'category':["Category","Category ID"],
+        'requirement':["Non-functional requirement","Non-functional requirements", "Nonfunctional requirements", "nonfunctional requirement"]
     }
     sheet_names = ['Non-Functional','Non-functional']
     nonfunctional = retrieve_data_frame_by_headers(inputfile_name,nonfunctional_column_maps,sheet_names)
@@ -210,26 +210,10 @@ def name_to_lower_id(name):
         return None
     return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
 
-
 def escape(input):
     if ( not (isinstance(input,str))):
         return None
     return input.replace('"', r'\"')
-
-
-def extract_value(keys,row):
-    val = None
-    for key in keys:
-        if ( key in row):
-            print("Found " , key)
-            val = row[key]
-            
-    if ( val == None):
-        print("Could not find desired key in list: ", ",".join(keys),"\namong: ", row.keys())
-        
-    return val
-
-
 
 
 def extract_nonfunctional_requirements_to_resources(nonfunctional,resources):
@@ -237,26 +221,29 @@ def extract_nonfunctional_requirements_to_resources(nonfunctional,resources):
     nonfunctional.drop(index=0)
 
     categories={}
+    cat_cs = 'FXREQCategories'
 
     for index, row in nonfunctional.iterrows():
-        reqid = name_to_id(row["reqid"])
-        if (pd.isnull(reqid)):
+        if not "reqid" in row or not isinstance(row["reqid"], str):
             print("// skipping row "+str(index+1)+": no reqid")
             continue
+        reqid = name_to_id(row["reqid"])
 
-        cat = extract_value(["Category"],row)
+        print("\tRow:\n" + "\t\t" + row.to_string().replace("\n", "\n\t\t"))
+
+        if not "category" in row or not isinstance(row["category"], str):
+            print("// skipping row "+str(index+1)+": no category")
+            continue        
+        if not "requirement" in row or not isinstance(row["requirement"], str):
+            print("// skipping row "+str(index+1)+": no requirement")
+            continue        
+        
+        cat = row["category"].strip()
         catid = name_to_id(cat)
-        if ( not isinstance(cat, str)):
-            print("Could not find 'Category' in: ",row.keys())
-            continue
         categories[catid] = cat     #OK to overwrite existing
         
-        nfreq = extract_value(["Non-functional requirement"],row)
-        if ( not isinstance(cat, str)):
-            print("Could not find 'Non-functional requirement' in: ",row.keys())
-            continue
+        nfreq = row["requirement"].strip()
         
-        reqid = name_to_id(row["Requirement ID"])
         instance = "//non-functional requirment instance generated from row " + str(index+1) + "\n"
         instance += "Instance: " + reqid + "\n"
         instance += "InstanceOf: SGRequirements\n"
@@ -266,34 +253,42 @@ def extract_nonfunctional_requirements_to_resources(nonfunctional,resources):
         instance += '* name = "' + escape(nfreq) + '"\n'
         instance += '* publisher = "WHO"\n'
         instance += '* experimental = true\n'
+        if (catid):
+            instance += '* extension[classification].valueCoding[+] = ' + escape(cat_cs) + '#' + escape(catid) + '\n'
         description = '*Category*: ' + escape(cat) + "\n" +escape(nfreq)
         description = '* description = """\n' + description + '\n"""\n\n'
         instance += description + "\n"
         resources['requirements'][reqid] = instance        
         print(instance)
     print("Extracted " + str(index) + " functional requirement(s)")
+
+    generate_cs_and_vs_from_dict(cat_cs,'Functional Requirement Categories',categories,resources)
+    return True
+
+
+def generate_cs_and_vs_from_dict(id:str, title:str, dict:dict, resources:dict):
+    if len(dict) == 0:
+        return False
     
-    if ( len(categories) > 0 ):
-        csid = 'FunctionalRequimentCategories'
-        codesystem = 'CodeSystem: ' + csid + '\n'
-        codesystem += 'Title: "Functional Requirement Categories"\n'
-        codesystem += 'Description:  "CodeSystem for Functional Requirements Categories.  Autogenerated from DAK artifacts"\n'
-        codesystem += '* ^experimental = true\n'
-        codesystem += '* ^caseSensitive = false\n'
-        codesystem += '* ^status = #active\n'
-        for catid,cat in categories.items():
-            codesystem += '* #' + catid +  ' "' + cat + '"\n'
+    codesystem = 'CodeSystem: ' + escape(id) + '\n'
+    codesystem += 'Title: "' + escape(title) + '"\n'
+    codesystem += 'Description:  "CodeSystem for ' + escape(title) + '. Autogenerated from DAK artifacts"\n'
+    codesystem += '* ^experimental = true\n'
+    codesystem += '* ^caseSensitive = false\n'
+    codesystem += '* ^status = #active\n'
+    for code,name in dict.items():
+        codesystem += '* #' + escape(code) +  ' "' + escape(name) + '"\n'
+        
+    valueset = 'ValueSet: ' + escape(id) + '\n'
+    valueset += 'Title: "' + escape(title) + '"\n'
+    valueset += 'Description:  "Value Set for ' + escape(title) + '. Autogenerated from DAK artifacts"\n'
+    valueset += '* ^status = #active\n'
+    valueset += '* ^experimental = true\n'
+    valueset += '* include codes from system ' + escape(id) + '\n'
+    
 
-        valueset = 'ValueSet: ' + csid + '\n'
-        valueset += 'Title: "Functional Requirement Categories"\n'
-        valueset += 'Description:  "Value Set for Functional Requirements Categories. Autogenerated from DAK artifacts"\n'
-        valueset += '* ^status = #active\n'
-        valueset += '* ^experimental = true\n'
-        valueset += '* include codes from system ' + csid + '\n'
-
-
-        resources['codesystems'][csid] = codesystem
-        resources['valuesets'][csid] = valueset
+    resources['codesystems'][id] = codesystem
+    resources['valuesets'][id] = valueset
 
     return True
         
@@ -305,10 +300,12 @@ def extract_functional_requirements_to_resources(functional,resources):
     businessprocess_codes = {}
     classification = ""
     classification_codes = []
+    bpid = "FXREQBusinessProcesses"
+    
     functional.drop(index=0)
 
     for index, row in functional.iterrows():
-        if not isinstance(row["reqid"], str):
+        if not "reqid" in row or not isinstance(row["reqid"], str):
             print("// skipping row "+str(index+1)+": no reqid")
             continue
         reqid = name_to_id(row["reqid"])
@@ -334,21 +331,21 @@ def extract_functional_requirements_to_resources(functional,resources):
                 businessprocess_codes[businessprocess_code] = businessprocess_name
 
         if (businessprocess_code):
-            reqid = businessprocess_code + "." + reqid
+            reqid = reqid + "." + businessprocess_code
 
-        if not isinstance(row["activityid-and-name"], str):
+        if not "activityid-and-name" in row or not isinstance(row["activityid-and-name"], str):
             print("\t*warning* skipping row "+str(index+1)+": no activityid-and-name")
             continue
         
-        if not isinstance(row["as-a"], str):
+        if not "as-a" in row or not isinstance(row["as-a"], str):
             print("\t*warning* skipping row "+str(index+1)+": no as-a")
             continue
 
-        if not isinstance(row["i-want"], str):
+        if not "i-want" in row or not isinstance(row["i-want"], str):
             print("\t*warning* skipping row "+str(index+1)+": no i-want")
             continue
 
-        if not isinstance(row["so-that"], str):
+        if not "so-that" in row or not isinstance(row["so-that"], str):
             print("\t*warning* skipping row "+str(index+1)+": no so-that")
             continue
         
@@ -359,7 +356,7 @@ def extract_functional_requirements_to_resources(functional,resources):
 
         actor_name = row["as-a"].strip()
         actor_id = name_to_lower_id(actor_name)
-        actor_instance = "Instance: " + actor_id + "\n"
+        actor_instance = "Instance: " + escape(actor_id) + "\n"
         actor_instance += "InstanceOf: $SGActor\n"
         actor_instance += "Usage: #definition\n"
         actor_instance += '* name = "' + escape(actor_name) + '"\n'
@@ -368,12 +365,12 @@ def extract_functional_requirements_to_resources(functional,resources):
         actor_instance += '* status = $pubStatus#active\n'
         actor_instance += '* experimental = true\n'
         actor_instance += '* publisher = "WHO"\n'
-        actor_instance += '* type = $actorType#individual\n'        
-        resources['actors'][actor_id] = actor_instance        
-        actorlink='<a href="ActorDefinition-' + actor_id + '.html">' + actor_name +'</a>'
+        actor_instance += '* type = $actorType#person\n'        
+        resources['actors'][actor_id] = actor_instance  # ok to overwrite      
+        actorlink='<a href="ActorDefinition-' + escape(actor_id) + '.html">' + escape(actor_name) +'</a>'
         
         instance = "//functional requirment instance generated from row " + str(index+1) + "\n"
-        instance += "Instance: " + reqid + "\n"
+        instance += "Instance: " + escape(reqid) + "\n"
         instance += "InstanceOf: SGRequirements\n"
         instance += "Usage: #definition" + "\n"
         instance += '* title = "' + escape(row['i-want']) + '"\n'
@@ -381,36 +378,25 @@ def extract_functional_requirements_to_resources(functional,resources):
         instance += '* name = "' + escape(row['i-want']) + '"\n'
         instance += '* publisher = "WHO"\n'
         instance += '* experimental = true\n'
+        instance += '* actor[+] = Canonical(' + escape(actor_id) + ')\n'
+        if (businessprocess_code):
+            instance += '* extension[classification].valueCoding[+] = ' + bpid + '#' + escape(businessprocess_code) + '\n'
         instance += '* extension[userstory].extension[capability].valueString = "' + escape(row['i-want']) + '"\n'
         instance += '* extension[userstory].extension[benefit].valueString = "' + escape(row['so-that']) + '"\n'
-        description = "I want " + actorlink + ", I want:\n>" + escape(row['i-want']) + '\n\nso that\n\n>' + escape(row['so-that'])
+        description = "As a " + actorlink + ", I want to:\n>" + escape(row['i-want']) + '\n\nso that\n\n>' + escape(row['so-that'])
         if (businessprocess_name):
             if (businessprocess_code):
-                description = "Under the business process (" + businessprocess_code + ") "  + businessprocess_name + ":\n" + description                
+                description = "*Business process* (" + escape(businessprocess_code) + ") "  \
+                    + escape(businessprocess_name) + ":\n" + description
             else:
-                description = "Under the business process"  + businessprocess_name + ":\n" + description
+                description = "*Business process* "  + escape(businessprocess_name) + ":\n\n" + description
         description = '* description = """\n' + description + '\n"""\n\n'
         instance += description + "\n"
         resources['requirements'][reqid] = instance
         
     print("Extracted " + str(index) + " functional requirement(s)")
-    print("Business Process Codes:\n\t" , businessprocess_codes)    
-    if (len(businessprocess_codes) > 0):
-        bpid = "BPFXREQ"
-        businessprocess_cs = "CodeSystem: " + bpid + "\n"
-        businessprocess_cs += 'Title: "Functional Requirements - Business Process"\n'
-        businessprocess_cs += 'Description: "ValueSet of Functional Requirements - Business Process"\n'
-        businessprocess_cs += '* ^status = #active\n'
-        businessprocess_cs += '* ^experimental = true\n'
-        resources['codesystems'][bpid] = businessprocess_cs
-        
-        businessprocess_vs = "ValueSet: " + bpid + "\n"
-        businessprocess_vs += 'Title: "Functional Requirements - Business Process"\n'
-        businessprocess_vs += 'Description: "ValueSet of Functional Requirements - Business Process"\n'
-        businessprocess_vs += '* ^status = #active\n'
-        businessprocess_vs += '* ^experimental = true\n'
-        businessprocess_vs += '* include codes from system ' + bpid + '\n'
-        resources['valuesets'][bpid] = businessprocess_vs
+    print("Business Process Codes:\n\t" , businessprocess_codes)
+    generate_cs_and_vs_from_dict(bpid,'Functional Requirements Business Processes',businessprocess_codes,resources)
     return True
 
 
