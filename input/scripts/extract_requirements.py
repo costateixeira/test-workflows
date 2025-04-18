@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bAin/env python3
 
 import os
 import glob as glob
@@ -7,7 +7,7 @@ import pandas as pd
 import sys
 import getopt
 
-class_cs = "http://smart.who.int/base/CodeSystem/DHIv1"
+class_cs = "http://smart.who.int/base/CodeSystem/CDHIv1"
 
 
 def usage():
