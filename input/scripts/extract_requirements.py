@@ -7,7 +7,7 @@ import pandas as pd
 import sys
 import getopt
 
-
+class_cs = "http://smart.who.int/base/CodeSystem/DHIv1"
 
 
 def usage():
@@ -50,7 +50,9 @@ def main():
 def insert_aliases():
     aliases = ['Alias: $pubStatus = http://hl7.org/fhir/publication-status',
                'Alias: $actorType = http://hl7.org/fhir/examplescenario-actor-type',
-               'Alias: $SGActor = http://smart.who.int/base/StructureDefinition/SGActor'
+               'Alias: $SGActor = http://smart.who.int/base/StructureDefinition/SGActor',
+               'Alias: $DHIClassificationv1 = http://smart.who.int/base/CodeSystem/DHIv1',
+               'Alias: $DHIClassificationv2 = http://smart.who.int/base/CodeSystem/DHIv2'
                ]
     aliasfile = "input/fsh/Aliases.fsh"
 
@@ -216,56 +218,6 @@ def escape(input):
     return input.replace('"', r'\"')
 
 
-def extract_nonfunctional_requirements_to_resources(nonfunctional,resources):
-    print("Reading non-functional requirements")
-    nonfunctional.drop(index=0)
-
-    categories={}
-    cat_cs = 'FXREQCategories'
-
-    for index, row in nonfunctional.iterrows():
-        if not "reqid" in row or not isinstance(row["reqid"], str):
-            print("// skipping row "+str(index+1)+": no reqid")
-            continue
-        reqid = name_to_id(row["reqid"])
-
-        print("\tRow:\n" + "\t\t" + row.to_string().replace("\n", "\n\t\t"))
-
-        if not "category" in row or not isinstance(row["category"], str):
-            print("// skipping row "+str(index+1)+": no category")
-            continue        
-        if not "requirement" in row or not isinstance(row["requirement"], str):
-            print("// skipping row "+str(index+1)+": no requirement")
-            continue        
-        
-        cat = row["category"].strip()
-        catid = name_to_id(cat)
-        categories[catid] = cat     #OK to overwrite existing
-        
-        nfreq = row["requirement"].strip()
-        
-        instance = "//non-functional requirment instance generated from row " + str(index+1) + "\n"
-        instance += "Instance: " + reqid + "\n"
-        instance += "InstanceOf: SGRequirements\n"
-        instance += "Usage: #definition" + "\n"
-        instance += '* title = "' + escape(nfreq) + '"\n'
-        instance += '* status = $pubStatus#active\n'
-        instance += '* name = "' + escape(nfreq) + '"\n'
-        instance += '* publisher = "WHO"\n'
-        instance += '* experimental = true\n'
-        if (catid):
-            instance += '* extension[classification].valueCoding[+] = ' + escape(cat_cs) + '#' + escape(catid) + '\n'
-        description = '*Category*: ' + escape(cat) + "\n" +escape(nfreq)
-        description = '* description = """\n' + description + '\n"""\n\n'
-        instance += description + "\n"
-        resources['requirements'][reqid] = instance        
-        print(instance)
-    print("Extracted " + str(index) + " functional requirement(s)")
-
-    generate_cs_and_vs_from_dict(cat_cs,'Functional Requirement Categories',categories,resources)
-    return True
-
-
 def generate_cs_and_vs_from_dict(id:str, title:str, dict:dict, resources:dict):
     if len(dict) == 0:
         return False
@@ -291,6 +243,74 @@ def generate_cs_and_vs_from_dict(id:str, title:str, dict:dict, resources:dict):
     resources['valuesets'][id] = valueset
 
     return True
+
+
+
+def extract_nonfunctional_requirements_to_resources(nonfunctional,resources):
+    print("Reading non-functional requirements")
+    nonfunctional.drop(index=0)
+
+    categories={}
+    cat_cs = 'FXREQCategories'
+    classification = ""
+    classification_codes = []
+
+    for index, row in nonfunctional.iterrows():
+        if not "reqid" in row or not isinstance(row["reqid"], str):
+            print("// skipping row "+str(index+1)+": no reqid")
+            continue
+        reqid = name_to_id(row["reqid"])
+
+        print("\tRow:\n" + "\t\t" + row.to_string().replace("\n", "\n\t\t"))
+
+
+        #check if this is setting up the classifications
+        if ( row["reqid"].strip().lower().startswith("classification of digital health interventions")):            
+            classification = row["reqid"].strip()
+            classification_codes = re.findall(r'\d+\.?\d*', classification )
+            print("\tFound classification text: " + classification)
+            print("\tFound classification codes: " , classification_codes)
+            continue
+
+
+        if not "category" in row or not isinstance(row["category"], str):
+            print("// skipping row "+str(index+1)+": no category")
+            continue        
+        if not "requirement" in row or not isinstance(row["requirement"], str):
+            print("// skipping row "+str(index+1)+": no requirement")
+            continue        
+        
+        cat = row["category"].strip()
+        catid = name_to_id(cat)
+        categories[catid] = cat     #OK to overwrite existing
+        
+        nfreq = row["requirement"].strip()
+        
+        instance = "//non-functional requirment instance generated from row " + str(index+1) + "\n"
+        instance += "Instance: " + reqid + "\n"
+        instance += "InstanceOf: SGRequirements\n"
+        instance += "Usage: #definition" + "\n"
+        instance += '* title = "' + escape(nfreq) + '"\n'
+        instance += '* status = $pubStatus#active\n'
+        instance += '* name = "' + escape(nfreq) + '"\n'
+        instance += '* publisher = "WHO"\n'
+        instance += '* experimental = true\n'
+        if (catid):
+            instance += '* extension[classification].valueCoding[+] = ' + escape(cat_cs) + '#' + escape(catid) + '\n'
+        for classification_code in classification_codes:
+            instance += '* extension[classification].valueCoding[+] = ' + escape(class_cs) + '#' \
+                + escape(classification_code) + '\n'
+        description = '*Category*: ' + escape(cat) + "\n" +escape(nfreq)
+        description = '* description = """\n' + description + '\n"""\n\n'
+        instance += description + "\n"
+        resources['requirements'][reqid] = instance        
+
+    print("Extracted " + str(index) + " functional requirement(s)")
+
+    generate_cs_and_vs_from_dict(cat_cs,'Functional Requirement Categories',categories,resources)
+    return True
+
+
         
 
 def extract_functional_requirements_to_resources(functional,resources):
@@ -315,9 +335,9 @@ def extract_functional_requirements_to_resources(functional,resources):
         #check if this is setting up the classifications
         if ( row["reqid"].strip().lower().startswith("classification of digital health interventions")):            
             classification = row["reqid"].strip()
-            classifications = re.findall(r'\d+\.?\d*', classification )
+            classification_codes = re.findall(r'\d+\.?\d*', classification )
             print("\tFound classification text: " + classification)
-            print("\tFound classification codes: " , classifications)
+            print("\tFound classification codes: " , classification_codes)
             continue
 
         if ( row["reqid"].strip().lower().startswith("business process")):
@@ -381,6 +401,9 @@ def extract_functional_requirements_to_resources(functional,resources):
         instance += '* actor[+] = Canonical(' + escape(actor_id) + ')\n'
         if (businessprocess_code):
             instance += '* extension[classification].valueCoding[+] = ' + bpid + '#' + escape(businessprocess_code) + '\n'
+        for classification_code in classification_codes:
+            instance += '* extension[classification].valueCoding[+] = ' + escape(class_cs) + '#' \
+                + escape(classification_code) + '\n'
         instance += '* extension[userstory].extension[capability].valueString = "' + escape(row['i-want']) + '"\n'
         instance += '* extension[userstory].extension[benefit].valueString = "' + escape(row['so-that']) + '"\n'
         description = "As a " + actorlink + ", I want to:\n>" + escape(row['i-want']) + '\n\nso that\n\n>' + escape(row['so-that'])
