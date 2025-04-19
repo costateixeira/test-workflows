@@ -95,7 +95,7 @@ if (len(parent_map) > 0):
     cm += "  * target = Canonical(" + cdhi_id + ")\n"
 
     for code,parent_code in parent_map.items():
-        cm += "  * insert ElementMap(" +  code + "," + parent_code + ", narrower)\n"
+        cm += "  * insert ElementMap( #" +  code + ", #" + parent_code + ", narrower)\n"
     resources['conceptmaps'][cm_id] = cm
     
 

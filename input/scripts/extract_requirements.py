@@ -1,4 +1,4 @@
-#!/usr/bAin/env python3
+#!/usr/bin/env python3
 
 import os
 import glob as glob
@@ -35,7 +35,7 @@ def main():
     inputfile_names = glob.glob("input/system-requirements/*xlsx")
     print("Found the following files\n  " + "\n  ".join(inputfile_names) )
 
-    resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'actors' : {} }
+    resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'actors' : {} , 'instances': {}}
 
     for inputfile_name in inputfile_names:
         try:
@@ -81,7 +81,9 @@ def insert_aliases():
 def save_resources(resources,directory):
     for id,resource in resources.items() :
         try:
-            file = open("input/fsh/" + directory + "/" + id + ".fsh","w")
+            directory_path = "input/fsh/" + directory
+            os.makedirs(directory_path, exist_ok=True)
+            file = open( directory_path + "/" + id + ".fsh","w")
             print(resource,file=file)
             file.close()
         except IOError as e:
@@ -285,6 +287,22 @@ def extract_nonfunctional_requirements_to_resources(nonfunctional,resources):
         categories[catid] = cat     #OK to overwrite existing
         
         nfreq = row["requirement"].strip()
+
+
+        lm_id = "LM." + reqid 
+        lm = "Instance: " + escape(lm_id) + '\n'
+        lm += 'InstanceOf: NonFunctionalRequirement\n'
+        lm += 'Description: "' + escape(nfreq) + '"\n'
+        lm += 'Usage: #definition\n'
+        lm += '* id = "' + escape(lm_id) + '"\n'
+        lm += '* requirement = "' + escape(nfreq) + '"\n'
+        if (catid):
+            lm += '* category = ' + escape(cat_cs) + '#' + escape(catid) + '\n'
+        for classification_code in classification_codes:
+            lm += '* classification[+] = ' + escape(class_cs) + '#' \
+                + escape(classification_code) + '\n'
+
+
         
         instance = "//non-functional requirment instance generated from row " + str(index+1) + "\n"
         instance += "Instance: " + reqid + "\n"
@@ -296,13 +314,13 @@ def extract_nonfunctional_requirements_to_resources(nonfunctional,resources):
         instance += '* publisher = "WHO"\n'
         instance += '* experimental = true\n'
         if (catid):
-            instance += '* extension[classification].valueCoding[+] = ' + escape(cat_cs) + '#' + escape(catid) + '\n'
+            instance += '* extension[classification][+].valueCoding = ' + escape(cat_cs) + '#' + escape(catid) + '\n'
         for classification_code in classification_codes:
-            instance += '* extension[classification].valueCoding[+] = ' + escape(class_cs) + '#' \
-                + escape(classification_code) + '\n'
+            instance += '* extension[classification][+].valueCoding = ' + escape(class_cs) + '#' + escape(classification_code) + '\n'
         description = '*Category*: ' + escape(cat) + "\n" +escape(nfreq)
         description = '* description = """\n' + description + '\n"""\n\n'
         instance += description + "\n"
+        resources['instances'][lm_id] = lm
         resources['requirements'][reqid] = instance        
 
     print("Extracted " + str(index) + " functional requirement(s)")
@@ -372,7 +390,7 @@ def extract_functional_requirements_to_resources(functional,resources):
             
         components = row["activityid-and-name"].split(".")
         activityid = ".".join(components[:-1])
-        name = components[-1]
+        activity_name = components[-1]
 
         actor_name = row["as-a"].strip()
         actor_id = name_to_lower_id(actor_name)
@@ -389,30 +407,51 @@ def extract_functional_requirements_to_resources(functional,resources):
         resources['actors'][actor_id] = actor_instance  # ok to overwrite      
         actorlink='<a href="ActorDefinition-' + escape(actor_id) + '.html">' + escape(actor_name) +'</a>'
         
-        instance = "//functional requirment instance generated from row " + str(index+1) + "\n"
-        instance += "Instance: " + escape(reqid) + "\n"
-        instance += "InstanceOf: SGRequirements\n"
-        instance += "Usage: #definition" + "\n"
-        instance += '* title = "' + escape(row['i-want']) + '"\n'
-        instance += '* status = $pubStatus#active\n'
-        instance += '* name = "' + escape(row['i-want']) + '"\n'
-        instance += '* publisher = "WHO"\n'
-        instance += '* experimental = true\n'
-        instance += '* actor[+] = Canonical(' + escape(actor_id) + ')\n'
-        if (businessprocess_code):
-            instance += '* extension[classification].valueCoding[+] = ' + bpid + '#' + escape(businessprocess_code) + '\n'
-        for classification_code in classification_codes:
-            instance += '* extension[classification].valueCoding[+] = ' + escape(class_cs) + '#' \
-                + escape(classification_code) + '\n'
-        instance += '* extension[userstory].extension[capability].valueString = "' + escape(row['i-want']) + '"\n'
-        instance += '* extension[userstory].extension[benefit].valueString = "' + escape(row['so-that']) + '"\n'
-        description = "As a " + actorlink + ", I want to:\n>" + escape(row['i-want']) + '\n\nso that\n\n>' + escape(row['so-that'])
+
+        description = 'Activity: ' + activity_name + ':\n' + \
+            "As a " + actorlink + ", I want to:\n>" + escape(row['i-want']) + '\n\nso that\n\n>' + escape(row['so-that'])
         if (businessprocess_name):
             if (businessprocess_code):
                 description = "*Business process* (" + escape(businessprocess_code) + ") "  \
                     + escape(businessprocess_name) + ":\n" + description
             else:
                 description = "*Business process* "  + escape(businessprocess_name) + ":\n\n" + description
+
+        
+        lm_id = "LM." + reqid 
+        lm = "Instance: " + escape(lm_id) + '\n'
+        lm += 'InstanceOf: FunctionalRequirement\n'
+        lm += 'Description: """' + description + '"""\n'
+        lm += 'Usage: #definition\n'
+        lm += '* id = "' + escape(lm_id) + '"\n'
+        lm += '* activity = "' + escape(activity_name) + '"\n'
+        lm += '* actor[+] = Reference(' + escape(actor_id) + ')\n'
+        lm += '* capability = "' + escape(row['i-want']) + '"\n'
+        lm += '* benefit = "' + escape(row['so-that']) + '"\n'
+        if (businessprocess_code):
+            lm += '* classification[+] = ' + bpid + '#' + escape(businessprocess_code) + '\n'
+        for classification_code in classification_codes:
+            lm += '* classification[+] = ' + escape(class_cs) + '#' \
+                + escape(classification_code) + '\n'
+        resources['instances'][lm_id] = lm
+
+        instance = "//functional requirment instance generated from row " + str(index+1) + "\n"
+        instance += "Instance: " + escape(reqid) + "\n"
+        instance += "InstanceOf: SGRequirements\n"
+        instance += "Usage: #definition" + "\n"
+        instance += '* title = "' + escape(activity_name) + '"\n'
+        instance += '* status = $pubStatus#active\n'
+        instance += '* name = "' + escape(activity_name) + '"\n'
+        instance += '* publisher = "WHO"\n'
+        instance += '* experimental = true\n'
+        instance += '* actor[+] = Canonical(' + escape(actor_id) + ')\n'
+        if (businessprocess_code):
+            instance += '* extension[classification][+].valueCoding = ' + bpid + '#' + escape(businessprocess_code) + '\n'
+        for classification_code in classification_codes:
+            instance += '* extension[classification][+].valueCoding = ' + escape(class_cs) + '#' \
+                + escape(classification_code) + '\n'
+        instance += '* extension[userstory].extension[capability].valueString = "' + escape(row['i-want']) + '"\n'
+        instance += '* extension[userstory].extension[benefit].valueString = "' + escape(row['so-that']) + '"\n'
         description = '* description = """\n' + description + '\n"""\n\n'
         instance += description + "\n"
         resources['requirements'][reqid] = instance
