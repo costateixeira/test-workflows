@@ -426,8 +426,8 @@ def extract_functional_requirements_to_resources(functional,resources):
         lm += '* id = "' + escape(lm_id) + '"\n'
         lm += '* activity = "' + escape(activity_name) + '"\n'
         lm += '* actor[+] = Reference(' + escape(actor_id) + ')\n'
-        lm += '* capability = "' + escape(row['i-want']) + '"\n'
-        lm += '* benefit = "' + escape(row['so-that']) + '"\n'
+        lm += '* capabilityString = "' + escape(row['i-want']) + '"\n'
+        lm += '* benefitString = "' + escape(row['so-that']) + '"\n'
         if (businessprocess_code):
             lm += '* classification[+] = ' + bpid + '#' + escape(businessprocess_code) + '\n'
         for classification_code in classification_codes:
