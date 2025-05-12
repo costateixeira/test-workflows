@@ -98,12 +98,14 @@ jobs:
         env:
           TX_OPT: ${{ github.event.inputs.tx }}
         uses: docker://hl7fhir/ig-publisher-base:latest
-          with:
-            args: >
-              sh -c "java -Xmx6g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build
-              -repo https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}
-              -package-cache-folder ./fhir-package-cache
-              ${TX_OPT:+-tx $TX_OPT}"
+        with:
+          args: >
+            sh -c "java -Xmx6g -jar ./input-cache/publisher.jar publisher
+            -ig .
+            -auto-ig-build
+            -repo https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}
+            -package-cache-folder ./fhir-package-cache
+            ${TX_OPT:+-tx $TX_OPT}"
      
       # Additional step to upload qa.json as an artifact
       - name: Upload qa.json artifact
