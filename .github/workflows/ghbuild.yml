@@ -14,6 +14,10 @@ name: CI
 # Controls when the action will run. 
 on: 
   workflow_call: # Reusable by other workflows
+    inputs:
+      tx:
+        required: false
+        type: string
   # Triggers the workflow on push or pull request events for any branch
   push:
     branches-ignore:    
