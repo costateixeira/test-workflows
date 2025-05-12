@@ -22,6 +22,10 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      tx:
+        description: 'Optional Custom terminology server URL'
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -91,11 +95,16 @@ jobs:
           args: -c "mkdir -p /var/lib/.fhir && chown $(id -u):$(id -g) /var/lib/.fhir"
 
       - name: Run the IG publisher
+        env:
+          TX_OPT: ${{ github.event.inputs.tx }}
         uses: docker://hl7fhir/ig-publisher-base:latest
-        with:
-          # Run the publisher - don't run the batch script but run the line directly
-          args: java -Xmx6g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build -repo https://github.com/${{github.repository}}/tree/${{github.ref_name}} -package-cache-folder ./fhir-package-cache
-
+          with:
+            args: >
+              sh -c "java -Xmx6g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build
+              -repo https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}
+              -package-cache-folder ./fhir-package-cache
+              ${TX_OPT:+-tx $TX_OPT}"
+     
       # Additional step to upload qa.json as an artifact
       - name: Upload qa.json artifact
         if: success()
