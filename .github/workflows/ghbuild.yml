@@ -100,16 +100,20 @@ jobs:
 
       - name: Run the IG publisher with optional tx
         run: |
+          echo "TX input: ${{ github.event.inputs.tx }}"
+
           CMD="java -Xmx6g -jar ./input-cache/publisher.jar publisher \
             -ig . \
             -auto-ig-build \
             -repo https://github.com/${GITHUB_REPOSITORY}/tree/${GITHUB_REF_NAME} \
             -package-cache-folder ./fhir-package-cache"
 
-          if [ -n "${{ github.event.inputs.tx }}" ]; then
+          if [ ! -z "${{ github.event.inputs.tx }}" ]; then
             CMD="$CMD -tx ${{ github.event.inputs.tx }}"
           fi
 
+          echo "Running command: $CMD"
+          
           docker run --rm \
             -v ${{ github.workspace }}:/work \
             -w /work \
