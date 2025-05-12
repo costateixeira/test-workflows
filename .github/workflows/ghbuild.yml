@@ -100,7 +100,7 @@ jobs:
 
       - name: Run the IG publisher with optional tx
         run: |
-          echo "TX input: ${{ github.event.inputs.tx }}"
+          echo "TX input: ${{ inputs.tx }}"
 
           CMD="java -Xmx6g -jar ./input-cache/publisher.jar publisher \
             -ig . \
