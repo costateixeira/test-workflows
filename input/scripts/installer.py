@@ -115,8 +115,9 @@ class installer:
   def save_dmns(self):
     
     for tab,dmn in self.dmns.items():
+      xml_dclr = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
       namespace =  "http://www.omg.org/spec/DMN/20151101/dmn.xsd"
-      out = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
+      out = xml_dclr + "\n"
       out += "<dmn:definitions  xmlns:dmn='" + namespace + "'\n"
       out += " namespace='" + self.get_ig_canonical() + "'\n"
       out += " name='"  + self.escape(tab) + "'\n"
@@ -129,15 +130,20 @@ class installer:
       out += "  </dmn:definition>\n"
       out += "</dmn:definitions>\n"
 
-      dmn = ET.XML(out)
-      ET.register_namespace('dmn' , namespace )
-      ET.indent(dmn)
+      try:
+        dmn = ET.XML(out)
+        ET.register_namespace('dmn' , namespace )
+        ET.indent(dmn)
+      except:
+        self.log("WARNING: Generated invalid XML for tab " + tab +". saving to input/dmn for review")
+        self.save_dmn(tab,out)
+        return False
       # dmn_schema = XMLSchema('X110.xsd')
       # if not dmn.validate(dmn_schema):
       #   self.log("Invalid DMN for tab " + tab)
       #   return False
-      self.save_dmn(tab,ET.tostring(dmn, encoding='unicode'))
-
+      self.save_dmn(tab,ET.tostring(dmn, encoding='unicode',xml_declaration=xml_dclr))
+    return True
     
   aliasfile = "input/fsh/Aliases.fsh"
 

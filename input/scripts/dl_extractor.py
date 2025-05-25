@@ -212,8 +212,8 @@ class dl_extractor(extractor):
           "input_row":input_row,
           "output_col":output_col,
           "guidance_col":guidance_col,
-          "annotations_col":anno_col,
-          "ref_col":ref_col,
+          "annotation_col":anno_col,
+          "reference_col":ref_col,
           'used':False}        
     return True
     
@@ -236,8 +236,8 @@ class dl_extractor(extractor):
       return False
     data = self.tab_data[tab_id]['tables'][dt_id]
     df = self.tab_data[tab_id]["df"]
-
-
+    
+    
     ul_corner = df[data["col"]][data["row"]]
     is_contra_table = False
     is_regular_table = False
@@ -263,6 +263,7 @@ class dl_extractor(extractor):
     pre_annotation = ""
     rule_dmns = []
     input_dmns = []
+    output_dmns = []
     inputs = []
     
     if is_contra_table:
@@ -272,6 +273,21 @@ class dl_extractor(extractor):
       self.log("rendereing contraindication input dmn for decision table ")
       input_dmns.append(contra_dmn)
 
+    if is_regular_table:
+      output_name = "Care Plan"
+      output_id = self.name_to_id(output_name)
+      output_dmn_id = "input." + output_id
+      output_dmn = "<dmn:input id='" + output_dmn_id + "' label='" + self.xml_escape(output_name) + "'></dmn:input>"
+      guidance_name = "Guidance displayed to health worker"
+      guidance_id = self.name_to_id(guidance_name)
+      guidance_dmn_id = "input." + guidance_id
+      guidance_dmn = "<dmn:input id='" + guidance_dmn_id + "' label='" + self.xml_escape(guidance_name) + "'></dmn:input>"
+
+      self.log("rendereing care plan and guidance output dmn for decision table ")
+
+      output_dmns.append(output_dmn)
+      output_dmns.append(guidance_dmn)
+      
         
     while in_table:
       row_offset += 1
@@ -282,17 +298,9 @@ class dl_extractor(extractor):
         
       first_val = df[data["col"]][t_row]
       self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
-
-      output =  df[data["output_col"]][t_row]
-      guidance =  df[data["guidance_col"]][t_row]
-      annotation =  df[data["annotations_col"]][t_row]
-
+      
       prev_inputs = inputs
       inputs = []
-
-
-
-      
       trailing_nan_input = True
       trailing_blank_input = True
       i = 0
@@ -308,6 +316,14 @@ class dl_extractor(extractor):
         i += 1
 
 
+      output = df[data["output_col"]][t_row]  if data["output_col"] else ""
+      guidance = df[data["guidance_col"]][t_row] if data["guidance_col"] else ""
+      guidance = "" if self.is_nan(guidance) else guidance
+      reference = df[data["reference_col"]][t_row] if data["reference_col"] else ""
+      reference = "" if self.is_nan(reference) else reference
+      annotation = df[data["annotation_col"]][t_row] if data["annotation_col"] else ""
+      annotation = "" if self.is_nan(annotation) else annotation
+      
       not_in_table = self.is_blank(first_val) and trailing_blank_input and self.is_blank(output) \
         and self.is_blank(guidance) and self.is_blank(annotation)
 
@@ -321,92 +337,60 @@ class dl_extractor(extractor):
       
       if (is_merged_line_annotation):
         self.log("Found pre-amble annotation=" + first_val)        
-        pre_annotation += first_val
+        pre_annotation += first_val + "\n"
         continue
 
       # if we made it to here we should have something in the inputs
       self.log("Found inputs: (" +  ",".join(str(input) for input in inputs) + ")")
 
+      if pre_annotation:
+        pre_annotation += "\n\n"
+      
       if is_regular_table:
         self.log("Got input column")
         if ( self.is_blank(output) and self.is_blank(annotation)):
-          #it is a variable definition          
+          #it is a input variable definition          
           for val in inputs:
             if self.is_blank(val):
               continue
-            input_expr = False
-            input_name = val
-            parts = val.split("\n",1)
-            if (len(parts) == 2):
-              input_name = parts[0].strip()
-              input_expr = parts[1].strip()              
-            input_id = self.name_to_id(input_name)              
-            input_dmn_id = "input." +  dt_id + "." + input_id
-            input_dmn_expr_id = "inputExpression." + dt_id + "." + input_id 
-            input_dmn = "<dmn:input id='" + input_dmn_id + "' label='"+ self.xml_escape(input_name) + "'>"
-            if input_expr:
-              input_dmn += "<dmn:inputExpression id='" + input_dmn_expr_id \
-                + "' typeRef='string'><dmn:text>" + input_expr + "</dmn:text></dmn:inputExpression>" 
-            input_dmn += "</dmn:input>"
+            input_dmns.append(self.create_dmn_input(dt_id,val))
             self.log("rendereing dmn for decision table " )
-            input_dmns.append(input_dmn)
           pre_annotation = "" #reset it
         else:
           #it is a rule
-          rule_name = dt_id + " - rule." + str(row_offset) 
-          rule_id = self.name_to_id(rule_name)
-          rule_dmn_id = "rule." + rule_id
-          
-          rule_dmn_inputEntrys = ""
+          rule_name = "dt." + dt_id + "." + str(row_offset)
+          rule_dmn_entries = []            
           for val in inputs:
-            input_name = val + " - rule." + str(row_offset) 
-            inpur_expr = ""
-            parts = str(val).split("\n",1)
-            if (len(parts) == 2):
-              input_name = parts[0].strip()
-              input_expr = parts[1].strip()            
-            input_id = self.name_to_id(input_name)
-            input_dmn_id = "inputEntry." +  dt_id + "." + input_id
-            input_dmn = "<dmn:inputEntry id='" + input_dmn_id + "' expressionLanguage='http://smart.who.int'>"
-            if input_expr:
-              input_dmn += "<dmn:description>" + self.xml_escape(input_expr) + "</dmn:description>"
-            input_dmn += "<dmn:text>" + self.xml_escape(input_name) + "</dmn:text>" 
-            input_dmn += "</dmn:inputEntry>"
-            rule_dmn_inputEntrys += input_dmn
-            
-          rule_dmn = "<dmn:rule id='" + rule_dmn_id + "'>" + rule_dmn_inputEntrys + "</dmn:rule>"
-          rule_dmn += "\n<!-- " + str(prev_inputs) + "\n" + str(inputs) + "\n" + str(row) + "\n-->\n"
-                    
-          rule_dmns.append(rule_dmn)
-          pre_annotation = "" #reset it
+            rule_dmn_entries.append(self.create_dmn_entry(rule_name,"input",val))
+          rule_dmn_entries.append(self.create_dmn_entry(rule_name,"output",output))
+          if guidance:
+            rule_dmn_entries.append(self.create_dmn_entry(rule_name,"output",guidance))
+          if annotation:
+            rule_dmn_entries.append( self.create_dmn_entry(rule_name,"annotation",annotation))
+          if reference:
+            rule_dmn_entries.append(self.create_dmn_entry(rule_name,"annotation",reference))          
+          rule_dmns.append(self.create_dmn_rule(rule_name,rule_dmn_entries))
+          pre_annotation = "" #reset it          
       elif is_contra_table:
         self.log("got contraindication" + str(first_val))
-        rule_expr = False
-        rule_name = str(first_val)        
-        parts = str(first_val).split("\n",1)
-        if (len(parts) == 2):
-          rule_name = parts[0].strip()
-          rule_expr = parts[1].strip()            
-        rule_id = self.name_to_id(rule_name)
-        rule_dmn_id = "rule." + rule_id
-        rule_dmn_entry_id = "inputEntry." + rule_id
-        # inputEntry can have attribute typeRef
-        rule_dmn = "<dmn:rule id='" + rule_dmn_id + "'>" \
-          + "<dmn:inputEntry id='" + rule_dmn_entry_id  + "' expressionLanguage='http://smart.who.int/'>"
-        if rule_expr:
-          rule_dmn += "<dmn:description>" + self.xml_escape(rule_expr)  + "</dmn:description>"
-
-        rule_dmn += "<dmn:text>" + self.xml_escape(rule_name) + "</dmn:text>"
-        rule_dmn += "</dmn:inputEntry></dmn:rule>"
-        rule_dmns.append(rule_dmn)               
+        rule_name = "contra." + dt_id + "." + str(row_offset)
+        rule_dmn_entries = [self.create_dmn_entry(rule_name,"input",first_val)]
+        if annotation:
+          rule_dmn_entries.append(self.create_dmn_entry(rule_name,"annotation",annotation))
+        if reference:
+          rule_dmn_entries.append(self.create_dmn_entry(rule_name,"annotation",reference))          
+        rule_dmns.append(self.create_dmn_rule(rule_name,rule_dmn_entries))
+        pre_annotation = "" #reset it
       else:
         self.log("WARNING - UNKNOWN table type")
         return False
 
-    dt_dmn_id = "decisionTable." + table_type + "." + dt_id 
+    dt_dmn_id = "decisionTable." + self.name_to_id(table_type) + "." + dt_id 
     dt_dmn = "    <dmn:decisionTable id='" + dt_dmn_id + "'>\n"
     for input_dmn in input_dmns:
       dt_dmn += "        " + input_dmn + "\n"
+    for output_dmn in output_dmns:
+      dt_dmn += "        " + output_dmn + "\n"
     for rule_dmn in rule_dmns:
       dt_dmn += "        " + rule_dmn + "\n"
 
@@ -417,3 +401,41 @@ class dl_extractor(extractor):
     self.tab_data[tab_id]['tables'][dt_id]['used'] = True    
     return True
       
+  def create_dmn_rule(self,rule_name:str,rule_dmn_entries):
+    rule_id = self.name_to_id(rule_name)
+    rule_dmn_id = "rule." + rule_id
+    rule_dmn = "<dmn:rule id='" + rule_dmn_id + "'>" + "\n".join(rule_dmn_entries)  + "</dmn:rule>"          
+    return rule_dmn
+
+  def create_dmn_entry(self,rule_name:str,type:str,name:str):
+    expr = False
+    parts = str(name).split("\n",1)
+    if (len(parts) == 2):
+      name = parts[0].strip()
+      expr = parts[1].strip()            
+    id = self.name_to_id(rule_name + "." + str(name))
+    dmn_id = type + "Entry."  + id
+    #dmn = "<dmn:" + type  + "Entry id='" + dmn_id + "' expressionLanguage='http://smart.who.int'>"
+    dmn = "<dmn:" + type  + "Entry id='" + dmn_id + "'>"
+    if expr:
+      dmn += "<dmn:description>" + self.xml_escape(expr) + "</dmn:description>"
+    dmn += "<dmn:text>" + self.xml_escape(name) + "</dmn:text>" 
+    dmn += "</dmn:" + type + "Entry>"
+    return dmn
+          
+  def create_dmn_input(self,dt_id:str,val):
+    input_expr = False
+    input_name = str(val)
+    parts = str(val).split("\n",1)
+    if (len(parts) == 2):
+      input_name = parts[0].strip()
+      input_expr = parts[1].strip()              
+    input_id = self.name_to_id(input_name)              
+    input_dmn_id = "input." +  dt_id + "." + input_id
+    input_dmn_expr_id = "inputExpression." + dt_id + "." + input_id 
+    input_dmn = "<dmn:input id='" + input_dmn_id + "' label='"+ self.xml_escape(input_name) + "'>"
+    if input_expr:
+      input_dmn += "<dmn:inputExpression id='" + input_dmn_expr_id \
+        + "' typeRef='string'><dmn:text>" + input_expr + "</dmn:text></dmn:inputExpression>" 
+    input_dmn += "</dmn:input>"      
+    return input_dmn
