@@ -135,4 +135,11 @@ class extractor(object):
     return input.replace('"', r'\"')
 
 
+  def xml_escape(self,input):
+    if ( not (isinstance(input,str))):
+      return ""
+    # see https://stackoverflow.com/questions/1546717/escaping-strings-for-use-in-xml
+    return input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&apos;")
+
+
 

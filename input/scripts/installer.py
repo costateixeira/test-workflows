@@ -1,3 +1,4 @@
+import xml.etree.ElementTree as ET
 import re
 import os
 import yaml
@@ -114,12 +115,12 @@ class installer:
   def save_dmns(self):
     
     for tab,dmn in self.dmns.items():
-      print(dmn)
+      namespace =  "http://www.omg.org/spec/DMN/20151101/dmn.xsd"
       out = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>\n"
-      out += "<dmn:definitions  xmlns:dmn='http://www.omg.org/spec/DMN/20151101/dmn.xsd'\n"
+      out += "<dmn:definitions  xmlns:dmn='" + namespace + "'\n"
       out += " namespace='" + self.get_ig_canonical() + "'\n"
       out += " name='"  + self.escape(tab) + "'\n"
-      out += " id='" + self.get_ig_canonical() + "/" + tab + ".dmn'>\n"            
+      out += " id='" + self.get_ig_canonical() + "/" + self.name_to_id(tab) + ".dmn'>\n"            
       for id,inputData in dmn["inputDatas"].items():
         out +=  inputData + "\n"
       out += "  <dmn:definition id='" + self.name_to_id(tab) + "' name='" + self.escape(tab) + "'>\n"
@@ -128,7 +129,14 @@ class installer:
       out += "  </dmn:definition>\n"
       out += "</dmn:definitions>\n"
 
-      self.save_dmn(tab,out)
+      dmn = ET.XML(out)
+      ET.register_namespace('dmn' , namespace )
+      ET.indent(dmn)
+      # dmn_schema = XMLSchema('X110.xsd')
+      # if not dmn.validate(dmn_schema):
+      #   self.log("Invalid DMN for tab " + tab)
+      #   return False
+      self.save_dmn(tab,ET.tostring(dmn, encoding='unicode'))
 
     
   aliasfile = "input/fsh/Aliases.fsh"

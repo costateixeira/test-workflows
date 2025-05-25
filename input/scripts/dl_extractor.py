@@ -6,7 +6,6 @@ import pandas as pd
 from extractor import extractor 
 from installer import installer
 
-
 class dl_extractor(extractor):
   tab_data : dict      
 
@@ -55,6 +54,10 @@ class dl_extractor(extractor):
     sources = ""
     self.tab_data = {}
 
+    if cover_sheet is None:
+      self.log("Could not load cover sheet")      
+      return False
+    
     for index, row in cover_sheet.iterrows():
       has_non_empty = \
         (isinstance(row["tab"],str) and bool(row["tab"]) and row["tab"] != "-" )  \
@@ -87,8 +90,7 @@ class dl_extractor(extractor):
         tab = row["tab"]
       has_non_empty |= bool(row["tab"])
 
-      tab_id = self.name_to_id(row["tab"])
-      if not tab_id in self.tab_data and not self.load_tab(tab):      
+      if not self.load_tab(tab):      
         self.log("Could not load tab data for "  + tab)
         continue
 
@@ -105,6 +107,10 @@ class dl_extractor(extractor):
     return True
 
   def load_tab(self,tab:str):
+    tab_id = self.name_to_id("tab")
+    if tab_id in self.tab_data:
+      return True
+    
     self.log("Attempting to load decision table metadata for tab=" + tab)
     try:
       df = pd.read_excel(self.inputfile_name, sheet_name=tab,header=None)
@@ -219,26 +225,54 @@ class dl_extractor(extractor):
 
   def is_nan(self,v):
     return (isinstance(v, float) and v != v)
-  
-  def extract_activity_table(self,id:str,name:str,tab:str,dt_id:str,row):
 
+      
+  def extract_activity_table(self,id:str,name:str,tab:str,dt_id:str,row):
+    
     self.log("Looking for decision table ID=" + dt_id + " for activivity id /name (" + id + "/" + name + "): row=\n" + str(row))
     tab_id =self.name_to_id(tab)
-    df = self.tab_data[tab_id]["df"]
     if dt_id not in self.tab_data[tab_id]['tables']:
       self.log("Could not find " + dt_id + " in sheet " + tab + " among found tables:" + ",".join(self.tab_data[tab_id]['tables'].keys()))
       return False
     data = self.tab_data[tab_id]['tables'][dt_id]
+    df = self.tab_data[tab_id]["df"]
+
+
+    ul_corner = df[data["col"]][data["row"]]
+    is_contra_table = False
+    is_regular_table = False
+    is_schedule_table = False
+    if self.name_to_id(ul_corner) == self.name_to_id("Decision ID"):
+      table_type = df[data["col"]][data["input_row"]]
+      is_contra_table = table_type == "Potential contraindications"
+      is_regular_table = table_type == "Inputs"      
+    elif self.name_to_id(ul_corner) == self.name_to_id("Schedule ID"):
+      table_type = ul_corner
+      is_schedule_table = True
+    else:
+      self.log("Could not determine type of table from " + ul_corner + "/" + table_type )
+      return False
         
-    self.log("Using decision table " + dt_id + " in sheet " + tab + " at r,c:"  + str(data["row"]) +"," + str(data["col"])  )
+    self.log("Using decision tab of type (" + table_type + ") " + dt_id + " in sheet " + tab + " at r,c:"  + str(data["row"]) +"," + str(data["col"])  )
     self.log("Tab data = \n\t" + pprint.pformat(data).replace("\n","\n\t"))
+
+
 
     in_table = True
     row_offset = 0
     pre_annotation = ""
-    rules = []
+    rule_dmns = []
     input_dmns = []
-#    inputs_defined = False
+    inputs = []
+    
+    if is_contra_table:
+      contra_id = self.name_to_id(table_type)
+      contra_dmn_id = "input." + contra_id
+      contra_dmn = "<dmn:input id='" + contra_dmn_id + "' label='" + self.xml_escape(table_type) + "'></dmn:input>"
+      self.log("rendereing contraindication input dmn for decision table ")
+      input_dmns.append(contra_dmn)
+
+        
     while in_table:
       row_offset += 1
       t_row = data["input_row"] + row_offset
@@ -246,85 +280,136 @@ class dl_extractor(extractor):
         in_table = False
         break
         
-      v = df[data["col"]][t_row]
-      self.log("scanning row=" + str(t_row) + " with first value=" + str( v ))
+      first_val = df[data["col"]][t_row]
+      self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
 
       output =  df[data["output_col"]][t_row]
       guidance =  df[data["guidance_col"]][t_row]
       annotation =  df[data["annotations_col"]][t_row]
+
+      prev_inputs = inputs
+      inputs = []
+
+
+
       
-      inputs = [str(v)]
       trailing_nan_input = True
-      trailing_blank_input = True      
-      for c in range(data["col"] + 1,data["output_col"]):
+      trailing_blank_input = True
+      i = 0
+      for c in range(data["col"] ,data["output_col"]):
         val = df[c][t_row]
-        inputs.append(str(val))
+        if self.is_blank(val) and i < len(prev_inputs):
+          inputs.append(prev_inputs[i])
+        else:
+          inputs.append(val)
+
         trailing_nan_input &=  ( self.is_nan(val) )
         trailing_blank_input &=  ( self.is_blank(val))
+        i += 1
 
-      not_in_table = self.is_blank(v) \
-        and trailing_blank_input \
-        and self.is_blank(output) \
-        and self.is_blank(guidance) \
-        and self.is_blank(annotation)
+
+      not_in_table = self.is_blank(first_val) and trailing_blank_input and self.is_blank(output) \
+        and self.is_blank(guidance) and self.is_blank(annotation)
 
       if not_in_table:
         self.log("Saw end of decision table starting at:" + str(t_row))
         in_table = False
         break
       
-      is_merged_line_annotation = isinstance(v,str) and v  \
-        and trailing_nan_input \
-        and self.is_nan(output) \
-        and self.is_nan(guidance) \
-        and self.is_nan(annotation)
-
+      is_merged_line_annotation = isinstance(first_val,str) and first_val and trailing_nan_input \
+        and self.is_nan(output) and self.is_nan(guidance) and self.is_nan(annotation)
       
       if (is_merged_line_annotation):
-        self.log("Found pre-amble annotation=" + v)        
-        pre_annotation += v
+        self.log("Found pre-amble annotation=" + first_val)        
+        pre_annotation += first_val
         continue
 
-      print(inputs,output,guidance,annotation,pre_annotation)
-
       # if we made it to here we should have something in the inputs
-      self.log("Found inputs: (" +  ",".join(inputs) + ")")
+      self.log("Found inputs: (" +  ",".join(str(input) for input in inputs) + ")")
 
-      if ( self.is_blank(output) and self.is_blank(annotation)): 
-        #we are (hopefully) in the defintion of the inputs (first row of them)
+      if is_regular_table:
         self.log("Got input column")
-        for val in inputs:
-          if self.is_blank(val):
-            continue
-          input_expr = False
-          input_name = val
-          parts = val.split("\n",1)
-          if (len(parts) == 2):
-            input_name = parts[0].strip()
-            input_expr = parts[1].strip()
-
-          input_id = self.name_to_id(input_name)
-          input_dmn_id = "input." +  dt_id + "." + input_id
-          input_dmn_expr_id = "inputE." + dt_id + "." + input_id 
-          input_dmn = "<dmn:input id='" + input_dmn_id + "' label='" + input_name + "'>"
-          if input_expr:
-            input_dmn += "<dmn:inputExpression id='" + input_dmn_expr_id + "' typeRef='string'><dmn:text>" + input_expr + "</dmn:text></dmn:inputExpression>"
-          input_dmn += "</dmn:input>"
-          self.log("rendereing dmn for decision table: " + input_dmn)
-          input_dmns.append(input_dmn)
+        if ( self.is_blank(output) and self.is_blank(annotation)):
+          #it is a variable definition          
+          for val in inputs:
+            if self.is_blank(val):
+              continue
+            input_expr = False
+            input_name = val
+            parts = val.split("\n",1)
+            if (len(parts) == 2):
+              input_name = parts[0].strip()
+              input_expr = parts[1].strip()              
+            input_id = self.name_to_id(input_name)              
+            input_dmn_id = "input." +  dt_id + "." + input_id
+            input_dmn_expr_id = "inputExpression." + dt_id + "." + input_id 
+            input_dmn = "<dmn:input id='" + input_dmn_id + "' label='"+ self.xml_escape(input_name) + "'>"
+            if input_expr:
+              input_dmn += "<dmn:inputExpression id='" + input_dmn_expr_id \
+                + "' typeRef='string'><dmn:text>" + input_expr + "</dmn:text></dmn:inputExpression>" 
+            input_dmn += "</dmn:input>"
+            self.log("rendereing dmn for decision table " )
+            input_dmns.append(input_dmn)
           pre_annotation = "" #reset it
-      else:
-        pass
-        # we are (hopefully) in a decision logic row
-        
-        #rule id="row-495762709-1"
-        #rule_dmn=""
-        #rules.append(rule_id,rule_dmn)
+        else:
+          #it is a rule
+          rule_name = dt_id + " - rule." + str(row_offset) 
+          rule_id = self.name_to_id(rule_name)
+          rule_dmn_id = "rule." + rule_id
+          
+          rule_dmn_inputEntrys = ""
+          for val in inputs:
+            input_name = val + " - rule." + str(row_offset) 
+            inpur_expr = ""
+            parts = str(val).split("\n",1)
+            if (len(parts) == 2):
+              input_name = parts[0].strip()
+              input_expr = parts[1].strip()            
+            input_id = self.name_to_id(input_name)
+            input_dmn_id = "inputEntry." +  dt_id + "." + input_id
+            input_dmn = "<dmn:inputEntry id='" + input_dmn_id + "' expressionLanguage='http://smart.who.int'>"
+            if input_expr:
+              input_dmn += "<dmn:description>" + self.xml_escape(input_expr) + "</dmn:description>"
+            input_dmn += "<dmn:text>" + self.xml_escape(input_name) + "</dmn:text>" 
+            input_dmn += "</dmn:inputEntry>"
+            rule_dmn_inputEntrys += input_dmn
+            
+          rule_dmn = "<dmn:rule id='" + rule_dmn_id + "'>" + rule_dmn_inputEntrys + "</dmn:rule>"
+          rule_dmn += "\n<!-- " + str(prev_inputs) + "\n" + str(inputs) + "\n" + str(row) + "\n-->\n"
+                    
+          rule_dmns.append(rule_dmn)
+          pre_annotation = "" #reset it
+      elif is_contra_table:
+        self.log("got contraindication" + str(first_val))
+        rule_expr = False
+        rule_name = str(first_val)        
+        parts = str(first_val).split("\n",1)
+        if (len(parts) == 2):
+          rule_name = parts[0].strip()
+          rule_expr = parts[1].strip()            
+        rule_id = self.name_to_id(rule_name)
+        rule_dmn_id = "rule." + rule_id
+        rule_dmn_entry_id = "inputEntry." + rule_id
+        # inputEntry can have attribute typeRef
+        rule_dmn = "<dmn:rule id='" + rule_dmn_id + "'>" \
+          + "<dmn:inputEntry id='" + rule_dmn_entry_id  + "' expressionLanguage='http://smart.who.int/'>"
+        if rule_expr:
+          rule_dmn += "<dmn:description>" + self.xml_escape(rule_expr)  + "</dmn:description>"
 
-    dt_dmn_id = dt_id 
+        rule_dmn += "<dmn:text>" + self.xml_escape(rule_name) + "</dmn:text>"
+        rule_dmn += "</dmn:inputEntry></dmn:rule>"
+        rule_dmns.append(rule_dmn)               
+      else:
+        self.log("WARNING - UNKNOWN table type")
+        return False
+
+    dt_dmn_id = "decisionTable." + table_type + "." + dt_id 
     dt_dmn = "    <dmn:decisionTable id='" + dt_dmn_id + "'>\n"
     for input_dmn in input_dmns:
-      dt_dmn += "    " + input_dmn + "\n"
+      dt_dmn += "        " + input_dmn + "\n"
+    for rule_dmn in rule_dmns:
+      dt_dmn += "        " + rule_dmn + "\n"
+
     dt_dmn += "    </dmn:decisionTable>"
 
     tab_id = self.name_to_id(tab)
