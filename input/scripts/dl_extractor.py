@@ -275,19 +275,12 @@ class dl_extractor(extractor):
 
     if is_regular_table:
       output_name = "Care Plan"
-      output_id = self.name_to_id(output_name)
-      output_dmn_id = "input." + output_id
-      output_dmn = "<dmn:input id='" + output_dmn_id + "' label='" + self.xml_escape(output_name) + "'></dmn:input>"
+      output_expr = "Produce a suggested  Care Plan for consideration by health worker"
+      output_dmns.append(self.create_dmn_output_expression(dt_id, output_name + "\n"  + output_expr))
+
       guidance_name = "Guidance displayed to health worker"
-      guidance_id = self.name_to_id(guidance_name)
-      guidance_dmn_id = "input." + guidance_id
-      guidance_dmn = "<dmn:input id='" + guidance_dmn_id + "' label='" + self.xml_escape(guidance_name) + "'></dmn:input>"
-
-      self.log("rendereing care plan and guidance output dmn for decision table ")
-
-      output_dmns.append(output_dmn)
-      output_dmns.append(guidance_dmn)
-      
+      guidance_expr = "Request to communitcate guidance to the health worker"
+      output_dmns.append(self.create_dmn_output_expression(dt_id, guidance_name + "\n"  + guidance_expr))
         
     while in_table:
       row_offset += 1
@@ -351,10 +344,13 @@ class dl_extractor(extractor):
         if ( self.is_blank(output) and self.is_blank(annotation)):
           #it is a input variable definition          
           for val in inputs:
-            if self.is_blank(val):
+            if self.is_blank(val) or (isinstance(val,str) and val == "-"):
               continue
-            input_dmns.append(self.create_dmn_input(dt_id,val))
-            self.log("rendereing dmn for decision table " )
+            if isinstance(val,str) and val.count("\n") == 0:
+              #hacky way to deal with an input variable without a definition
+              val += "\n" + val
+            input_dmns.append(self.create_dmn_input_expression(dt_id,val))            
+          self.log("rendereing dmn for decision table " )
           pre_annotation = "" #reset it
         else:
           #it is a rule
@@ -386,7 +382,7 @@ class dl_extractor(extractor):
         return False
 
     dt_dmn_id = "decisionTable." + self.name_to_id(table_type) + "." + dt_id 
-    dt_dmn = "    <dmn:decisionTable id='" + dt_dmn_id + "'>\n"
+    dt_dmn = "    <dmn:decisionTable >\n"
     for input_dmn in input_dmns:
       dt_dmn += "        " + input_dmn + "\n"
     for output_dmn in output_dmns:
@@ -397,7 +393,7 @@ class dl_extractor(extractor):
     dt_dmn += "    </dmn:decisionTable>"
 
     tab_id = self.name_to_id(tab)
-    self.installer.add_dmn_table(name + ":" + tab,dt_dmn_id,dt_dmn)
+    self.installer.add_dmn_table(dt_id,dt_dmn)
     self.tab_data[tab_id]['tables'][dt_id]['used'] = True    
     return True
       
@@ -409,33 +405,55 @@ class dl_extractor(extractor):
 
   def create_dmn_entry(self,rule_name:str,type:str,name:str):
     expr = False
-    parts = str(name).split("\n",1)
-    if (len(parts) == 2):
-      name = parts[0].strip()
-      expr = parts[1].strip()            
+    if type == "input" or type == "output":
+      parts = str(name).split("\n",1)
+      if (len(parts) == 2):
+        name = parts[0].strip()
+        expr = parts[1].strip()
+        
     id = self.name_to_id(rule_name + "." + str(name))
     dmn_id = type + "Entry."  + id
     #dmn = "<dmn:" + type  + "Entry id='" + dmn_id + "' expressionLanguage='http://smart.who.int'>"
-    dmn = "<dmn:" + type  + "Entry id='" + dmn_id + "'>"
+    #dmn = "<dmn:" + type  + "Entry id='" + dmn_id + "'>"
+    dmn = "<dmn:" + type  + "Entry>"
     if expr:
       dmn += "<dmn:description>" + self.xml_escape(expr) + "</dmn:description>"
     dmn += "<dmn:text>" + self.xml_escape(name) + "</dmn:text>" 
     dmn += "</dmn:" + type + "Entry>"
     return dmn
-          
-  def create_dmn_input(self,dt_id:str,val):
-    input_expr = False
-    input_name = str(val)
+
+
+  def create_dmn_output_expression(self,dt_id:str,val):
+    type = "output"
+    expr = False
+    name = str(val)
     parts = str(val).split("\n",1)
     if (len(parts) == 2):
-      input_name = parts[0].strip()
-      input_expr = parts[1].strip()              
-    input_id = self.name_to_id(input_name)              
-    input_dmn_id = "input." +  dt_id + "." + input_id
-    input_dmn_expr_id = "inputExpression." + dt_id + "." + input_id 
-    input_dmn = "<dmn:input id='" + input_dmn_id + "' label='"+ self.xml_escape(input_name) + "'>"
-    if input_expr:
-      input_dmn += "<dmn:inputExpression id='" + input_dmn_expr_id \
-        + "' typeRef='string'><dmn:text>" + input_expr + "</dmn:text></dmn:inputExpression>" 
-    input_dmn += "</dmn:input>"      
-    return input_dmn
+      name = parts[0].strip()
+      expr = parts[1].strip()              
+    id = self.name_to_id(name)              
+    dmn_id = type + "." +  dt_id + "." + id
+    dmn_expr_id = type + "Expression." + dt_id + "." + id 
+    dmn = "<dmn:" + type + " id='" + dmn_id + "' label='"+ self.xml_escape(name) + "'>"
+    if expr:
+      dmn += "<dmn:description >" + expr + "</dmn:description>" 
+    dmn += "</dmn:" + type + ">"      
+    return dmn
+
+  def create_dmn_input_expression(self,dt_id:str,val):
+    type = "input"
+    expr = False
+    name = str(val)
+    parts = str(val).split("\n",1)
+    if (len(parts) == 2):
+      name = parts[0].strip()
+      expr = parts[1].strip()              
+    id = self.name_to_id(name)              
+    dmn_id = type + "." +  dt_id + "." + id
+    dmn_expr_id = type + "Expression." + dt_id + "." + id 
+    dmn = "<dmn:" + type + " id='" + dmn_id + "' label='"+ self.xml_escape(name) + "'>"
+    if expr:
+      dmn += "<dmn:" + type + "Expression id='" + dmn_expr_id \
+        + "' typeRef='string'><dmn:text>" + expr + "</dmn:text></dmn:" + type + "Expression>" 
+    dmn += "</dmn:" + type + ">"      
+    return dmn

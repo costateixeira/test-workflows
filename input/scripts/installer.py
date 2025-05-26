@@ -71,34 +71,16 @@ class installer:
 
 
 
-  dmns = {}
-  def dmn_init_tab(self,tab:str):
-    self.dmns[tab] = {"inputDatas":{},"tables":{}}
-
-  def add_dmn_inputData(self,tab:str,input_id:str,input_dmn:str):
-    if not tab in self.dmns:
-      self.dmn_init_tab(tab)
-    if input_id in self.dmns[tab]["inputDatas"]:      
-      self.log("**Warning** found duplicated input with id=" + input_id)
-    else:    
-      self.dmns[tab]["inputDatas"][input_id] = input_dmn
-
-
-  def add_dmn_table(self,tab:str,dt_id:str,dt_dmn:str):
-    if not tab in self.dmns:
-      self.dmn_init_tab(tab)      
-
-    if dt_id in self.dmns[tab]["tables"]:      
-      self.log("**Warning** found duplicated input with id=" + dt_id)
-    else:    
-      self.dmns[tab]["tables"][dt_id] = dt_dmn
-
+  dmn_tables = {}
+  def add_dmn_table(self,dt_id:str,dt_dmn:str):
+    if dt_id in self.dmn_tables:
+      self.log("**Warning** found duplicated decitiosn table with id=" + dt_id)
+    self.dmn_tables[dt_id] = dt_dmn
 
   def name_to_lower_id(self,name):    
     if ( not (isinstance(name,str))):
       return None
     return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
-
     
   def name_to_id(self,name):    
     if ( not (isinstance(name,str))):
@@ -111,38 +93,36 @@ class installer:
     return input.replace('"', r'\"')
 
       
-  dmns = {}
+
   def save_dmns(self):
     
-    for tab,dmn in self.dmns.items():
-      xml_dclr = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-      namespace =  "http://www.omg.org/spec/DMN/20151101/dmn.xsd"
-      out = xml_dclr + "\n"
-      out += "<dmn:definitions  xmlns:dmn='" + namespace + "'\n"
-      out += " namespace='" + self.get_ig_canonical() + "'\n"
-      out += " name='"  + self.escape(tab) + "'\n"
-      out += " id='" + self.get_ig_canonical() + "/" + self.name_to_id(tab) + ".dmn'>\n"            
-      for id,inputData in dmn["inputDatas"].items():
-        out +=  inputData + "\n"
-      out += "  <dmn:definition id='" + self.name_to_id(tab) + "' name='" + self.escape(tab) + "'>\n"
-      for id,table in dmn["tables"].items():
-        out +=  table + "\n"
-      out += "  </dmn:definition>\n"
-      out += "</dmn:definitions>\n"
+    for dt_id,dmn_table in self.dmn_tables.items():
+        xml_dclr = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
+        namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
+        out = xml_dclr + "\n"
+        out += "<dmn:definitions  xmlns:dmn='" + namespace + "'\n"
+        out += " namespace='" + self.get_ig_canonical() + "'\n"
+        out += " name='"  + self.escape(dt_id) + "'\n"
+        out += " id='" + self.name_to_id(self.get_ig_canonical() + "/dmn/" + dt_id) + ".dmn'>\n"            
+        out += "  <dmn:decision id='" + self.name_to_id(dt_id) + "' name='" + self.escape(dt_id) + "'>\n"
+        out +=  dmn_table + "\n"
+        out += "  </dmn:decision>\n"
+        out += "</dmn:definitions>\n"
 
-      try:
-        dmn = ET.XML(out)
-        ET.register_namespace('dmn' , namespace )
-        ET.indent(dmn)
-      except:
-        self.log("WARNING: Generated invalid XML for tab " + tab +". saving to input/dmn for review")
-        self.save_dmn(tab,out)
-        return False
-      # dmn_schema = XMLSchema('X110.xsd')
-      # if not dmn.validate(dmn_schema):
-      #   self.log("Invalid DMN for tab " + tab)
-      #   return False
-      self.save_dmn(tab,ET.tostring(dmn, encoding='unicode',xml_declaration=xml_dclr))
+        try:
+          dmn = ET.XML(out)
+          ET.register_namespace('dmn' , namespace )
+          ET.indent(dmn)
+        except:
+          self.log("WARNING: Generated invalid XML for dt_id " + dt_id +". saving to input/dmn for review")
+          self.save_dmn(dt_id ,out)
+          return False
+        # dmn_schema = XMLSchema('X110.xsd')
+        # if not dmn.validate(dmn_schema):
+        #   self.log("Invalid DMN for tab " + tab)
+        #   return False
+        if not self.save_dmn(dt_id,ET.tostring(dmn, encoding='unicode',xml_declaration=xml_dclr)):
+          self.log("Could not save decision table id " + dt_id)
     return True
     
   aliasfile = "input/fsh/Aliases.fsh"
