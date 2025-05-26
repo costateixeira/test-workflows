@@ -34,6 +34,21 @@
         }
       },
       {
+        "id": "Requirements.extension:classification",
+        "path": "Requirements.extension",
+        "sliceName": "classification",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/SGcode"
+            ]
+          }
+        ]
+      },
+      {
         "id": "Requirements.extension:satisfies",
         "path": "Requirements.extension",
         "sliceName": "satisfies",
@@ -47,7 +62,7 @@
             ]
           }
         ]
-      },
+      },	
       {
         "id": "Requirements.extension:userstory",
         "path": "Requirements.extension",
