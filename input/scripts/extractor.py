@@ -110,14 +110,22 @@ class extractor(object):
 
 
   def log(self,*statements):
-    prefix = self.__class__.__name__ + "(" + self.inputfile_name + "):"
+    prefix = self.__class__.__name__ + "(" + os.path.basename(self.inputfile_name) + "):"
     for statement in statements:
       statement = str(statement).replace("\n","\n\t")
       self.installer.log( prefix + statement )
       prefix = "\t"
 
+  def is_nan(self,v):
+    return (isinstance(v, float) and v != v)
+      
+  def is_blank(self,v):
+    return v == None \
+      or (isinstance(v, str) and not v)
 
-
+  def is_dash(self,v):
+    return isinstance(v,str) and (v == '-' or v == '–')
+      
   def name_to_lower_id(self,name):    
     if ( not (isinstance(name,str))):
       return None
