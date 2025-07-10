@@ -7,11 +7,11 @@ import pandas as pd
 from extractor import extractor 
 from installer import installer
 from pathlib import Path
-
 class dl_extractor(extractor):
   tab_data : dict      
   cql_definitions : dict
 
+ 
   def __init__(self,installer:installer):
     super().__init__(installer)
     
@@ -118,7 +118,17 @@ class dl_extractor(extractor):
     all_codes = {}
     for tab_id,dts in self.cql_definitions.items():
       tab_codes = {}
+      tab_markdown = "### Decision Tables for Tab  " + tab_id + "\n"
+
+
       for dt_id,cql_definitions in dts.items():
+        dt_include = "{% include " + dt_id + ".html %}\n"
+        dt_markdown = "### Decision Table " + dt_id + "\n"
+        dt_markdown += dt_include
+        tab_markdown += "#### Decision Table " + dt_id + "\n"
+        tab_markdown += dt_include
+        self.installer.add_page("DecisionTable" + dt_id,dt_markdown)
+        
         self.log("Processing DT ID cql for " + dt_id + " on tab_id " + tab_id)
         vs_id = self.name_to_id('DecisionLogicTable'  + dt_id)
         dt_codes = []
@@ -167,6 +177,7 @@ class dl_extractor(extractor):
         dt_vs_id = self.name_to_id(dl_cs_id + 'Table'+tab_id)
         self.installer.generate_vs_from_list(dt_vs_id,dl_cs_id,'Decision Logic For Decision Table ' + dt_id,dt_codes)
 
+      self.installer.add_page("DecisionTab" + tab_id,tab_markdown)
       properties = {}
       self.create_cql_skeleton_for_tab(tab_id,tab_codes,properties)        
       tab_vs_id = self.name_to_id(dl_cs_id + 'Tab'+tab_id)
@@ -192,6 +203,7 @@ class dl_extractor(extractor):
 
       #look for existing defintions
       cql_prop['designation'] = []
+      cql_defs = ""
       for cql_file,cql_content in cql_contents.items():
         pattern = r'(^define\s+(\'|")' + re.escape(cql_id) + r'(\'|")\s*:(.*?))(\/\*|^define|\Z)'        
         match = re.search(pattern, cql_content, re.DOTALL | re.MULTILINE | re.IGNORECASE)
@@ -200,12 +212,13 @@ class dl_extractor(extractor):
         cql_def = match.group(1)
         if self.is_blank(cql_def):
           continue
-        self.log("for " + cql_id + " found in " + cql_file + "found:" +  cql_def)
+        #self.log("for " + cql_id + " found in " + cql_file + "found:" +  cql_def)
+        cql_defs += "//Found in " + cql_file + "\n\n" + cql_def + "\n\n"
+      if not self.is_blank(cql_defs):
         cql_prop['designation'] += [{
-          'value': '"""//Found in ' + cql_file + "\n\n" + cql_def + '\n"""',
+          'value': '"""'  + cql_defs  + '"""',
           'language' : "#CQL" # technically needs to be in https://build.fhir.org/valueset-all-languages.html
-          }]
-        break
+        }]
       normalized_codes[cql_id] = cql_prop
       
     self.log(pprint.pp(normalized_codes))
@@ -342,7 +355,6 @@ class dl_extractor(extractor):
       return False
     data = self.tab_data[tab_id]['tables'][dt_id]
     df = self.tab_data[tab_id]["df"]
-    
     
     ul_corner = df[data["col"]][data["row"]]
     is_contra_table = False
@@ -514,9 +526,9 @@ class dl_extractor(extractor):
 
     dt_dmn += "    </dmn:decisionTable>"
 
-    tab_id = self.name_to_id(tab)
+
     self.installer.add_dmn_table(dt_id,dt_dmn)
-    self.tab_data[tab_id]['tables'][dt_id]['used'] = True    
+    self.tab_data[tab_id]['tables'][dt_id]['used'] = True
     return True
   
   def process_contra_indication_input_row(self,tab_id:str,dt_id:str,rule_name:str,inputs,output:str,guidance:str,annotation:str,reference:str):

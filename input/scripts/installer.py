@@ -1,19 +1,29 @@
-import xml.etree.ElementTree as ET
+import lxml.etree as ET
 import re
 import os
+import shutil
 import yaml
 from typing import List
 from pathlib import Path
 import pprint
 import sys
+from lxml import etree
+
 
 class installer:
   resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'rulesets' : {},
                 'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {}}  
   cqls = {}
+  codesystems = {}
+  codesystem_titles = {}
+  codesystem_properties = {}
+  pages = {}
   logfile = None
   sushi_config = {}
-
+  dmn2html_xslt = None
+  dmn2html_xslt_file = "includes/dmn2html.xslt"  #relative to directory containing this file
+  dmn_css_file = "includes/dmn.css"  #relative to directory containing this file
+  
   def __init__(self):
     logfile_path = Path("temp/DAKExtract.log.txt")
     print("Logging status messages to stderr and: " + str(logfile_path))
@@ -22,9 +32,24 @@ class installer:
     Path("input/dmn").mkdir(exist_ok=True, parents=True)
     Path("input/cql").mkdir(exist_ok=True, parents=True)
     Path("input/fsh").mkdir(exist_ok=True, parents=True)
+    Path("input/pagecontent").mkdir(exist_ok=True, parents=True)
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
     self.add_rulesets()
+
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    try:
+      Path("input/pagecontent/includes").mkdir(exist_ok=True, parents=True)
+      source_file = script_directory + "/" +  self.dmn_css_file
+      shutil.copy(source_file,Path("input/pagecontent/") / f"{self.dmn_css_file}")
+      resolved_file = script_directory + "/" +  self.dmn2html_xslt_file
+      self.log("xslt at " + resolved_file)
+      with open(Path(resolved_file), "rb") as f:
+        self.dmn2html_xslt = ET.XSLT(ET.parse(f))
+    except BaseException as e:
+      self.log("WARNING: Could not find XSLT at input/includes/dmn2html.xslt -- HTML DMN rendering will be unavailable.")
+      self.log(f"\tError: {e}")
+      sys.exit()
 
 
     
@@ -66,14 +91,19 @@ class installer:
     return self.sushi_config['version']
   
   def install(self):
-    self.save_aliases()
-    self.save_resources()
-    self.save_dmns()
-    
-    for id,cql in self.cqls.items() :
-        self.save_cql(id,cql)
-        
+    self.install_aliases()
+    self.install_resources()
+    self.install_dmns()
+    self.install_pages()
+    self.install_cqls()
 
+  def install_cqls(self):
+    for id,cql in self.cqls.items():
+      self.install_cql(id,cql)
+        
+  def install_pages(self):
+    for id,page in self.pages.items():
+      self.install_page(id,page)
 
 
   dmn_tables = {}
@@ -114,36 +144,11 @@ class installer:
     return input.replace('"', r'\"')
 
 
-  def save_dmns(self):
-    
+  def install_dmns(self):
+    result = True
     for dt_id,dmn_table in self.dmn_tables.items():
-        xml_dclr = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-        namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
-        out = xml_dclr + "\n"
-        out += "<dmn:definitions  xmlns:dmn='" + namespace + "'\n"
-        out += " namespace='" + self.get_ig_canonical() + "'\n"
-        out += " name='"  + self.escape(dt_id) + "'\n"
-        out += " id='" + self.name_to_id(self.get_ig_canonical() + "/dmn/" + dt_id) + ".dmn'>\n"            
-        out += "  <dmn:decision id='" + self.name_to_id(dt_id) + "' name='" + self.escape(dt_id) + "'>\n"
-        out +=  dmn_table + "\n"
-        out += "  </dmn:decision>\n"
-        out += "</dmn:definitions>\n"
-
-        try:
-          dmn = ET.XML(out)
-          ET.register_namespace('dmn' , namespace )
-          ET.indent(dmn)
-        except:
-          self.log("WARNING: Generated invalid XML for dt_id " + dt_id +". saving to input/dmn for review")
-          self.save_dmn(dt_id ,out)
-          return False
-        # dmn_schema = XMLSchema('X110.xsd')
-        # if not dmn.validate(dmn_schema):
-        #   self.log("Invalid DMN for tab " + tab)
-        #   return False
-        if not self.save_dmn(dt_id,ET.tostring(dmn, encoding='unicode',xml_declaration=xml_dclr)):
-          self.log("Could not save decision table id " + dt_id)
-    return True
+      result &= self.install_dmn(dt_id,dmn_table)
+    return result
 
 
 
@@ -176,7 +181,7 @@ class installer:
       if alias not in self.aliases:
         self.aliases.append(alias)
 
-  def save_aliases(self):
+  def install_aliases(self):
     try:
         if not os.path.exists(self.aliasfile):
             with open(filename, 'w') as file:
@@ -199,9 +204,21 @@ class installer:
 
 
 
+  def install_page(self,id,page:str):
+    try:
+      file_path = "input/pagecontent/" + id + ".md"
+      file = open(file_path,"w")
+      print (page,file=file)
+      file.close()
+      self.log("Installed " + file_path)
+    except IOError as e:
+      self.log("Could not save page with id: " + id + "\n")
+      self.log(f"\tError: {e}")
+    return True
+    
 
         
-  def save_cql(self,id,cql:str):
+  def install_cql(self,id,cql:str):
     try:
       file_path = "input/cql/" + id + ".cql"
       file = open(file_path,"w")
@@ -214,19 +231,61 @@ class installer:
     return True
     
 
-  def save_dmn(self,id,dmn:str):
+  def install_dmn(self,id,dmn:str):
     try:
-      file_path = "input/dmn/" + id + ".dmn"
-      file = open(file_path,"w")
-      print(dmn,file=file)
-      file.close()
-      self.log("Installed " + file_path)
+      dmn_namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
+      dmn_wrapped = "<dmn:definitions  xmlns:dmn='" + dmn_namespace + "'\n"
+      dmn_wrapped += " namespace='" + self.get_ig_canonical() + "'\n"
+      dmn_wrapped += " name='"  + self.escape(id) + "'\n"
+      dmn_wrapped += " id='" + self.name_to_id(self.get_ig_canonical() + "/dmn/" + id) + ".dmn'>\n"            
+      dmn_wrapped += "  <dmn:decision id='" + self.name_to_id(id) + "' name='" + self.escape(id) + "'>\n"
+      dmn_wrapped +=  dmn + "\n"
+      dmn_wrapped += "  </dmn:decision>\n"
+      dmn_wrapped += "</dmn:definitions>\n"
+      #self.log(dmn_wrapped)
+      ET.register_namespace('dmn' , dmn_namespace )
+      dmn_tree = ET.XML(dmn_wrapped)
+      ET.indent(dmn_tree)
+    except BaseException as e:
+      self.log("ERROR: Generated invalid XML for DMN id " + id +".")
+      self.log(f"\tError: {e}")
+      return False
+    
+    try:
+      dmn_path = Path("input/dmn/") /  f"{id}.dmn"
+      dmn_file = open(dmn_path,"w")
+      self.log(ET.tostring(dmn_tree,encoding="unicode"))
+      dmn_file.write(ET.tostring(dmn_tree,encoding="unicode"))
+      #print(ET.tostring(dmn_tree,encoding="unicode"),file=dmn_file)
+      dmn_file.close()
+      self.log("Installed " + str(dmn_path))
     except IOError as e:
       self.log("Could not save DMN with id: " + id + "\n")
-      log(f"\tError: {e}")
+      log(f"\tERROR: {e}")
+      return False
+
+    if self.dmn2html_xslt:
+      try:
+        html_path = Path("input/pagecontent/") / f"{id}.html"
+        # Use lxml to parse and transform DMN to HTML
+        # Pass relative stylesheet path for HTML output
+        self.log("Transforming dmn to html on " + id)
+        html_result = self.dmn2html_xslt(dmn_tree)
+        #self.log(html_result)
+        #self.log(ET.tostring(html_result,encoding="unicode"))
+        # Patch: ensure CSS is referenced as just 'dmn.css'        
+        html_file = open(html_path, "w")
+        html_file.write(ET.tostring(html_result, encoding="unicode"))
+        html_file.close()
+        self.log(f"Generated HTML DMN table for {id}: {html_path}")
+      except BaseException as e:
+        self.log("Could not process DMN into HTML")
+        self.log(f"\tError: {e}")
+        return False
+      
     return True
 
-  def save_resources(self):
+  def install_resources(self):
     result = True
     for directory, instances in self.resources.items() :
       for id,resource in instances.items() :
@@ -287,9 +346,6 @@ class installer:
     return codesystem
 
 
-  codesystems = {}
-  codesystem_titles = {}
-  codesystem_properties = {}
 
   def initialize_codesystem(self,codesystem_id:str,title:str):
     if codesystem_id in self.codesystems:
@@ -371,7 +427,10 @@ class installer:
 
 
   def add_cql(self,id,cql):
-    self.cqls[id]=cql    
+    self.cqls[id]=cql
+
+  def add_page(self,id,page):
+    self.pages[id]=page
 
 
   def create_cql_library(self,lib_name,cql_codes, properties = {}):
