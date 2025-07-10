@@ -1,17 +1,29 @@
-import xml.etree.ElementTree as ET
+import lxml.etree as ET
 import re
 import os
+import shutil
 import yaml
+from typing import List
 from pathlib import Path
 import pprint
 import sys
+from lxml import etree
+
 
 class installer:
-  resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'actors' : {} , 'instances': {}}  
+  resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'rulesets' : {},
+                'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {}}  
   cqls = {}
+  codesystems = {}
+  codesystem_titles = {}
+  codesystem_properties = {}
+  pages = {}
   logfile = None
   sushi_config = {}
-
+  dmn2html_xslt = None
+  dmn2html_xslt_file = "includes/dmn2html.xslt"  #relative to directory containing this file
+  dmn_css_file = "includes/dmn.css"  #relative to directory containing this file
+  
   def __init__(self):
     logfile_path = Path("temp/DAKExtract.log.txt")
     print("Logging status messages to stderr and: " + str(logfile_path))
@@ -20,8 +32,26 @@ class installer:
     Path("input/dmn").mkdir(exist_ok=True, parents=True)
     Path("input/cql").mkdir(exist_ok=True, parents=True)
     Path("input/fsh").mkdir(exist_ok=True, parents=True)
+    Path("input/pagecontent").mkdir(exist_ok=True, parents=True)
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
+    self.add_rulesets()
+
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    try:
+      Path("input/pagecontent/includes").mkdir(exist_ok=True, parents=True)
+      source_file = script_directory + "/" +  self.dmn_css_file
+      shutil.copy(source_file,Path("input/pagecontent/") / f"{self.dmn_css_file}")
+      resolved_file = script_directory + "/" +  self.dmn2html_xslt_file
+      self.log("xslt at " + resolved_file)
+      with open(Path(resolved_file), "rb") as f:
+        self.dmn2html_xslt = ET.XSLT(ET.parse(f))
+    except BaseException as e:
+      self.log("WARNING: Could not find XSLT at input/includes/dmn2html.xslt -- HTML DMN rendering will be unavailable.")
+      self.log(f"\tError: {e}")
+      sys.exit()
+
+
     
     
   def read_sushi_config(self):
@@ -61,14 +91,19 @@ class installer:
     return self.sushi_config['version']
   
   def install(self):
-    self.save_aliases()
-    self.save_resources()
-    self.save_dmns()
-    
-    for id,cql in self.cqls.items() :
-        self.save_cql(id,cql)
-        
+    self.install_aliases()
+    self.install_resources()
+    self.install_dmns()
+    self.install_pages()
+    self.install_cqls()
 
+  def install_cqls(self):
+    for id,cql in self.cqls.items():
+      self.install_cql(id,cql)
+        
+  def install_pages(self):
+    for id,page in self.pages.items():
+      self.install_page(id,page)
 
 
   dmn_tables = {}
@@ -86,45 +121,57 @@ class installer:
     if ( not (isinstance(name,str))):
       return None
     return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
-      
+
+
+  def escape_code(self,input):
+    if ( not (isinstance(input,str))):
+        return None
+    input = re.sub(r"['\"]","",input)
+    #SUSHI BUG on processing codes with double quote.  sushi fails
+    #Example \"Bivalent oral polio vaccine (bOPV)–inactivated polio vaccine (IPV)\" schedule (in countries with high vaccination coverage [e.g. 90–95%] and low importation risk [where neighbouring countries and/or countries that share substantial population movement have a similarly high coverage])" 
+
+    input = re.sub(r"\s+"," ",input).strip()
+    return input
+
+  def xml_escape(self,input):
+    if ( not (isinstance(input,str))):
+      return ""
+    # see https://stackoverflow.com/questions/1546717/escaping-strings-for-use-in-xml
+    return input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&apos;")    
   def escape(self,input):
     if ( not (isinstance(input,str))):
         return None
     return input.replace('"', r'\"')
 
-      
 
-  def save_dmns(self):
-    
+  def install_dmns(self):
+    result = True
     for dt_id,dmn_table in self.dmn_tables.items():
-        xml_dclr = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
-        namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
-        out = xml_dclr + "\n"
-        out += "<dmn:definitions  xmlns:dmn='" + namespace + "'\n"
-        out += " namespace='" + self.get_ig_canonical() + "'\n"
-        out += " name='"  + self.escape(dt_id) + "'\n"
-        out += " id='" + self.name_to_id(self.get_ig_canonical() + "/dmn/" + dt_id) + ".dmn'>\n"            
-        out += "  <dmn:decision id='" + self.name_to_id(dt_id) + "' name='" + self.escape(dt_id) + "'>\n"
-        out +=  dmn_table + "\n"
-        out += "  </dmn:decision>\n"
-        out += "</dmn:definitions>\n"
+      result &= self.install_dmn(dt_id,dmn_table)
+    return result
 
-        try:
-          dmn = ET.XML(out)
-          ET.register_namespace('dmn' , namespace )
-          ET.indent(dmn)
-        except:
-          self.log("WARNING: Generated invalid XML for dt_id " + dt_id +". saving to input/dmn for review")
-          self.save_dmn(dt_id ,out)
-          return False
-        # dmn_schema = XMLSchema('X110.xsd')
-        # if not dmn.validate(dmn_schema):
-        #   self.log("Invalid DMN for tab " + tab)
-        #   return False
-        if not self.save_dmn(dt_id,ET.tostring(dmn, encoding='unicode',xml_declaration=xml_dclr)):
-          self.log("Could not save decision table id " + dt_id)
-    return True
-    
+
+
+  def add_rulesets(self):
+    ruleset_id = "LogicLibrary"
+    ruleset = """RuleSet: LogicLibrary( library )
+* meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-shareablelibrary"
+* meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-publishablelibrary"
+* meta.profile[+] = "http://hl7.org/fhir/uv/cql/StructureDefinition/cql-library"
+* meta.profile[+] = "http://hl7.org/fhir/uv/cql/StructureDefinition/cql-module"
+* extension[+]
+  * url = "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability"
+  * valueCode = #computable
+* name = "{library}"
+* status = #draft
+* experimental = false
+* publisher = "World Health Organization (WHO)"
+* type = $library-type#logic-library
+* content
+  * id = "ig-loader-{library}.cql"
+"""
+    self.add_resource("rulesets",ruleset_id,ruleset)
+  
   aliasfile = "input/fsh/Aliases.fsh"
 
   aliases = []  
@@ -134,32 +181,44 @@ class installer:
       if alias not in self.aliases:
         self.aliases.append(alias)
 
-  def save_aliases(self):
+  def install_aliases(self):
     try:
         if not os.path.exists(self.aliasfile):
             with open(filename, 'w') as file:
                 for alias in self.aliases:
-                    log("Adding alias:" + alias)
+                    self.log("Adding alias:" + alias)
                     file.write(alias + "\n")
                 file.close()
         else:
             with open(self.aliasfile, 'r+') as file:
                 content = file.read()
                 for alias in self.aliases:
-#                    log("Checking alias:" + alias)
+#                    self.log("Checking alias:" + alias)
                     if alias not in content:
-                        log("Adding alias:" + alias)
+                        self.log("Adding alias:" + alias)
                         file.write('\n' + alias + '\n')
                 file.close()
     except IOError as e:
-        log("Could not insert aliases")
-        log(f"\tError: {e}")
+        self.log("Could not insert aliases")
+        self.log(f"\tError: {e}")
 
 
 
+  def install_page(self,id,page:str):
+    try:
+      file_path = "input/pagecontent/" + id + ".md"
+      file = open(file_path,"w")
+      print (page,file=file)
+      file.close()
+      self.log("Installed " + file_path)
+    except IOError as e:
+      self.log("Could not save page with id: " + id + "\n")
+      self.log(f"\tError: {e}")
+    return True
+    
 
         
-  def save_cql(self,id,cql:str):
+  def install_cql(self,id,cql:str):
     try:
       file_path = "input/cql/" + id + ".cql"
       file = open(file_path,"w")
@@ -169,71 +228,265 @@ class installer:
     except IOError as e:
       self.log("Could not save CQL with id: " + id + "\n")
       self.log(f"\tError: {e}")
+    return True
     
 
-  def save_dmn(self,id,dmn:str):
+  def install_dmn(self,id,dmn:str):
     try:
-      file_path = "input/dmn/" + id + ".dmn"
-      file = open(file_path,"w")
-      print(dmn,file=file)
-      file.close()
-      self.log("Installed " + file_path)
+      dmn_namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
+      dmn_wrapped = "<dmn:definitions  xmlns:dmn='" + dmn_namespace + "'\n"
+      dmn_wrapped += " namespace='" + self.get_ig_canonical() + "'\n"
+      dmn_wrapped += " name='"  + self.escape(id) + "'\n"
+      dmn_wrapped += " id='" + self.name_to_id(self.get_ig_canonical() + "/dmn/" + id) + ".dmn'>\n"            
+      dmn_wrapped += "  <dmn:decision id='" + self.name_to_id(id) + "' name='" + self.escape(id) + "'>\n"
+      dmn_wrapped +=  dmn + "\n"
+      dmn_wrapped += "  </dmn:decision>\n"
+      dmn_wrapped += "</dmn:definitions>\n"
+      #self.log(dmn_wrapped)
+      ET.register_namespace('dmn' , dmn_namespace )
+      dmn_tree = ET.XML(dmn_wrapped)
+      ET.indent(dmn_tree)
+    except BaseException as e:
+      self.log("ERROR: Generated invalid XML for DMN id " + id +".")
+      self.log(f"\tError: {e}")
+      return False
+    
+    try:
+      dmn_path = Path("input/dmn/") /  f"{id}.dmn"
+      dmn_file = open(dmn_path,"w")
+      self.log(ET.tostring(dmn_tree,encoding="unicode"))
+      dmn_file.write(ET.tostring(dmn_tree,encoding="unicode"))
+      #print(ET.tostring(dmn_tree,encoding="unicode"),file=dmn_file)
+      dmn_file.close()
+      self.log("Installed " + str(dmn_path))
     except IOError as e:
       self.log("Could not save DMN with id: " + id + "\n")
-      log(f"\tError: {e}")
-    
+      log(f"\tERROR: {e}")
+      return False
 
-  def save_resources(self):
+    if self.dmn2html_xslt:
+      try:
+        html_path = Path("input/pagecontent/") / f"{id}.html"
+        # Use lxml to parse and transform DMN to HTML
+        # Pass relative stylesheet path for HTML output
+        self.log("Transforming dmn to html on " + id)
+        html_result = self.dmn2html_xslt(dmn_tree)
+        #self.log(html_result)
+        #self.log(ET.tostring(html_result,encoding="unicode"))
+        # Patch: ensure CSS is referenced as just 'dmn.css'        
+        html_file = open(html_path, "w")
+        html_file.write(ET.tostring(html_result, encoding="unicode"))
+        html_file.close()
+        self.log(f"Generated HTML DMN table for {id}: {html_path}")
+      except BaseException as e:
+        self.log("Could not process DMN into HTML")
+        self.log(f"\tError: {e}")
+        return False
+      
+    return True
+
+  def install_resources(self):
+    result = True
     for directory, instances in self.resources.items() :
       for id,resource in instances.items() :
         try:
-            file_path = "input/fsh/" + directory + "/" + id + ".fsh"
-            Path("input/fsh/" + directory).mkdir(exist_ok=True, parents=True)
-            file = open(file_path,"w")
-            print(resource,file=file)
-            file.close()
-            self.log("Installed " + file_path)
+          file_path = "input/fsh/" + directory + "/" + id + ".fsh"
+          Path("input/fsh/" + directory).mkdir(exist_ok=True, parents=True)
+          file = open(file_path,"w")
+          print(resource,file=file)
+          file.close()
+          self.log("Installed " + file_path)
         except IOError as e:
-            log("Could not save resource of type: " + directory + "  with id: " + id + "\n")
-            log(f"\tError: {e}")
-        
+          result = False
+          log("Could not save resource of type: " + directory + "  with id: " + id + "\n")
+          log(f"\tError: {e}")
+    return result
 
-  def generate_cs_and_vs_from_dict(id:str, title:str, codelist:dict ):
-    if len(codelist) == 0:
-        return False
-    
-    codesystem = 'CodeSystem: ' + escape(id) + '\n'
-    codesystem += 'Title: "' + escape(title) + '"\n'
-    codesystem += 'Description:  "CodeSystem for ' + escape(title) + '. Autogenerated from DAK artifacts"\n'
-    codesystem += '* ^experimental = true\n'
+  def render_codesystem(self,id:str):
+    if (not id in self.codesystems) or (not id in self.codesystem_titles):
+      self.log("Trying to render absent codesystem " + id)
+      return ""
+    title = self.codesystem_titles[id]
+    codesystem = 'CodeSystem: ' + self.escape(id) + '\n'
+    codesystem += 'Title: "' + self.escape(title) + '"\n'
+    codesystem += 'Description:  "CodeSystem for ' + self.escape(title) + '. Autogenerated from DAK artifacts"\n'
+    codesystem += '* ^experimental = false\n'
     codesystem += '* ^caseSensitive = false\n'
     codesystem += '* ^status = #active\n'
-    for code,name in codelist.items():
-        codesystem += '* #' + escape(code) +  ' "' + escape(name) + '"\n'
-        
-    valueset = 'ValueSet: ' + escape(id) + '\n'
-    valueset += 'Title: "' + escape(title) + '"\n'
-    valueset += 'Description:  "Value Set for ' + escape(title) + '. Autogenerated from DAK artifacts"\n'
-    valueset += '* ^status = #active\n'
-    valueset += '* ^experimental = true\n'
-    valueset += '* include codes from system ' + escape(id) + '\n'
-    
+    for code,vals in self.codesystem_properties[id].items():
+      codesystem += '* ^property[+].code = #"' + self.escape_code(code) + '"\n'
+      for k,v in vals.items():
+        codesystem += '* ^property[=].' + k + ' = ' + v + "\n" # user is responsible for content
 
-    self.add_resource('codesystems',id,codesystem)
+    for code,val in self.codesystems[id].items():
+      self.log("Attempting to add " + str(code) )
+      if isinstance(val,str):
+        codesystem += '* #"' + self.escape_code(code) +  '" "' + self.escape(name) + '"\n'
+      elif isinstance(val,dict)  and 'display' in val:
+        codesystem += '* #"' + self.escape_code(code) +  '" "' + self.escape(val['display']) + '"\n'
+        if 'definition' in val:
+          codesystem += '  * ^definition = """' + val['definition'] + '\n"""\n'
+        if 'designation' in val and isinstance(val['designation'],list):
+          for d_val in val['designation']:
+            if not isinstance(d_val,dict) or not 'value' in d_val:
+              continue
+            codesystem += '  * ^designation[+].value = ' + d_val['value'] + "\n"
+            d_val.pop('value')
+            for k,v in d_val.items():
+              codesystem += '  * ^designation[=].' + k + " = " + v + "\n"
+            
+        if 'propertyString' in val and isinstance(val['propertyString'],dict):
+          for p_code,p_val in val['propertyString'].items():
+            codesystem += '  * ^property[+].code = #"' + self.escape(p_code) +  '"\n'
+            codesystem += '  * ^property[=].valueString = "' + self.escape(p_val) +  '"\n'
+      else:
+        self.log("  failed to add code (expected string or dict with 'display' property)" + str(code))
+        self.log(pprint.pp(val))
+
+    return codesystem
+
+
+
+  def initialize_codesystem(self,codesystem_id:str,title:str):
+    if codesystem_id in self.codesystems:
+      self.log("WARNING: reinitializing codesystem " + codesystem_id)
+    self.codesystems[codesystem_id] = {}
+    self.codesystem_titles[codesystem_id] = title
+    self.codesystem_properties[codesystem_id] = {}
+    # need to replace this type of logic with exception handling probably
+    return True
+
+
+  def add_codesystem_properties(self,codesystem_id:str,vals:dict):
+    for k,v in vals.items():
+      self.add_codesystem_property(codesystem_id,k,v)
+      
+  def add_codesystem_property(self,codesystem_id:str,k:str,v):
+    self.codesystem_properties[codesystem_id][k] = v
+
+  def add_dict_to_codesystem(self,codesystem_id:str,inputs):
+    result = True
+    for code,expr in inputs.items():
+      result &= self.add_to_codesystem(codesystem_id,code,expr)
+    return result
+    
+  def add_to_codesystem(self,codesystem_id:str,code:str,expr:str):
+    if not codesystem_id in self.codesystems:
+      self.log("ERROR: Code system not initialized " + codesystem_id)
+      return False
+
+    if code in self.codesystems[codesystem_id] and expr != self.codesystems[codesystem_id][code]:
+        # want this to be a structured ERROR for quality control back to the L2 authors
+        self.log("ERROR: non-matching definitions for code " + code + " in code system " + codesystem_id)
+        return False
+      
+    self.codesystems[codesystem_id][code] = expr
+    return True
+
+
+  def generate_vs_from_list(self,id:str, codesystem_id:str, title:str, codes):
+        
+    valueset = 'ValueSet: ' + self.escape(id) + '\n'
+    valueset += 'Title: "' + self.escape(title) + '"\n'
+    valueset += 'Description:  "Value Set for ' + self.escape(title) + '. Autogenerated from DAK artifacts"\n'
+    valueset += '* ^status = #active\n'
+    valueset += '* ^experimental = false\n'
+    for code in codes:
+      valueset += '* include ' + self.escape(codesystem_id) + '#"' + self.escape_code(code) + '"\n'
+    
     self.add_resource('valuesets',id, valueset)
 
     return True
 
+  
+
+  def generate_cs_and_vs_from_dict(self,id:str, title:str, codelist:dict , properties : {}):
+    if not self.initialize_codesystem(id,title):
+      self.log("Skipping CS and VS for " + str + " could not initialize")
+      return False
+    if not self.add_dict_to_codesystem(id,codelist):
+      self.log("Skipping CS and VS for " + str + " could not add dictionary")
+      return False
+    self.add_codesystem_properties(id,properties)
+
+    codesystem = self.render_codesystem(id)
+    
+    valueset = 'ValueSet: ' + self.escape(id) + '\n'
+    valueset += 'Title: "' + self.escape(title) + '"\n'
+    valueset += 'Description:  "Value Set for ' + self.escape(title) + '. Autogenerated from DAK artifacts"\n'
+    valueset += '* ^status = #active\n'
+    valueset += '* ^experimental = false\n'
+    valueset += '* include codes from system ' + self.escape(id) + '\n'
+
+    self.add_resource('codesystems',id,codesystem)
+    self.add_resource('valuesets',id, valueset)
+    return True
   
   def add_resource(self,dir,id,resource):
     self.resources[dir][id]=resource
 
 
   def add_cql(self,id,cql):
-    self.cqls[id]=cql    
+    self.cqls[id]=cql
 
+  def add_page(self,id,page):
+    self.pages[id]=page
+
+
+  def create_cql_library(self,lib_name,cql_codes, properties = {}):
+    lib_id = self.name_to_id(lib_name)
+    cql =  "/*\n"
+    cql += "@libname: " + lib_name + "\n"
+    cql += "@libid: " + lib_id + "\n"
+    for k,v in properties.items():
+      cql += '@' + k + ': ' + v + "\n"
+    cql += "*/\n"
+    cql += "library " + lib_id + "\n"
+    #cql += "using FHIR version '4.0.1'\n"
+    #cql += "include FHIRHelpers version '4.0.1'\n" #do we want to include some common libraries?
+    cql += "\ncontext Patient\n"
+
+    if not isinstance(cql_codes,dict):
+      self.log("Invalid CQL code definitions for " + lib_name)
+      sys.exit()
+      return False
+    
+    for name,val in cql_codes.items():
+      if isinstance(val,str):
+        cql += "\n/*\n"
+        cql += "@name: " + name + "\n"
+        cql += "@pseudocode: " + val + "\n"
+        cql += " */\n"
+        cql += "define \"" + self.escape(name) + "\":\n"
+        cql += "  //CQL AUTHORS: you need to insert stuff here\n"
+      elif isinstance(val,dict):
+        cql += "\n/*\n"
+        cql += "Autogenerated documentation from DAK\n"
+        cql += "@name: " + name + "\n"
+        for k,v in val.items():
+          cql += "@" + k + ": " + str(v) + "\n"            
+        cql += " */\n"
+        cql += "define \"" + self.escape(name) + "\":\n"
+        cql += "  //CQL AUTHORS: you need to insert stuff here\n"
+        if 'pseudocode' in val:
+          cql += "  // " + "\n   // ".join(val['pseudocode'].splitlines(True)) + "\n"
+          
+    self.add_cql(lib_id,cql)
+    
+    library = "Instance: " + lib_id + "\n"
+    library += "InstanceOf: Library\n"
+    library += "Title: \"" + self.escape(lib_name) + "\"\n"
+    library += "Description: \"This library defines context-independent elements for "  + lib_name + "\"\n"
+    library += "Usage: #definition\n"
+    library += "* insert LogicLibrary( " + lib_id + " )\n"    
+    self.add_resource("libraries",lib_id,library)
+
+    
   def log(self,*statements):
     for statement in statements:
       print(str(statement) ,  file=sys.stderr)
       self.logfile.write(str(statement) + "\n")
     self.logfile.flush()
+
+
+    

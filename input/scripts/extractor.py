@@ -110,36 +110,36 @@ class extractor(object):
 
 
   def log(self,*statements):
-    prefix = self.__class__.__name__ + "(" + self.inputfile_name + "):"
+    prefix = self.__class__.__name__ + "(" + os.path.basename(self.inputfile_name) + "):"
     for statement in statements:
       statement = str(statement).replace("\n","\n\t")
       self.installer.log( prefix + statement )
       prefix = "\t"
 
+  def is_nan(self,v):
+    return (isinstance(v, float) and v != v)
+      
+  def is_blank(self,v):
+    return v == None \
+      or (isinstance(v, str) and not v)
 
-
+  def is_dash(self,v):
+    return isinstance(v,str) and (v == '-' or v == '–')
+      
   def name_to_lower_id(self,name):    
-    if ( not (isinstance(name,str))):
-      return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
-
+    return self.installer.name_to_lower_id(name)
     
-  def name_to_id(self,name):    
-    if ( not (isinstance(name,str))):
-      return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
+  def escape_code(self,input):
+    return self.installer.escape_code(input)
+    
+  def name_to_id(self,name):
+    return self.installer.name_to_id(name)
       
   def escape(self,input):
-    if ( not (isinstance(input,str))):
-        return None
-    return input.replace('"', r'\"')
-
+    return self.installer.escape(input)
 
   def xml_escape(self,input):
-    if ( not (isinstance(input,str))):
-      return ""
-    # see https://stackoverflow.com/questions/1546717/escaping-strings-for-use-in-xml
-    return input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&apos;")
+    return self.installer.xml_escape(input)
 
 
 

@@ -1,3 +1,4 @@
+import sys
 import pprint
 import os
 import glob as glob
@@ -5,26 +6,22 @@ import re
 import pandas as pd
 from extractor import extractor 
 from installer import installer
-
+from pathlib import Path
 class dl_extractor(extractor):
   tab_data : dict      
+  cql_definitions : dict
 
-  # def usage():
-  #   print("Usage: scans input/decision-logic for excel sheets ")
-  #   print("where the referenced excel contains a decision logic gables.")
-  #   print("produces CQL and DMN assets")
-  #   print("OPTIONS:")
-  #   print(" none")
-  #   print("--help|h : print this information")
-  #   sys.exit(2)
-
+ 
   def __init__(self,installer:installer):
     super().__init__(installer)
-
+    
   def find_files(self):
     return glob.glob("input/decision-logic/*xlsx")
         
-    
+  def find_cql_files(self):
+    return glob.glob("input/cql/*cql")
+
+  
   def extract_file(self):
     cover_column_maps = {
         'id_name':["Activity ID.Activity name"],
@@ -53,6 +50,7 @@ class dl_extractor(extractor):
     description = ""
     sources = ""
     self.tab_data = {}
+    self.cql_definitions = {}
 
     if cover_sheet is None:
       self.log("Could not load cover sheet")      
@@ -85,27 +83,168 @@ class dl_extractor(extractor):
       id = parts[0].strip()
       name = parts[1].strip()
 
+      if not "dt_id" in row  or not isinstance(row["dt_id"], str) or not row["dt_id"]:
+        self.log("Could not load decision dt_id data", row)
+        continue
+      dt_id = self.name_to_id(row["dt_id"])
       
-      if "tab" in row and  isinstance(row["tab"], str) and row["tab"]:
-        tab = row["tab"]
+      if "tab" in row:
+        if  isinstance(row["tab"], str) and row["tab"]:
+          tab = row["tab"]
+      else:
+        tab = dt_id
       has_non_empty |= bool(row["tab"])
+
+      #if tab != 'BCG':
+      #  continue
 
       if not self.load_tab(tab):      
         self.log("Could not load tab data for "  + tab)
         continue
 
-      if not "dt_id" in row  or not isinstance(row["dt_id"], str) or not row["dt_id"]:
-        self.log("Could not load decision dt_id data", row)
-        continue
-      dt_id = self.name_to_id(row["dt_id"])
-
       data = {"tab":tab,"dt_id":dt_id,"description":row["description"],"source":row["sources"]}
       if not self.extract_activity_table(id,name,tab,dt_id,data):
         self.log("Could not extract decition table for id=" + id + " name=" + name + " data=" + str(data))
 
+    dl_cs_id = "DecisionLogic"
+    cql_files = self.find_cql_files()
+    #cql_files = ["input/cql/IMMZD5DTBCGElements.cql"]        
+    cql_contents = {}
+    for cql_file in cql_files:
+      if cql_file.startswith(dl_cs_id):
+        continue      
+      cql_contents[cql_file] = Path(cql_file).read_text()
+
+    all_codes = {}
+    for tab_id,dts in self.cql_definitions.items():
+      tab_codes = {}
+      tab_markdown = "### Decision Tables for Tab  " + tab_id + "\n"
+
+
+      for dt_id,cql_definitions in dts.items():
+        dt_include = "{% include " + dt_id + ".html %}\n"
+        dt_markdown = "### Decision Table " + dt_id + "\n"
+        dt_markdown += dt_include
+        tab_markdown += "#### Decision Table " + dt_id + "\n"
+        tab_markdown += dt_include
+        self.installer.add_page("DecisionTable" + dt_id,dt_markdown)
+        
+        self.log("Processing DT ID cql for " + dt_id + " on tab_id " + tab_id)
+        vs_id = self.name_to_id('DecisionLogicTable'  + dt_id)
+        dt_codes = []
+        for cql_id,val in cql_definitions.items():
+          if not cql_id:
+            self.log("BAD:" + cql_id + " from " + dt_id)
+            sys.exit()
+          if not cql_id in all_codes:
+            self.log("  adding new " + cql_id  + " -> " + str(val))
+            if isinstance(val,str):
+              cql_prop = { 'title' : val,
+                           'pseudocode' : val,
+                           'tab' : [tab_id],
+                           'table' : [dt_id]
+                          }
+              all_codes[cql_id] = cql_prop
+              tab_codes[cql_id] = cql_prop
+            elif isinstance(val,dict) and 'title' in val:
+              if not 'pseudocode' in val:
+                val['pseudocode'] = val['title']
+              all_codes[cql_id] = val
+              all_codes[cql_id]['tab'] = [tab_id]
+              all_codes[cql_id]['table'] = [dt_id]
+              tab_codes[cql_id] = all_codes[cql_id]                            
+            else:
+              self.log("  skipping " + cql_id  )
+              continue
+          else:
+            self.log("  updating" + cql_id  + " -> " + str(val))
+            if isinstance(val,str):
+              title = val
+              tab_codes[cql_id] = {'pseudocode':title}
+            elif isinstance(val,dict) and 'title' in val:
+              title = val['title']
+              tab_codes[cql_id] = val
+            else:
+              self.log("  skipping " + cql_id  )
+              continue
+            
+            
+            if title != all_codes[cql_id]['title']:
+              self.log("ERROR: cql expression " + cql_id + " has repeated non-matching definition in decision table with id " + dt_id + " on tab_id " + tab_id )
+
+          dt_codes += [cql_id]
+          
+        dt_vs_id = self.name_to_id(dl_cs_id + 'Table'+tab_id)
+        self.installer.generate_vs_from_list(dt_vs_id,dl_cs_id,'Decision Logic For Decision Table ' + dt_id,dt_codes)
+
+      self.installer.add_page("DecisionTab" + tab_id,tab_markdown)
+      properties = {}
+      self.create_cql_skeleton_for_tab(tab_id,tab_codes,properties)        
+      tab_vs_id = self.name_to_id(dl_cs_id + 'Tab'+tab_id)
+      self.installer.generate_vs_from_list(tab_vs_id,dl_cs_id,'Decision Logic For Tab ' + tab_id,list(tab_codes.keys()))
+      properties = {'decisionTables' : ", ".join(dt_codes) }
+
+
+    #normalize content for codesystem
+    normalized_codes = {}
+    for cql_id,cql_prop in all_codes.items():
+      #if cql_id != "The client is pregnant":
+      #  continue
+      cql_prop['display'] = cql_prop['title']
+      cql_prop['definition'] = cql_prop['title'] + "\nReferenced in the following locations:\n"
+      cql_prop['definition'] += " * Decision Tables: " + ", ".join(cql_prop['table']) + "\n"
+      cql_prop['definition'] += " * Tabs: " + ", ".join(cql_prop['tab']) + "\n"
+      cql_prop['propertyString'] = {
+        'table' : ", ".join(cql_prop['table']),
+        'tab' : ", ".join(cql_prop['tab'])
+      }
+      cql_prop.pop('tab')
+      cql_prop.pop('table')
+
+      #look for existing defintions
+      cql_prop['designation'] = []
+      cql_defs = ""
+      for cql_file,cql_content in cql_contents.items():
+        pattern = r'(^define\s+(\'|")' + re.escape(cql_id) + r'(\'|")\s*:(.*?))(\/\*|^define|\Z)'        
+        match = re.search(pattern, cql_content, re.DOTALL | re.MULTILINE | re.IGNORECASE)
+        if not match:
+          continue
+        cql_def = match.group(1)
+        if self.is_blank(cql_def):
+          continue
+        #self.log("for " + cql_id + " found in " + cql_file + "found:" +  cql_def)
+        cql_defs += "//Found in " + cql_file + "\n\n" + cql_def + "\n\n"
+      if not self.is_blank(cql_defs):
+        cql_prop['designation'] += [{
+          'value': '"""'  + cql_defs  + '"""',
+          'language' : "#CQL" # technically needs to be in https://build.fhir.org/valueset-all-languages.html
+        }]
+      normalized_codes[cql_id] = cql_prop
+      
+    self.log(pprint.pp(normalized_codes))
+    
+    cs_properties = {
+      'table': {
+        'description':'"Decision Table ID"',
+        'type':'#string'
+      },
+      'tab': {
+        'description':'"Decision Tab"',
+        'type':'#string'
+      }
+    }
+
+    self.installer.generate_cs_and_vs_from_dict(dl_cs_id,'Decision Logic',normalized_codes,cs_properties)
     self.log("Extracted from cover")
     return True
 
+  
+  
+  def create_cql_skeleton_for_tab(self,tab_id,cql_codes,properties = {}):
+    lib_name = "DecisionLogicElements" + tab_id 
+    return self.installer.create_cql_library(lib_name,cql_codes,properties)
+  
+  
   def load_tab(self,tab:str):
     tab_id = self.name_to_id("tab")
     if tab_id in self.tab_data:
@@ -123,22 +262,14 @@ class dl_extractor(extractor):
     tab_id = self.name_to_id(tab)
     self.log("Exracting tab to " + tab_id)
     self.tab_data[tab_id] = {'df' :df,'tables':{}}
-    #for col in df.columns.tolist():
     for col in df:
-      #self.log("Looking for Decision ID values in column=" , df[col])
       matching_rows = df[col] == "Decision ID"
       sched_matching_rows = df[col] == "Schedule ID"
       
       if not isinstance(matching_rows,pd.Series) or not matching_rows.any():
-        #self.log("no matching rows")
         continue
-      #self.log("matched ",matching_rows)
       
       col_idx = df.columns.get_loc(col) 
-#      decision_id_col = df.iloc[col_idx +1]
-#      self.log("second column is =",decision_id_col)
-      
-
       self.log("Found decision tables in column index " + str(col_idx) + " on  matched rows=", df[matching_rows])
       for row in df[matching_rows].iterrows():
         row_idx = row[0]
@@ -150,15 +281,13 @@ class dl_extractor(extractor):
           continue
 
         self.log("found decision id=" + decision_id)
-
-        
         br_row = row_idx + 1
         if not isinstance(df[col][br_row],str) or not df[col][br_row] == "Business rule":
           self.log("Did not find Business Rule row of decision table " + decision_id)
           continue        
         br = df[col_idx + 1][br_row]
         if not isinstance(br,str) or not br:
-          self.log("Did not find any business rule defined for decision table " + decision_id)
+          self.log("Did not find any Business Rule defined for decision table " + decision_id)
           continue
 
         trigger_row = row_idx + 2
@@ -201,7 +330,7 @@ class dl_extractor(extractor):
           self.log("Did not find Guidance column of decision table " + decision_id)
           
         if not ref_col:
-          self.log("Did not find referene column of decision table " + decision_id)
+          self.log("Did not find Reference column of decision table " + decision_id)
                     
         self.log("Found decision table " + decision_id + " in " + tab + " at r,c:" + str(row_idx) + "," + str(col_idx) + ".  Saving in tab_id=" + tab_id + " with decision_id=" + decision_id)
         self.tab_data[tab_id]['tables'][decision_id] = {
@@ -215,20 +344,10 @@ class dl_extractor(extractor):
           "annotation_col":anno_col,
           "reference_col":ref_col,
           'used':False}        
-    return True
-    
+    return True    
 
-  def is_blank(self,v):
-    return v == None \
-      or (isinstance(v, float) and v != v) \
-      or (isinstance(v, str) and not v)
 
-  def is_nan(self,v):
-    return (isinstance(v, float) and v != v)
-
-      
   def extract_activity_table(self,id:str,name:str,tab:str,dt_id:str,row):
-    
     self.log("Looking for decision table ID=" + dt_id + " for activivity id /name (" + id + "/" + name + "): row=\n" + str(row))
     tab_id =self.name_to_id(tab)
     if dt_id not in self.tab_data[tab_id]['tables']:
@@ -237,11 +356,11 @@ class dl_extractor(extractor):
     data = self.tab_data[tab_id]['tables'][dt_id]
     df = self.tab_data[tab_id]["df"]
     
-    
     ul_corner = df[data["col"]][data["row"]]
     is_contra_table = False
     is_regular_table = False
     is_schedule_table = False
+    self.log("\n\n\nTT=" +       str(df[data["col"]][data["input_row"]]))
     if self.name_to_id(ul_corner) == self.name_to_id("Decision ID"):
       table_type = df[data["col"]][data["input_row"]]
       is_contra_table = table_type == "Potential contraindications"
@@ -271,111 +390,126 @@ class dl_extractor(extractor):
       contra_dmn_id = "input." + contra_id
       contra_dmn = "<dmn:input id='" + contra_dmn_id + "' label='" + self.xml_escape(table_type) + "'></dmn:input>"
       self.log("rendereing contraindication input dmn for decision table ")
-      input_dmns.append(contra_dmn)
+      input_dmns += [contra_dmn]
 
     if is_regular_table:
       output_name = "Care Plan"
-      output_expr = "Produce a suggested  Care Plan for consideration by health worker"
-      output_dmns.append(self.create_dmn_output_expression(dt_id, output_name + "\n"  + output_expr))
+      output_expr = "Produce a suggested Care Plan for consideration by health worker"
+      output_dmns += [self.create_dmn_output_expression(dt_id, output_name , output_expr)]
 
       guidance_name = "Guidance displayed to health worker"
-      guidance_expr = "Request to communitcate guidance to the health worker"
-      output_dmns.append(self.create_dmn_output_expression(dt_id, guidance_name + "\n"  + guidance_expr))
-        
+      guidance_expr = "Request to communicate guidance to the health worker"
+      output_dmns += [self.create_dmn_output_expression(dt_id, guidance_name , guidance_expr)]
+
+    found_definitions = False 
     while in_table:
-      row_offset += 1
+      row_offset += 1      
       t_row = data["input_row"] + row_offset
+
       if not t_row in df[data["output_col"]]:
         in_table = False
         break
         
       first_val = df[data["col"]][t_row]
       self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
-      
+
+      found_definitions = len(inputs) > 0
       prev_inputs = inputs
       inputs = []
       trailing_nan_input = True
       trailing_blank_input = True
       i = 0
+      vals = []
       for c in range(data["col"] ,data["output_col"]):
         val = df[c][t_row]
-        if self.is_blank(val) and i < len(prev_inputs):
-          inputs.append(prev_inputs[i])
+        vals += [val]
+        self.log(' v='  + str(val) + "/" + str(i) + "/" + str(len(prev_inputs)))
+        if self.is_nan(val)  and i < len(prev_inputs):
+          self.log('  => setting to previous value')
+          inputs += [prev_inputs[i]]
         else:
-          inputs.append(val)
+          inputs += [val]
 
-        trailing_nan_input &=  ( self.is_nan(val) )
-        trailing_blank_input &=  ( self.is_blank(val))
+        trailing_nan_input &=  ( i == 0 or self.is_nan(val) )
+        trailing_blank_input &=  ( i==0 or self.is_blank(val))
         i += 1
 
 
-      output = df[data["output_col"]][t_row]  if data["output_col"] else ""
-      guidance = df[data["guidance_col"]][t_row] if data["guidance_col"] else ""
-      guidance = "" if self.is_nan(guidance) else guidance
-      reference = df[data["reference_col"]][t_row] if data["reference_col"] else ""
-      reference = "" if self.is_nan(reference) else reference
-      annotation = df[data["annotation_col"]][t_row] if data["annotation_col"] else ""
-      annotation = "" if self.is_nan(annotation) else annotation
+
+      output = df[data["output_col"]][t_row]  if data["output_col"] else float('nan')
+      guidance = df[data["guidance_col"]][t_row] if data["guidance_col"] else float('nan')
+      reference = df[data["reference_col"]][t_row] if data["reference_col"] else float('nan')
+      annotation = df[data["annotation_col"]][t_row] if data["annotation_col"] else float('nan')
+
       
-      not_in_table = self.is_blank(first_val) and trailing_blank_input and self.is_blank(output) \
-        and self.is_blank(guidance) and self.is_blank(annotation)
+      not_in_table = self.is_nan(first_val) and  trailing_nan_input  \
+        and self.is_nan(output) and self.is_nan(guidance)  and self.is_nan(annotation)
+
+      is_merged_line_annotation = isinstance(first_val,str) and first_val and trailing_nan_input \
+        and self.is_blank(output) and self.is_blank(guidance) and self.is_blank(annotation)
 
       if not_in_table:
         self.log("Saw end of decision table starting at:" + str(t_row))
         in_table = False
         break
+
+   
+      debug = { 'tab_id' : tab_id,
+                'dt_id': dt_id,
+                'not_in_table' : not_in_table,
+                'first_val' : first_val,
+                'trailing_nan_input' : trailing_nan_input,
+                'trailing_blank_input' : trailing_blank_input,
+                'is_merged_line_annotation' : is_merged_line_annotation,
+                'is_contra_table' : is_contra_table,
+                'is_regular_table' : is_regular_table,
+                'is_schedule_table' : is_schedule_table,
+                'annotation' :  annotation, 
+                'reference' : reference, 
+                'output' : output, 
+                'guidance' : guidance, 
+                'vals' : vals, 
+                'inputs' : inputs, 
+                'prev_inputs' : prev_inputs
+               }
+      self.log(pprint.pp(debug))
+            
       
-      is_merged_line_annotation = isinstance(first_val,str) and first_val and trailing_nan_input \
-        and self.is_nan(output) and self.is_nan(guidance) and self.is_nan(annotation)
+      guidance = "" if self.is_nan(guidance) else guidance
+      reference = "" if self.is_nan(reference) else reference
+      annotation = "" if self.is_nan(annotation) else annotation
+      output = "" if self.is_nan(output) else output
       
-      if (is_merged_line_annotation):
+      if is_merged_line_annotation:
         self.log("Found pre-amble annotation=" + first_val)        
         pre_annotation += first_val + "\n"
         continue
-
-      # if we made it to here we should have something in the inputs
-      self.log("Found inputs: (" +  ",".join(str(input) for input in inputs) + ")")
 
       if pre_annotation:
         pre_annotation += "\n\n"
       
       if is_regular_table:
         self.log("Got input column")
-        if ( self.is_blank(output) and self.is_blank(annotation)):
-          #it is a input variable definition          
-          for val in inputs:
-            if self.is_blank(val) or (isinstance(val,str) and val == "-"):
-              continue
-            if isinstance(val,str) and val.count("\n") == 0:
-              #hacky way to deal with an input variable without a definition
-              val += "\n" + val
-            input_dmns.append(self.create_dmn_input_expression(dt_id,val))            
-          self.log("rendereing dmn for decision table " )
+        if not found_definitions:
+          #it is a input variable definition
+          self.log("rendeing dmn for decision table " )
           pre_annotation = "" #reset it
+          input_dmns += self.process_input_definition_row(tab_id,dt_id,inputs)
+          #we may hav had some extraneous/blank input definitions that we want to skip processing on in the future
+          inputs = inputs[0:len(input_dmns)]
         else:
           #it is a rule
           rule_name = "dt." + dt_id + "." + str(row_offset)
-          rule_dmn_entries = []            
-          for val in inputs:
-            rule_dmn_entries.append(self.create_dmn_entry(rule_name,"input",val))
-          rule_dmn_entries.append(self.create_dmn_entry(rule_name,"output",output))
-          if guidance:
-            rule_dmn_entries.append(self.create_dmn_entry(rule_name,"output",guidance))
-          if annotation:
-            rule_dmn_entries.append( self.create_dmn_entry(rule_name,"annotation",annotation))
-          if reference:
-            rule_dmn_entries.append(self.create_dmn_entry(rule_name,"annotation",reference))          
-          rule_dmns.append(self.create_dmn_rule(rule_name,rule_dmn_entries))
+          #we may hav had some extraneous/blank input definitions that we want to skip processing on in the future
+          inputs = inputs[0:len(input_dmns)]
+          rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
           pre_annotation = "" #reset it          
       elif is_contra_table:
-        self.log("got contraindication" + str(first_val))
-        rule_name = "contra." + dt_id + "." + str(row_offset)
-        rule_dmn_entries = [self.create_dmn_entry(rule_name,"input",first_val)]
-        if annotation:
-          rule_dmn_entries.append(self.create_dmn_entry(rule_name,"annotation",annotation))
-        if reference:
-          rule_dmn_entries.append(self.create_dmn_entry(rule_name,"annotation",reference))          
-        rule_dmns.append(self.create_dmn_rule(rule_name,rule_dmn_entries))
+        if self.is_blank(output):
+          continue
+        self.log("got contraindication")
+        rule_name = "contra." + dt_id + "." + str(row_offset)        
+        rule_dmns += [self.process_contra_indication_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
         pre_annotation = "" #reset it
       else:
         self.log("WARNING - UNKNOWN table type")
@@ -392,25 +526,111 @@ class dl_extractor(extractor):
 
     dt_dmn += "    </dmn:decisionTable>"
 
-    tab_id = self.name_to_id(tab)
+
     self.installer.add_dmn_table(dt_id,dt_dmn)
-    self.tab_data[tab_id]['tables'][dt_id]['used'] = True    
+    self.tab_data[tab_id]['tables'][dt_id]['used'] = True
     return True
+  
+  def process_contra_indication_input_row(self,tab_id:str,dt_id:str,rule_name:str,inputs,output:str,guidance:str,annotation:str,reference:str):
+    rule_dmn_entries = []            
+    for val in inputs:
+      if self.is_blank(val) or self.is_dash(val) or self.is_nan(val):
+        continue
+      self.log("Adding contra '" + str(val) + "'")
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"input",str(val)))
+
+    rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",output))
+
+    if annotation:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
+    if reference:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",reference))          
+
+    if guidance:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",guidance))
+    if annotation:
+      rule_dmn_entries.append( self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
+    if reference:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",reference))
+    
+    return self.create_dmn_rule(rule_name,rule_dmn_entries)
+
+    
+  def process_input_row(self,tab_id:str,dt_id:str,rule_name:str,inputs,output:str,guidance:str,annotation:str,reference:str):
+    rule_dmn_entries = []            
+    for val in inputs:
+      self.log("Processing input defintion: " + str(val))
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"input",val))
+
+    rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",output))
+
+    if guidance:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",guidance))
+    if annotation:
+      rule_dmn_entries.append( self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
+    if reference:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",reference))
+            
+    return self.create_dmn_rule(rule_name,rule_dmn_entries)
+
+  
+  def process_input_definition_row(self,tab_id:str,dt_id:str,inputs):
+    input_dmns = []
+    for val in inputs:
+      if self.is_blank(val) or self.is_dash(val) or self.is_nan(val):
+        continue
+
+      self.log("Processing input defintion: " + str(val))
       
+      val_id = str(val).strip()
+      parts = val_id.split("\n",1)
+      if (len(parts) == 2):
+        val_id = parts[0].strip()
+        val_definition = parts[1].strip()
+      else:
+        val_definition = val_id
+
+      val_id = self.escape_code(val_id)
+      self.log("Found code(" + val_id + ")")
+      if not tab_id in self.cql_definitions:
+        self.cql_definitions[tab_id] = {}
+      if not dt_id in self.cql_definitions[tab_id]:
+        self.cql_definitions[tab_id][dt_id] = {}
+      self.cql_definitions[tab_id][dt_id][val_id] = val_definition
+
+      input_dmns.append(self.create_dmn_input_expression(dt_id,val_id,val_definition))
+      self.log("Added CQL with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + val_id + "\n\tEXPR=" + val_definition)
+    return input_dmns
+              
+  
   def create_dmn_rule(self,rule_name:str,rule_dmn_entries):
     rule_id = self.name_to_id(rule_name)
     rule_dmn_id = "rule." + rule_id
     rule_dmn = "<dmn:rule id='" + rule_dmn_id + "'>" + "\n".join(rule_dmn_entries)  + "</dmn:rule>"          
     return rule_dmn
 
-  def create_dmn_entry(self,rule_name:str,type:str,name:str):
+  def create_dmn_entry(self,tab_id:str,dt_id:str,rule_name:str,type:str,name:str):
     expr = False
     if type == "input" or type == "output":
-      parts = str(name).split("\n",1)
+      name = str(name).strip()
+      expr = name
+      parts = name.split("\n",1)
       if (len(parts) == 2):
         name = parts[0].strip()
         expr = parts[1].strip()
-        
+
+
+      name = self.escape_code(name)
+      self.log("Found entry code(" + name + ")")
+      if not (self.is_dash(name) or self.is_blank(name) or self.is_nan(name)):
+        if not tab_id in self.cql_definitions:
+          self.cql_definitions[tab_id] = {}
+        if not dt_id in self.cql_definitions[tab_id]:
+          self.cql_definitions[tab_id][dt_id] = {}
+        self.cql_definitions[tab_id][dt_id][name] = expr
+
+        self.log("Added CQL via dmn with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + name + "\n\tEXPR=" + expr)
+
     id = self.name_to_id(rule_name + "." + str(name))
     dmn_id = type + "Entry."  + id
     #dmn = "<dmn:" + type  + "Entry id='" + dmn_id + "' expressionLanguage='http://smart.who.int'>"
@@ -423,14 +643,8 @@ class dl_extractor(extractor):
     return dmn
 
 
-  def create_dmn_output_expression(self,dt_id:str,val):
+  def create_dmn_output_expression(self,dt_id:str,name:str,expr:str):
     type = "output"
-    expr = False
-    name = str(val)
-    parts = str(val).split("\n",1)
-    if (len(parts) == 2):
-      name = parts[0].strip()
-      expr = parts[1].strip()              
     id = self.name_to_id(name)              
     dmn_id = type + "." +  dt_id + "." + id
     dmn_expr_id = type + "Expression." + dt_id + "." + id 
@@ -440,14 +654,8 @@ class dl_extractor(extractor):
     dmn += "</dmn:" + type + ">"      
     return dmn
 
-  def create_dmn_input_expression(self,dt_id:str,val):
+  def create_dmn_input_expression(self,dt_id:str,name:str, expr:str):
     type = "input"
-    expr = False
-    name = str(val)
-    parts = str(val).split("\n",1)
-    if (len(parts) == 2):
-      name = parts[0].strip()
-      expr = parts[1].strip()              
     id = self.name_to_id(name)              
     dmn_id = type + "." +  dt_id + "." + id
     dmn_expr_id = type + "Expression." + dt_id + "." + id 
