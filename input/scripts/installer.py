@@ -274,7 +274,7 @@ class installer:
             codesystem += '  * ^designation[+].value = ' + d_val['value'] + "\n"
             d_val.pop('value')
             for k,v in d_val.items():
-              codesystem += '  * ^designation[=]' + k + " = " + v + "\n"
+              codesystem += '  * ^designation[=].' + k + " = " + v + "\n"
             
         if 'propertyString' in val and isinstance(val['propertyString'],dict):
           for p_code,p_val in val['propertyString'].items():

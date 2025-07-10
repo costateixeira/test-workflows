@@ -6,6 +6,7 @@ import re
 import pandas as pd
 from extractor import extractor 
 from installer import installer
+from pathlib import Path
 
 class dl_extractor(extractor):
   tab_data : dict      
@@ -17,7 +18,10 @@ class dl_extractor(extractor):
   def find_files(self):
     return glob.glob("input/decision-logic/*xlsx")
         
-    
+  def find_cql_files(self):
+    return glob.glob("input/cql/*cql")
+
+  
   def extract_file(self):
     cover_column_maps = {
         'id_name':["Activity ID.Activity name"],
@@ -91,16 +95,26 @@ class dl_extractor(extractor):
         tab = dt_id
       has_non_empty |= bool(row["tab"])
 
+      #if tab != 'BCG':
+      #  continue
+
       if not self.load_tab(tab):      
         self.log("Could not load tab data for "  + tab)
         continue
-
 
       data = {"tab":tab,"dt_id":dt_id,"description":row["description"],"source":row["sources"]}
       if not self.extract_activity_table(id,name,tab,dt_id,data):
         self.log("Could not extract decition table for id=" + id + " name=" + name + " data=" + str(data))
 
     dl_cs_id = "DecisionLogic"
+    cql_files = self.find_cql_files()
+    #cql_files = ["input/cql/IMMZD5DTBCGElements.cql"]        
+    cql_contents = {}
+    for cql_file in cql_files:
+      if cql_file.startswith(dl_cs_id):
+        continue      
+      cql_contents[cql_file] = Path(cql_file).read_text()
+
     all_codes = {}
     for tab_id,dts in self.cql_definitions.items():
       tab_codes = {}
@@ -109,6 +123,9 @@ class dl_extractor(extractor):
         vs_id = self.name_to_id('DecisionLogicTable'  + dt_id)
         dt_codes = []
         for cql_id,val in cql_definitions.items():
+          if not cql_id:
+            self.log("BAD:" + cql_id + " from " + dt_id)
+            sys.exit()
           if not cql_id in all_codes:
             self.log("  adding new " + cql_id  + " -> " + str(val))
             if isinstance(val,str):
@@ -147,18 +164,21 @@ class dl_extractor(extractor):
 
           dt_codes += [cql_id]
           
-        dt_vs_id = self.name_to_id('DecisionLogicTable'+tab_id)
+        dt_vs_id = self.name_to_id(dl_cs_id + 'Table'+tab_id)
         self.installer.generate_vs_from_list(dt_vs_id,dl_cs_id,'Decision Logic For Decision Table ' + dt_id,dt_codes)
 
       properties = {}
       self.create_cql_skeleton_for_tab(tab_id,tab_codes,properties)        
-      tab_vs_id = self.name_to_id('DecisionLogicTab'+tab_id)
+      tab_vs_id = self.name_to_id(dl_cs_id + 'Tab'+tab_id)
       self.installer.generate_vs_from_list(tab_vs_id,dl_cs_id,'Decision Logic For Tab ' + tab_id,list(tab_codes.keys()))
       properties = {'decisionTables' : ", ".join(dt_codes) }
 
 
-    #normalize content for codesystem 
+    #normalize content for codesystem
+    normalized_codes = {}
     for cql_id,cql_prop in all_codes.items():
+      #if cql_id != "The client is pregnant":
+      #  continue
       cql_prop['display'] = cql_prop['title']
       cql_prop['definition'] = cql_prop['title'] + "\nReferenced in the following locations:\n"
       cql_prop['definition'] += " * Decision Tables: " + ", ".join(cql_prop['table']) + "\n"
@@ -169,7 +189,27 @@ class dl_extractor(extractor):
       }
       cql_prop.pop('tab')
       cql_prop.pop('table')
-    #self.log(pprint.pp(all_codes,width=130))
+
+      #look for existing defintions
+      cql_prop['designation'] = []
+      for cql_file,cql_content in cql_contents.items():
+        pattern = r'(^define\s+(\'|")' + re.escape(cql_id) + r'(\'|")\s*:(.*?))(\/\*|^define|\Z)'        
+        match = re.search(pattern, cql_content, re.DOTALL | re.MULTILINE | re.IGNORECASE)
+        if not match:
+          continue
+        cql_def = match.group(1)
+        if self.is_blank(cql_def):
+          continue
+        self.log("for " + cql_id + " found in " + cql_file + "found:" +  cql_def)
+        cql_prop['designation'] += [{
+          'value': '"""//Found in ' + cql_file + "\n\n" + cql_def + '\n"""',
+          'language' : "#CQL" # technically needs to be in https://build.fhir.org/valueset-all-languages.html
+          }]
+        break
+      normalized_codes[cql_id] = cql_prop
+      
+    self.log(pprint.pp(normalized_codes))
+    
     cs_properties = {
       'table': {
         'description':'"Decision Table ID"',
@@ -181,7 +221,7 @@ class dl_extractor(extractor):
       }
     }
 
-    self.installer.generate_cs_and_vs_from_dict(dl_cs_id,'Decision Logic',all_codes,cs_properties)
+    self.installer.generate_cs_and_vs_from_dict(dl_cs_id,'Decision Logic',normalized_codes,cs_properties)
     self.log("Extracted from cover")
     return True
 
@@ -401,6 +441,28 @@ class dl_extractor(extractor):
         in_table = False
         break
 
+   
+      debug = { 'tab_id' : tab_id,
+                'dt_id': dt_id,
+                'not_in_table' : not_in_table,
+                'first_val' : first_val,
+                'trailing_nan_input' : trailing_nan_input,
+                'trailing_blank_input' : trailing_blank_input,
+                'is_merged_line_annotation' : is_merged_line_annotation,
+                'is_contra_table' : is_contra_table,
+                'is_regular_table' : is_regular_table,
+                'is_schedule_table' : is_schedule_table,
+                'annotation' :  annotation, 
+                'reference' : reference, 
+                'output' : output, 
+                'guidance' : guidance, 
+                'vals' : vals, 
+                'inputs' : inputs, 
+                'prev_inputs' : prev_inputs
+               }
+      self.log(pprint.pp(debug))
+            
+      
       guidance = "" if self.is_nan(guidance) else guidance
       reference = "" if self.is_nan(reference) else reference
       annotation = "" if self.is_nan(annotation) else annotation
@@ -485,6 +547,7 @@ class dl_extractor(extractor):
   def process_input_row(self,tab_id:str,dt_id:str,rule_name:str,inputs,output:str,guidance:str,annotation:str,reference:str):
     rule_dmn_entries = []            
     for val in inputs:
+      self.log("Processing input defintion: " + str(val))
       rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"input",val))
 
     rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",output))
@@ -516,7 +579,7 @@ class dl_extractor(extractor):
         val_definition = val_id
 
       val_id = self.escape_code(val_id)
-      
+      self.log("Found code(" + val_id + ")")
       if not tab_id in self.cql_definitions:
         self.cql_definitions[tab_id] = {}
       if not dt_id in self.cql_definitions[tab_id]:
@@ -546,13 +609,15 @@ class dl_extractor(extractor):
 
 
       name = self.escape_code(name)
-      if not tab_id in self.cql_definitions:
-        self.cql_definitions[tab_id] = {}
-      if not dt_id in self.cql_definitions[tab_id]:
-        self.cql_definitions[tab_id][dt_id] = {}
-      self.cql_definitions[tab_id][dt_id][name] = expr
+      self.log("Found entry code(" + name + ")")
+      if not (self.is_dash(name) or self.is_blank(name) or self.is_nan(name)):
+        if not tab_id in self.cql_definitions:
+          self.cql_definitions[tab_id] = {}
+        if not dt_id in self.cql_definitions[tab_id]:
+          self.cql_definitions[tab_id][dt_id] = {}
+        self.cql_definitions[tab_id][dt_id][name] = expr
 
-      self.log("Added CQL via dmn with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + name + "\n\tEXPR=" + expr)
+        self.log("Added CQL via dmn with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + name + "\n\tEXPR=" + expr)
 
     id = self.name_to_id(rule_name + "." + str(name))
     dmn_id = type + "Entry."  + id
