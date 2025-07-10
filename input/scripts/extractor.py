@@ -127,27 +127,19 @@ class extractor(object):
     return isinstance(v,str) and (v == '-' or v == '–')
       
   def name_to_lower_id(self,name):    
-    if ( not (isinstance(name,str))):
-      return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
-
+    return self.installer.name_to_lower_id(name)
     
-  def name_to_id(self,name):    
-    if ( not (isinstance(name,str))):
-      return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
+  def escape_code(self,input):
+    return self.installer.escape_code(input)
+    
+  def name_to_id(self,name):
+    return self.installer.name_to_id(name)
       
   def escape(self,input):
-    if ( not (isinstance(input,str))):
-        return None
-    return input.replace('"', r'\"')
-
+    return self.installer.escape(input)
 
   def xml_escape(self,input):
-    if ( not (isinstance(input,str))):
-      return ""
-    # see https://stackoverflow.com/questions/1546717/escaping-strings-for-use-in-xml
-    return input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&apos;")
+    return self.installer.xml_escape(input)
 
 
 

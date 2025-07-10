@@ -11,15 +11,6 @@ class dl_extractor(extractor):
   tab_data : dict      
   cql_definitions : dict
 
-  # def usage():
-  #   print("Usage: scans input/decision-logic for excel sheets ")
-  #   print("where the referenced excel contains a decision logic gables.")
-  #   print("produces CQL and DMN assets")
-  #   print("OPTIONS:")
-  #   print(" none")
-  #   print("--help|h : print this information")
-  #   sys.exit(2)
-
   def __init__(self,installer:installer):
     super().__init__(installer)
     
@@ -137,7 +128,7 @@ class dl_extractor(extractor):
               tab_codes[cql_id] = all_codes[cql_id]                            
             else:
               self.log("  skipping " + cql_id  )
-              break
+              continue
           else:
             self.log("  updating" + cql_id  + " -> " + str(val))
             if isinstance(val,str):
@@ -148,7 +139,7 @@ class dl_extractor(extractor):
               tab_codes[cql_id] = val
             else:
               self.log("  skipping " + cql_id  )
-              break
+              continue
             
             
             if title != all_codes[cql_id]['title']:
@@ -166,19 +157,38 @@ class dl_extractor(extractor):
       properties = {'decisionTables' : ", ".join(dt_codes) }
 
 
+    #normalize content for codesystem 
     for cql_id,cql_prop in all_codes.items():
-      if not 'title' in cql_prop:
-        cql_prop['display'] = cql_prop['title']
-        
+      cql_prop['display'] = cql_prop['title']
+      cql_prop['definition'] = cql_prop['title'] + "\nReferenced in the following locations:\n"
+      cql_prop['definition'] += " * Decision Tables: " + ", ".join(cql_prop['table']) + "\n"
+      cql_prop['definition'] += " * Tabs: " + ", ".join(cql_prop['tab']) + "\n"
+      cql_prop['propertyString'] = {
+        'table' : ", ".join(cql_prop['table']),
+        'tab' : ", ".join(cql_prop['tab'])
+      }
+      cql_prop.pop('tab')
+      cql_prop.pop('table')
     #self.log(pprint.pp(all_codes,width=130))
-    self.installer.generate_cs_and_vs_from_dict(dl_cs_id,'Decision Logic',all_codes)
+    cs_properties = {
+      'table': {
+        'description':'"Decision Table ID"',
+        'type':'#string'
+      },
+      'tab': {
+        'description':'"Decision Tab"',
+        'type':'#string'
+      }
+    }
+
+    self.installer.generate_cs_and_vs_from_dict(dl_cs_id,'Decision Logic',all_codes,cs_properties)
     self.log("Extracted from cover")
     return True
 
   
   
   def create_cql_skeleton_for_tab(self,tab_id,cql_codes,properties = {}):
-    lib_name = tab_id + " Elements"
+    lib_name = "DecisionLogicElements" + tab_id 
     return self.installer.create_cql_library(lib_name,cql_codes,properties)
   
   
@@ -328,25 +338,21 @@ class dl_extractor(extractor):
       contra_dmn_id = "input." + contra_id
       contra_dmn = "<dmn:input id='" + contra_dmn_id + "' label='" + self.xml_escape(table_type) + "'></dmn:input>"
       self.log("rendereing contraindication input dmn for decision table ")
-      input_dmns.append(contra_dmn)
+      input_dmns += [contra_dmn]
 
     if is_regular_table:
       output_name = "Care Plan"
       output_expr = "Produce a suggested Care Plan for consideration by health worker"
-      output_dmns.append(self.create_dmn_output_expression(dt_id, output_name , output_expr))
+      output_dmns += [self.create_dmn_output_expression(dt_id, output_name , output_expr)]
 
       guidance_name = "Guidance displayed to health worker"
       guidance_expr = "Request to communicate guidance to the health worker"
-      output_dmns.append(self.create_dmn_output_expression(dt_id, guidance_name , guidance_expr))
-
-
-        
+      output_dmns += [self.create_dmn_output_expression(dt_id, guidance_name , guidance_expr)]
 
     found_definitions = False 
     while in_table:
-      row_offset += 1
+      row_offset += 1      
       t_row = data["input_row"] + row_offset
-
 
       if not t_row in df[data["output_col"]]:
         in_table = False
@@ -394,41 +400,17 @@ class dl_extractor(extractor):
         self.log("Saw end of decision table starting at:" + str(t_row))
         in_table = False
         break
-      
-      # debug = { 'tab_id' : tab_id,
-      #           'dt_id': dt_id,
-      #           'not_in_table' : not_in_table,
-      #           'first_val' : first_val,
-      #           'trailing_nan_input' : trailing_nan_input,
-      #           'trailing_blank_input' : trailing_blank_input,
-      #           'is_merged_line_annotation' : is_merged_line_annotation,
-      #           'is_contra_table' : is_contra_table,
-      #           'is_regular_table' : is_regular_table,
-      #           'is_schedule_table' : is_schedule_table,
-      #           'annotation' :  annotation, 
-      #           'reference' : reference, 
-      #           'output' : output, 
-      #           'guidance' : guidance, 
-      #           'vals' : vals, 
-      #           'inputs' : inputs, 
-      #           'prev_inputs' : prev_inputs
-      #          }
-      # self.log(pprint.pp(debug))
-
 
       guidance = "" if self.is_nan(guidance) else guidance
       reference = "" if self.is_nan(reference) else reference
       annotation = "" if self.is_nan(annotation) else annotation
       output = "" if self.is_nan(output) else output
       
-      
-      
-      if (is_merged_line_annotation):
+      if is_merged_line_annotation:
         self.log("Found pre-amble annotation=" + first_val)        
         pre_annotation += first_val + "\n"
         continue
 
-      
       if pre_annotation:
         pre_annotation += "\n\n"
       
@@ -533,6 +515,8 @@ class dl_extractor(extractor):
       else:
         val_definition = val_id
 
+      val_id = self.escape_code(val_id)
+      
       if not tab_id in self.cql_definitions:
         self.cql_definitions[tab_id] = {}
       if not dt_id in self.cql_definitions[tab_id]:
@@ -560,6 +544,8 @@ class dl_extractor(extractor):
         name = parts[0].strip()
         expr = parts[1].strip()
 
+
+      name = self.escape_code(name)
       if not tab_id in self.cql_definitions:
         self.cql_definitions[tab_id] = {}
       if not dt_id in self.cql_definitions[tab_id]:

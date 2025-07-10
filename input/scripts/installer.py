@@ -91,13 +91,28 @@ class installer:
     if ( not (isinstance(name,str))):
       return None
     return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
-      
+
+
+  def escape_code(self,input):
+    if ( not (isinstance(input,str))):
+        return None
+    input = re.sub(r"['\"]","",input)
+    #SUSHI BUG on processing codes with double quote.  sushi fails
+    #Example \"Bivalent oral polio vaccine (bOPV)–inactivated polio vaccine (IPV)\" schedule (in countries with high vaccination coverage [e.g. 90–95%] and low importation risk [where neighbouring countries and/or countries that share substantial population movement have a similarly high coverage])" 
+
+    input = re.sub(r"\s+"," ",input).strip()
+    return input
+
+  def xml_escape(self,input):
+    if ( not (isinstance(input,str))):
+      return ""
+    # see https://stackoverflow.com/questions/1546717/escaping-strings-for-use-in-xml
+    return input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&apos;")    
   def escape(self,input):
     if ( not (isinstance(input,str))):
         return None
     return input.replace('"', r'\"')
 
-      
 
   def save_dmns(self):
     
@@ -231,7 +246,7 @@ class installer:
   def render_codesystem(self,id:str):
     if (not id in self.codesystems) or (not id in self.codesystem_titles):
       self.log("Trying to render absent codesystem " + id)
-      return False
+      return ""
     title = self.codesystem_titles[id]
     codesystem = 'CodeSystem: ' + self.escape(id) + '\n'
     codesystem += 'Title: "' + self.escape(title) + '"\n'
@@ -240,24 +255,34 @@ class installer:
     codesystem += '* ^caseSensitive = false\n'
     codesystem += '* ^status = #active\n'
     for code,vals in self.codesystem_properties[id].items():
-      codesystem += '* ^property[+].code = #"' + self.escape(code) + '"'
+      codesystem += '* ^property[+].code = #"' + self.escape_code(code) + '"\n'
       for k,v in vals.items():
         codesystem += '* ^property[=].' + k + ' = ' + v + "\n" # user is responsible for content
 
     for code,val in self.codesystems[id].items():
+      self.log("Attempting to add " + str(code) )
       if isinstance(val,str):
-        codesystem += '* #"' + self.escape(code) +  '" "' + self.escape(name) + '"\n'
-      elif isinstance(val,dict) and 'code' in val and 'display' in val:
-        codesystem += '* #"' + self.escape(val['code']) +  '" "' + self.escape(val['display']) + '"\n'
-        if 'description' in val:
-          description = val['title'] + "\nReferenced in the following locations:\n"
-          description += " * Decision Tables: " + ", ".join(val['table']) + "\n"
-          description += " * Tabs: " + ", ".join(val['tab']) + "\n"
-          codesystem += '* ^description = """' + description + '\n"""\n'
+        codesystem += '* #"' + self.escape_code(code) +  '" "' + self.escape(name) + '"\n'
+      elif isinstance(val,dict)  and 'display' in val:
+        codesystem += '* #"' + self.escape_code(code) +  '" "' + self.escape(val['display']) + '"\n'
+        if 'definition' in val:
+          codesystem += '  * ^definition = """' + val['definition'] + '\n"""\n'
+        if 'designation' in val and isinstance(val['designation'],list):
+          for d_val in val['designation']:
+            if not isinstance(d_val,dict) or not 'value' in d_val:
+              continue
+            codesystem += '  * ^designation[+].value = ' + d_val['value'] + "\n"
+            d_val.pop('value')
+            for k,v in d_val.items():
+              codesystem += '  * ^designation[=]' + k + " = " + v + "\n"
+            
         if 'propertyString' in val and isinstance(val['propertyString'],dict):
           for p_code,p_val in val['propertyString'].items():
             codesystem += '  * ^property[+].code = #"' + self.escape(p_code) +  '"\n'
             codesystem += '  * ^property[=].valueString = "' + self.escape(p_val) +  '"\n'
+      else:
+        self.log("  failed to add code (expected string or dict with 'display' property)" + str(code))
+        self.log(pprint.pp(val))
 
     return codesystem
 
@@ -311,7 +336,7 @@ class installer:
     valueset += '* ^status = #active\n'
     valueset += '* ^experimental = false\n'
     for code in codes:
-      valueset += '* include ' + self.escape(codesystem_id) + '#"' + self.escape(code) + '"\n'
+      valueset += '* include ' + self.escape(codesystem_id) + '#"' + self.escape_code(code) + '"\n'
     
     self.add_resource('valuesets',id, valueset)
 
@@ -319,15 +344,15 @@ class installer:
 
   
 
-  def generate_cs_and_vs_from_dict(self,id:str, title:str, codelist:dict ):
+  def generate_cs_and_vs_from_dict(self,id:str, title:str, codelist:dict , properties : {}):
     if not self.initialize_codesystem(id,title):
       self.log("Skipping CS and VS for " + str + " could not initialize")
       return False
     if not self.add_dict_to_codesystem(id,codelist):
       self.log("Skipping CS and VS for " + str + " could not add dictionary")
       return False
-    cs_prop = {'description':'Decision Table ID','type':'#string'}
-    self.add_codesystem_property(id,'table',cs_prop)
+    self.add_codesystem_properties(id,properties)
+
     codesystem = self.render_codesystem(id)
     
     valueset = 'ValueSet: ' + self.escape(id) + '\n'
@@ -386,7 +411,7 @@ class installer:
         cql += "  //CQL AUTHORS: you need to insert stuff here\n"
         if 'pseudocode' in val:
           cql += "  // " + "\n   // ".join(val['pseudocode'].splitlines(True)) + "\n"
-
+          
     self.add_cql(lib_id,cql)
     
     library = "Instance: " + lib_id + "\n"
