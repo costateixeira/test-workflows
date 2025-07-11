@@ -42,9 +42,24 @@
       <!-- Second row: Inputs and outputs -->
       <tr class="io-row">
         <td class="row-label">Inputs/Outputs</td>
-        <xsl:for-each select=".//dmn:input">
+        <xsl:for-each select=".//dmn:input">	  
           <td class="input">
-            <xsl:value-of select="@label"/>
+	    <xsl:variable name="inputPos" select="position()" />
+            <xsl:variable name="inputDef" select="../../dmn:input[position() = $inputPos]" />
+            <strong>
+	      <xsl:value-of select="@label"/>
+            </strong>
+            <xsl:if test="$inputDef/dmn:text">
+	      <span style="font-weight:normal;">
+		<xsl:text> </xsl:text>s
+		<xsl:value-of select="$inputDef/dmn:inputExpression/dmn:text"/>
+	      </span>
+            </xsl:if>
+            <xsl:if test="normalize-space(.)">
+	      <xsl:text>: </xsl:text>
+	      <xsl:value-of select="."/>
+            </xsl:if>
+
           </td>
         </xsl:for-each>
         <xsl:for-each select=".//dmn:output">
@@ -65,11 +80,25 @@
             <xsl:variable name="ruleId" select="@id"/>
             <xsl:value-of select="substring-after($ruleId, 'row-')"/>
           </td>
-          <xsl:for-each select="dmn:inputEntry">
-            <td class="inputEntry">
-              <xsl:value-of select="."/>
+	  <xsl:for-each select="dmn:inputEntry">
+            <td>
+	      <xsl:variable name="inputPos" select="position()" />
+              <xsl:variable name="inputDef" select="../../dmn:input[position() = $inputPos]" />
+              <strong>
+		<xsl:value-of select="$inputDef/dmn:text"/>
+              </strong>
+              <xsl:if test="$inputDef/dmn:description">
+		<span style="font-weight:normal;">
+		  <xsl:text> </xsl:text>
+		  <xsl:value-of select="$inputDef/dmn:description"/>
+		</span>
+              </xsl:if>
+              <xsl:if test="normalize-space(.)">
+		<xsl:text>: </xsl:text>
+		<xsl:value-of select="."/>
+              </xsl:if>
             </td>
-          </xsl:for-each>
+	  </xsl:for-each>
           <xsl:for-each select="dmn:outputEntry">
             <td class="outputEntry">
               <xsl:value-of select="."/>
