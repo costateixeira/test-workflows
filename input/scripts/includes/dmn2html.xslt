@@ -4,10 +4,15 @@
     xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/"
     exclude-result-prefixes="dmn">
 
-  <xsl:output method="html" indent="yes" encoding="UTF-8"/>
+  <xsl:output
+      method="xml"
+      indent="yes"
+      encoding="UTF-8"
+      doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
+      omit-xml-declaration="yes"/>
 
   <xsl:template match="/">
-    <html>
+    <html xmlns="http://www.w3.org/1999/xhtml">
       <head>
         <title>
           <xsl:value-of select="//dmn:decision/@name"/>

@@ -4,13 +4,14 @@ import os
 import glob as glob
 import re
 import pandas as pd
+import urllib.parse
 from extractor import extractor 
 from installer import installer
 from pathlib import Path
-class dl_extractor(extractor):
+class dt_extractor(extractor):
   tab_data : dict      
   cql_definitions : dict
-
+  prefix = "DT"
  
   def __init__(self,installer:installer):
     super().__init__(installer)
@@ -106,12 +107,12 @@ class dl_extractor(extractor):
       if not self.extract_activity_table(id,name,tab,dt_id,data):
         self.log("Could not extract decition table for id=" + id + " name=" + name + " data=" + str(data))
 
-    dl_cs_id = "DecisionLogic"
+
     cql_files = self.find_cql_files()
     #cql_files = ["input/cql/IMMZD5DTBCGElements.cql"]        
     cql_contents = {}
     for cql_file in cql_files:
-      if cql_file.startswith(dl_cs_id):
+      if cql_file.startswith(self.prefix):
         continue      
       cql_contents[cql_file] = Path(cql_file).read_text()
 
@@ -122,15 +123,15 @@ class dl_extractor(extractor):
 
 
       for dt_id,cql_definitions in dts.items():
-        dt_include = "{% include " + dt_id + ".html %}\n"
+        dt_include = "{% include " + self.prefix + "-" + dt_id + ".html %}\n"
         dt_markdown = "### Decision Table " + dt_id + "\n"
         dt_markdown += dt_include
         tab_markdown += "#### Decision Table " + dt_id + "\n"
         tab_markdown += dt_include
-        self.installer.add_page("DecisionTable" + dt_id,dt_markdown)
+        #self.installer.add_page(self.prefix + "-" + dt_id,dt_markdown)
         
         self.log("Processing DT ID cql for " + dt_id + " on tab_id " + tab_id)
-        vs_id = self.name_to_id('DecisionLogicTable'  + dt_id)
+        vs_id = self.name_to_id(self.prefix + '-'  + dt_id)
         dt_codes = []
         for cql_id,val in cql_definitions.items():
           if not cql_id:
@@ -174,22 +175,26 @@ class dl_extractor(extractor):
 
           dt_codes += [cql_id]
           
-        dt_vs_id = self.name_to_id(dl_cs_id + 'Table'+tab_id)
-        self.installer.generate_vs_from_list(dt_vs_id,dl_cs_id,'Decision Logic For Decision Table ' + dt_id,dt_codes)
+        dt_vs_id = self.name_to_id(self.prefix + '-'+dt_id)
+        self.installer.generate_vs_from_list(dt_vs_id,self.prefix,'Decision Logic For Decision Table ' + dt_id,dt_codes)
 
-      self.installer.add_page("DecisionTab" + tab_id,tab_markdown)
-      properties = {}
+      self.installer.add_page(self.prefix + "s-" + tab_id,tab_markdown)
+      cql_desc ="This library contains Decision Table elements from the decision table " \
+        + "<a href='" + self.prefix + dt_id + ".html'>" + dt_id + "</a>"
+      properties = {'description':cql_desc}
       self.create_cql_skeleton_for_tab(tab_id,tab_codes,properties)        
-      tab_vs_id = self.name_to_id(dl_cs_id + 'Tab'+tab_id)
-      self.installer.generate_vs_from_list(tab_vs_id,dl_cs_id,'Decision Logic For Tab ' + tab_id,list(tab_codes.keys()))
+      tab_vs_id = self.name_to_id(self.prefix + 's-'+tab_id)
+      self.installer.generate_vs_from_list(tab_vs_id,self.prefix,'Decision Tables For Tab ' + tab_id,list(tab_codes.keys()))
       properties = {'decisionTables' : ", ".join(dt_codes) }
 
 
     #normalize content for codesystem
     normalized_codes = {}
     for cql_id,cql_prop in all_codes.items():
-      #if cql_id != "The client is pregnant":
+      #if cql_id != "The client is pregnant": 
       #  continue
+      #  # BCG test case
+        
       cql_prop['display'] = cql_prop['title']
       cql_prop['definition'] = cql_prop['title'] + "\nReferenced in the following locations:\n"
       cql_prop['definition'] += " * Decision Tables: " + ", ".join(cql_prop['table']) + "\n"
@@ -234,14 +239,14 @@ class dl_extractor(extractor):
       }
     }
 
-    self.installer.generate_cs_and_vs_from_dict(dl_cs_id,'Decision Logic',normalized_codes,cs_properties)
+    self.installer.generate_cs_and_vs_from_dict(self.prefix,'Decision Table ',normalized_codes,cs_properties)
     self.log("Extracted from cover")
     return True
 
   
   
   def create_cql_skeleton_for_tab(self,tab_id,cql_codes,properties = {}):
-    lib_name = "DecisionLogicElements" + tab_id 
+    lib_name = self.prefix + "Elements-" + tab_id 
     return self.installer.create_cql_library(lib_name,cql_codes,properties)
   
   
@@ -360,6 +365,8 @@ class dl_extractor(extractor):
     is_contra_table = False
     is_regular_table = False
     is_schedule_table = False
+    trigger = data["trigger"]
+    br = data["br"]
     self.log("\n\n\nTT=" +       str(df[data["col"]][data["input_row"]]))
     if self.name_to_id(ul_corner) == self.name_to_id("Decision ID"):
       table_type = df[data["col"]][data["input_row"]]
@@ -401,6 +408,15 @@ class dl_extractor(extractor):
       guidance_expr = "Request to communicate guidance to the health worker"
       output_dmns += [self.create_dmn_output_expression(dt_id, guidance_name , guidance_expr)]
 
+      annotation_name = "Annotations"
+      annotation_expr = "Additional information for the health worker"
+      output_dmns += [self.create_dmn_output_expression(dt_id, annotation_name , annotation_expr)]
+
+      reference_name = "Reference(s)"
+      reference_expr = "Reference for the source content (L1)"
+      output_dmns += [self.create_dmn_output_expression(dt_id, reference_name , reference_expr)]
+
+      
     found_definitions = False 
     while in_table:
       row_offset += 1      
@@ -515,7 +531,7 @@ class dl_extractor(extractor):
         self.log("WARNING - UNKNOWN table type")
         return False
 
-    dt_dmn_id = "decisionTable." + self.name_to_id(table_type) + "." + dt_id 
+    dt_dmn_id = "decisionTable." + self.name_to_id(table_type) + "." + dt_id
     dt_dmn = "    <dmn:decisionTable >\n"
     for input_dmn in input_dmns:
       dt_dmn += "        " + input_dmn + "\n"
@@ -526,8 +542,22 @@ class dl_extractor(extractor):
 
     dt_dmn += "    </dmn:decisionTable>"
 
+    
 
-    self.installer.add_dmn_table(dt_id,dt_dmn)
+    trigger_parts = trigger.split(" ",1)
+    if (len(trigger_parts) == 2):
+      trigger_id = trigger_parts[0].strip()
+      trigger_expr = trigger_parts[1].strip()
+    else:
+      trigger_id = trigger.strip()
+      trigger_expr = trigger_id
+
+    trigger_url =  self.installer.get_ig_canonical() + "/bpmn/" \
+      + trigger_id + ".bpmn#" + urllib.parse.quote(trigger_expr)
+    dt_dmn = "<dmn:question>" + self.xml_escape(br) + "</dmn:question>" \
+      "<dmn:usingTask href='" + trigger_url + "'/>" \
+      + dt_dmn
+    self.installer.add_dmn_table(self.prefix + "-" + dt_id,dt_dmn)
     self.tab_data[tab_id]['tables'][dt_id]['used'] = True
     return True
   

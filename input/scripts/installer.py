@@ -233,11 +233,12 @@ class installer:
 
   def install_dmn(self,id,dmn:str):
     try:
+      dmn_url = self.get_ig_canonical() + "/dmn/" + id + ".dmn"
       dmn_namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
       dmn_wrapped = "<dmn:definitions  xmlns:dmn='" + dmn_namespace + "'\n"
       dmn_wrapped += " namespace='" + self.get_ig_canonical() + "'\n"
       dmn_wrapped += " name='"  + self.escape(id) + "'\n"
-      dmn_wrapped += " id='" + self.name_to_id(self.get_ig_canonical() + "/dmn/" + id) + ".dmn'>\n"            
+      dmn_wrapped += " id='" + self.name_to_id(dmn_url) + "'>\n"            
       dmn_wrapped += "  <dmn:decision id='" + self.name_to_id(id) + "' name='" + self.escape(id) + "'>\n"
       dmn_wrapped +=  dmn + "\n"
       dmn_wrapped += "  </dmn:decision>\n"

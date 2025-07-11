@@ -3,7 +3,7 @@
 
 from installer import installer
 from req_extractor import req_extractor 
-from dl_extractor import dl_extractor 
+from dt_extractor import dt_extractor 
 import getopt
 import sys
 
@@ -24,7 +24,7 @@ def main():
     ins = installer()
 
     req_extractor(ins).extract()    
-    dl_extractor(ins).extract()
+    dt_extractor(ins).extract()
     ins.install()
 
 
