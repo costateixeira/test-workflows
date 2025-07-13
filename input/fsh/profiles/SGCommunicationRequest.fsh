@@ -13,6 +13,6 @@ Description: "Provide communication"
 Profile: SGDecisionTableGuidance
 Parent: SGCommunicationRequest
 Title: "SMART Guidelines Decision Table Guidance"
-Descsiption: """Guidance to health worker coming from a DAK Decision Table"
+Description: """Guidance to health worker coming from a DAK Decision Table"""
 
 
