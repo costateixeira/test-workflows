@@ -1,6 +1,6 @@
 Profile: SGCommunicationRequest
 Parent: http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-communicationrequest
-Title: "SGCommunicationRequest"
+Title: "SMART Guidelines Communication Request"
 Description: "Provide communication"
 * ^extension[+].url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"
 * ^extension[=].valueCode = #computable
@@ -12,6 +12,7 @@ Description: "Provide communication"
 
 Profile: SGDecisionTableGuidance
 Parent: SGCommunicationRequest
-
+Title: "SMART Guidelines Decision Table Guidance"
+Descsiption: """Guidance to health worker coming from a DAK Decision Table"
 
 

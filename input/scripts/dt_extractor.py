@@ -253,13 +253,14 @@ class dt_extractor(extractor):
 
   def produce_activities(self):    
     for code,expr in self.cql_definitions_by_type['output'].items():
-      a_id = self.name_to_id(self.prefix + "Output." + code)
-      fsh_activity =  "Profile: " + a_id + "\n"
+      a_id = self.name_to_id(self.prefix + "O." + code)
+      # this should be moved to a ruleset so we can do:
+      fsh_activity =  f"Profile: {a_id}\n"
       fsh_activity += "Parent: $SGActivityDefinition\n"
-      fsh_activity +=  "Title: " + a_id + "\n"
-      fsh_activity += 'Description: """' + self.escape(expr)  + '\n"""'
-      fsh_activity += 'Usage: #definition\n'
-      fsh_activity += '* ^abstract = true\n'
+      fsh_activity += f"Title: \"Decision Table Output {code}\"\n"
+      fsh_activity += f"Description: \"\"\"{expr}\n\"\"\"\n"
+      #fsh_activity += "Usage: #definition"
+      fsh_activity += "* ^abstract = true\n"
 
       self.installer.add_resource('activitydefinitions',a_id, fsh_activity)
 
@@ -437,14 +438,15 @@ class dt_extractor(extractor):
       output_dmns += [self.create_dmn_output_expression(dt_id, reference_name , reference_expr)]
 
 
-    fsh_plan =  "Profile: "  + dt_id + "\n"
+    vers = self.installer.get_ig_version()
+    plan_id = self.name_to_id(self.prefix +"." + dt_id)
+    e_name = self.escape(name)
+    fsh_plan =  f"Profile: {plan_id}\n"
     fsh_plan += "Parent: $SGDecisionTable\n"
-    fsh_plan += "Title: " + dt_id + "\n"
-    fsh_plan += 'Description: """' + self.escape(name) + '\n"""'
-    fsh_plan += 'Usage: #definition\n'
-    fsh_plan += '* ^abstract = true\n'
-    vers = self.installer.get_ig_version() 
-    fsh_plan += '* insert SGDecisionTable( ' + dt_id + "," + vers + ')\n'
+    fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
+    fsh_plan += f"Description: \"\"\"{name}\"\"\"\n"
+    #fsh_plan += "Usage: #definition\n"
+    fsh_plan += '* insert SGDecisionTable( ' + dt_id + ",\""  + e_name + "\"," + vers + ')\n'
     fsh_citations = set()
     fsh_rules = []
 
@@ -456,7 +458,8 @@ class dt_extractor(extractor):
       if not t_row in df[data["output_col"]]:
         in_table = False
         break
-        
+
+      is_first_row = (len(inputs) == 0)
       first_val = df[data["col"]][t_row]
       self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
 
@@ -471,11 +474,17 @@ class dt_extractor(extractor):
         val = df[c][t_row]
         vals += [val]
         self.log(' v='  + str(val) + "/" + str(i) + "/" + str(len(prev_inputs)))
-        if self.is_nan(val)  and i < len(prev_inputs):
-          self.log('  => setting to previous value')
-          inputs += [prev_inputs[i]]
-        else:
+        if is_first_row:
+          if self.is_dash(val) or self.is_blank(val):
+            #we are done with the inputs
+            break
           inputs += [val]
+        else:
+          if self.is_nan(val)  and i < len(prev_inputs):
+            self.log('  => setting to previous value')
+            inputs += [prev_inputs[i]]
+          else:
+            inputs += [val]
 
         trailing_nan_input &=  ( i == 0 or self.is_nan(val) )
         trailing_blank_input &=  ( i==0 or self.is_blank(val))
@@ -495,14 +504,29 @@ class dt_extractor(extractor):
       is_merged_line_annotation = isinstance(first_val,str) and first_val and trailing_nan_input \
         and self.is_blank(output) and self.is_blank(guidance) and self.is_blank(annotation)
 
+
+      self.log("MLA" + str({
+        'isinstance':isinstance(first_val,str),
+        'is first val': bool(first_val),
+        'training nan' : trailing_nan_input ,
+        'i_b_o' :  self.is_blank(output),
+        'i_b_g' :  self.is_blank(guidance),
+        'i_b_a' : self.is_blank(annotation),
+        'i_f_r' : is_first_row
+        }))
+      
+
       if not_in_table:
         self.log("Saw end of decision table starting at:" + str(t_row))
         in_table = False
         break
 
+        
       if is_merged_line_annotation:
         self.log("Found pre-amble annotation=" + first_val)        
         pre_annotation += first_val + "\n"
+        if is_first_row:
+          inputs = [] #the annotation was put in inputs
         continue
 
       guidance = "" if self.is_nan(guidance) else str(guidance).strip()
@@ -530,6 +554,9 @@ class dt_extractor(extractor):
                 'prev_inputs' : prev_inputs
                }
       self.log(pprint.pp(debug))
+
+#      if dt_id == "IMMZ.D2.DT.Cholera.WC-rBSvaccine2doses":
+#        sys.exit(99)
             
       if pre_annotation:
         pre_annotation += "\n\n"
@@ -571,8 +598,8 @@ class dt_extractor(extractor):
             output_expr = parts[1].strip()
             
           fsh_rules.append('* insert SGDecisionTableOutput("' + self.escape( output_name) \
-                          + '","' + self.escape(output_name) \
-                          + '","' + self.escape(annotation) + ")")
+                          + '"\n    ,"' + self.escape(output_name) \
+                          + '"\n    ,"""\n' + annotation + "\n\"\"\")")
           fsh_rules.extend(fsh_conditions)
 
           if not self.is_blank(guidance):
@@ -580,7 +607,7 @@ class dt_extractor(extractor):
             fsh_rules.extend(fsh_conditions)
 
           if not self.is_blank(reference):
-            fsh_citations.add('* insert SGDecisionTableCitation("' + self.escape(reference) + '")')
+            fsh_citations.add('* insert SGDecisionTableCitation("""' + self.escape(reference) + '\n""")')
           
           pre_annotation = "" #reset it          
       elif is_contra_table:
@@ -594,9 +621,8 @@ class dt_extractor(extractor):
         self.log("WARNING - UNKNOWN table type")
         return False
 
-    self.log(fsh_rules)
     fsh_plan += "\n" + "\n".join(fsh_citations) +  "\n" + "\n".join(fsh_rules)
-    self.installer.add_resource('plandefinitions',dt_id, fsh_plan)
+    self.installer.add_resource('plandefinitions',plan_id, fsh_plan)
 
     dt_dmn_id = self.prefix + "." + self.name_to_id(table_type) + "." + dt_id
     dt_dmn = "    <dmn:decisionTable >\n"

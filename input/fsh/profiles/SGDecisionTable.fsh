@@ -1,6 +1,6 @@
 Profile: SGDecisionTable
 Parent: SGPlanDefinition
-Title: "SMART Guidelines profile of PlanDefinition for Decision Tables"
+Title: "SMART Guidelines Decision Table"
 Description: "Defines the minimum expectations for PlanDefinition resources used in SMART Guidelines which are derived from DAK Decision Tables "
 * library 1..
 
@@ -31,7 +31,7 @@ Description: "Defines the minimum expectations for PlanDefinition resources used
 * action[guidance].description = "Guidance action referencing a CommunicationRequest instance."
 
 // annotation: optional, must reference CommunicationRequest
-* action[annotation].definitionCanonical 1..1
+//* action[annotation].definitionCanonical 1..1
 //* action[annotation].definitionCanonical only Reference(CommunicationRequest)
-* action[annotation].code = $DecisionTableActions#annotation (exactly)
-* action[annotation].description = "Annotation action referencing a CommunicationRequest instance."
+//* action[annotation].code = $DecisionTableActions#annotation (exactly)
+//* action[annotation].description = "Annotation action referencing a CommunicationRequest instance."

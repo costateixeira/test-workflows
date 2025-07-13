@@ -1,5 +1,6 @@
 
-RuleSet: SGDecisionTable( library, version )
+RuleSet: SGDecisionTable( library, name , version )
+* ^abstract = true
 * meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-shareableplandefinition"
 * meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-publishableplandefinition"
 * library = Canonical({library}Logic)
@@ -18,7 +19,7 @@ RuleSet: SGDecisionTableCitation( citation )
   * citation = {citation}
 
 RuleSet: SGDecisionTableOutput( action, title, description)
-* action[+]
+* action[output]
   * title = "{title}"
   * description = {description}
   * definitionCanonical = Canonical({action})
@@ -41,7 +42,9 @@ RuleSet: SGDecisionTableCondition( condition )
     * language = #text/cql-identifier
     * expression = "{condition}"
 
-  
+
+
+    
 RuleSet: SGDecisionTableMedicationRequestAction( action, title, description, rationale, condition )
 * action[+]
   * extension[+]
@@ -83,7 +86,7 @@ RuleSet: SGDecisionTableMedicationRequestUpdate( action, title, description, con
 
 
 RuleSet: SGDecisionTableGuidance( text )
-* action[+]
+* action[guidance]
   * title = "Health worker guidance"
   * description = "Communicate guidance to the health worker"
   * definitionCanonical = Canonical(SGDecisionTableGuidance)
