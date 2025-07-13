@@ -25,7 +25,8 @@ class extractor(object):
   
   def __init__(self,installer:installer):
     self.installer = installer
-    aliases = self.get_aliases()
+    aliases = self.installer.get_base_aliases()
+    aliases.extend(self.get_aliases())
     self.log("Aliases",aliases)
     self.installer.add_aliases(aliases)
 
@@ -116,15 +117,33 @@ class extractor(object):
       self.installer.log( prefix + statement )
       prefix = "\t"
 
+  def markdown_escape(self,input):
+    if not isinstance(input,str):
+      return ""
+    input = input.replace('"""','\\"\\"\\"')
+    return self.sushi_escape(input)
+
+  def sushi_escape(self,input):
+    # strings in rulesets are handled poorly
+    input = input.replace(",","\\,")
+    input = input.replace("'","")
+    input = input.replace("(","")
+    input = input.replace(")","")
+    input = input.replace("\n","\\n")
+    return input
+    
   def is_nan(self,v):
     return (isinstance(v, float) and v != v)
       
   def is_blank(self,v):
-    return v == None \
-      or (isinstance(v, str) and not v)
+    return v == None or self.is_nan(v) \
+      or (isinstance(v, str) and len(v.strip()) == 0)
 
   def is_dash(self,v):
-    return isinstance(v,str) and (v == '-' or v == '–')
+    if not  isinstance(v,str):
+      return False
+    v = v.strip()
+    return (v == '-' or v == '–')
       
   def name_to_lower_id(self,name):    
     return self.installer.name_to_lower_id(name)

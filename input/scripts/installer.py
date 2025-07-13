@@ -1,4 +1,5 @@
 import lxml.etree as ET
+import glob
 import re
 import os
 import shutil
@@ -8,11 +9,12 @@ from pathlib import Path
 import pprint
 import sys
 from lxml import etree
-
+import hashlib
 
 class installer:
   resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'rulesets' : {},
-                'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {}}  
+                'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {},
+                'plandefinitions':{}, 'activitydefinitions':{}}  
   cqls = {}
   codesystems = {}
   codesystem_titles = {}
@@ -32,19 +34,29 @@ class installer:
     Path("input/dmn").mkdir(exist_ok=True, parents=True)
     Path("input/cql").mkdir(exist_ok=True, parents=True)
     Path("input/fsh").mkdir(exist_ok=True, parents=True)
+    Path("input/fsh/activitydefinitions").mkdir(exist_ok=True, parents=True)
+    Path("input/fsh/plandefinitions").mkdir(exist_ok=True, parents=True)
     Path("input/pagecontent").mkdir(exist_ok=True, parents=True)
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
     self.add_rulesets()
+    self.initialize_dmn()
 
-    script_directory = os.path.dirname(os.path.abspath(__file__))
+ 
+  def get_base_dir(self):
+    return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    
+  def initialize_dmn(self):
     try:
+      Path("input/images-source").mkdir(exist_ok=True, parents=True)
       Path("input/pagecontent/includes").mkdir(exist_ok=True, parents=True)
+      script_directory = self.get_base_dir() + "/input/scripts" 
       source_file = script_directory + "/" +  self.dmn_css_file
-      shutil.copy(source_file,Path("input/pagecontent/") / f"{self.dmn_css_file}")
-      resolved_file = script_directory + "/" +  self.dmn2html_xslt_file
-      self.log("xslt at " + resolved_file)
-      with open(Path(resolved_file), "rb") as f:
+      shutil.copy(source_file,Path("input/images-source/dmn.css"))
+      transformed_file = script_directory + "/" +  self.dmn2html_xslt_file
+      self.log("xslt at " + transformed_file)
+      with open(Path(transformed_file), "rb") as f:
         self.dmn2html_xslt = ET.XSLT(ET.parse(f))
     except BaseException as e:
       self.log("WARNING: Could not find XSLT at input/includes/dmn2html.xslt -- HTML DMN rendering will be unavailable.")
@@ -115,22 +127,46 @@ class installer:
   def name_to_lower_id(self,name):    
     if ( not (isinstance(name,str))):
       return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
+    id = re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
+    if len(id) > 245:
+       # max filename size is 255, leave space for extensions such as .fsh
+      self.log("ERROR: name of id is too long.hashing: " + id)        
+      id = self.to_hash(id,245)
+    return id
+
     
   def name_to_id(self,name):    
     if ( not (isinstance(name,str))):
       return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
+    id = re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
+    if len(id) > 55:
+      # make length of an id is 64 characters
+      #we need to make use of hashes
+      self.log("ERROR: name of id is too long. hashing.: " + id)
+      id = self.to_hash(id,55)
+      self.log("Escaping id " + name + " to " + id )
+    return id
+
+  def to_hash(self,input:str,len:int):
+    return input[:len -11] + "." + str(hashlib.shake_256(input.encode()).hexdigest(5))
+
 
 
   def escape_code(self,input):
+    original = input
     if ( not (isinstance(input,str))):
         return None
+    input = input.strip()
     input = re.sub(r"['\"]","",input)
     #SUSHI BUG on processing codes with double quote.  sushi fails
     #Example \"Bivalent oral polio vaccine (bOPV)–inactivated polio vaccine (IPV)\" schedule (in countries with high vaccination coverage [e.g. 90–95%] and low importation risk [where neighbouring countries and/or countries that share substantial population movement have a similarly high coverage])" 
 
-    input = re.sub(r"\s+"," ",input).strip()
+    input = re.sub(r"\s+"," ",input)
+    if len(input) > 245:
+       # max filename size is 255, leave space for extensions such as .fsh
+      self.log("ERROR: name of id is too long.hashing: " + input)        
+      input = self.to_hash(input,245)
+      self.log("Escaping code " + original + " to " + input )
     return input
 
   def xml_escape(self,input):
@@ -153,28 +189,24 @@ class installer:
 
 
   def add_rulesets(self):
-    ruleset_id = "LogicLibrary"
-    ruleset = """RuleSet: LogicLibrary( library )
-* meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-shareablelibrary"
-* meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-publishablelibrary"
-* meta.profile[+] = "http://hl7.org/fhir/uv/cql/StructureDefinition/cql-library"
-* meta.profile[+] = "http://hl7.org/fhir/uv/cql/StructureDefinition/cql-module"
-* extension[+]
-  * url = "http://hl7.org/fhir/StructureDefinition/cqf-knowledgeCapability"
-  * valueCode = #computable
-* name = "{library}"
-* status = #draft
-* experimental = false
-* publisher = "World Health Organization (WHO)"
-* type = $library-type#logic-library
-* content
-  * id = "ig-loader-{library}.cql"
-"""
-    self.add_resource("rulesets",ruleset_id,ruleset)
-  
-  aliasfile = "input/fsh/Aliases.fsh"
+    for ruleset_file in glob.glob(self.get_base_dir() + "/input/fsh/rulesets/*fsh"):      
+      ruleset_id =  str(os.path.splitext(os.path.basename(ruleset_file))[0])
+      with open(ruleset_file, 'r') as file:
+        self.log("Opned " + ruleset_file)
+        ruleset = str(file.read())
+        self.add_resource("rulesets",ruleset_id,ruleset)
 
-  aliases = []  
+
+
+    
+  alias_file = "input/fsh/Aliases.fsh"
+  aliases = []  #should change this to a set...
+
+  def get_base_aliases(self):
+    ig_alias_file = self.get_base_dir() + "/" + self.alias_file
+    with open(ig_alias_file, 'r') as file:
+      return str(file.read()).split("\n")
+        
   
   def add_aliases(self , aliases):
     for alias in aliases:
@@ -183,16 +215,16 @@ class installer:
 
   def install_aliases(self):
     try:
-        if not os.path.exists(self.aliasfile):
+        if not os.path.exists(self.alias_file):
             with open(filename, 'w') as file:
-                for alias in self.aliases:
+                for alias in set(self.aliases):
                     self.log("Adding alias:" + alias)
                     file.write(alias + "\n")
                 file.close()
         else:
-            with open(self.aliasfile, 'r+') as file:
+            with open(self.alias_file, 'r+') as file:
                 content = file.read()
-                for alias in self.aliases:
+                for alias in set(self.aliases):
 #                    self.log("Checking alias:" + alias)
                     if alias not in content:
                         self.log("Adding alias:" + alias)
@@ -233,11 +265,12 @@ class installer:
 
   def install_dmn(self,id,dmn:str):
     try:
+      dmn_url = self.get_ig_canonical() + "/dmn/" + id + ".dmn"
       dmn_namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
       dmn_wrapped = "<dmn:definitions  xmlns:dmn='" + dmn_namespace + "'\n"
       dmn_wrapped += " namespace='" + self.get_ig_canonical() + "'\n"
       dmn_wrapped += " name='"  + self.escape(id) + "'\n"
-      dmn_wrapped += " id='" + self.name_to_id(self.get_ig_canonical() + "/dmn/" + id) + ".dmn'>\n"            
+      dmn_wrapped += " id='" + self.name_to_id(dmn_url) + "'>\n"            
       dmn_wrapped += "  <dmn:decision id='" + self.name_to_id(id) + "' name='" + self.escape(id) + "'>\n"
       dmn_wrapped +=  dmn + "\n"
       dmn_wrapped += "  </dmn:decision>\n"
@@ -254,7 +287,7 @@ class installer:
     try:
       dmn_path = Path("input/dmn/") /  f"{id}.dmn"
       dmn_file = open(dmn_path,"w")
-      self.log(ET.tostring(dmn_tree,encoding="unicode"))
+      #self.log(ET.tostring(dmn_tree,encoding="unicode"))
       dmn_file.write(ET.tostring(dmn_tree,encoding="unicode"))
       #print(ET.tostring(dmn_tree,encoding="unicode"),file=dmn_file)
       dmn_file.close()
@@ -298,8 +331,8 @@ class installer:
           self.log("Installed " + file_path)
         except IOError as e:
           result = False
-          log("Could not save resource of type: " + directory + "  with id: " + id + "\n")
-          log(f"\tError: {e}")
+          self.log("Could not save resource of type: " + directory + "  with id: " + id + "\n")
+          self.log(f"\tError: {e}")
     return result
 
   def render_codesystem(self,id:str):
