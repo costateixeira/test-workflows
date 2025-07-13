@@ -3,7 +3,7 @@ RuleSet: SGDecisionTable( library, version )
 * ^abstract = true
 * meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-shareableplandefinition"
 * meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-publishableplandefinition"
-* library = Canonical({library}Logic)
+* library = Canonical({library})
 * extension[+]
   * url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"
   * valueCode = #computable
@@ -20,8 +20,8 @@ RuleSet: SGDecisionTableCitation( citation )
 
 RuleSet: SGDecisionTableOutput( action, title, description)
 * action[output]
-  * title = "{title}"
-  * description = """{description} """
+  * title = {title}
+  * description = {description}
   * definitionCanonical = Canonical({action})
   * dynamicValue[+]
     * path = "status"
@@ -35,12 +35,12 @@ RuleSet: SGDecisionTableOutput( action, title, description)
       * expression = "'proposal'"
 
 RuleSet: SGDecisionTableCondition( condition )
-  * condition[+]
-    * kind = #applicability
-    * expression
-      * description = {condition}
-      * language = #text/cql-identifier
-      * expression = {condition}
+* condition[+]
+  * kind = #applicability
+  * expression
+    * description = {condition}
+    * language = #text/cql-identifier
+    * expression = {condition}
 
 
 

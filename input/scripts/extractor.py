@@ -124,8 +124,11 @@ class extractor(object):
     return self.sushi_escape(input)
 
   def sushi_escape(self,input):
-    input = input.replace("(","\\(")
-    input = input.replace(")","\\)")
+    # strings in rulesets are handled poorly
+    input = input.replace(",","\\,")
+    input = input.replace("'","")
+    input = input.replace("(","")
+    input = input.replace(")","")
     input = input.replace("\n","\\n")
     return input
     

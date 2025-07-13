@@ -592,7 +592,8 @@ class dt_extractor(extractor):
             if (len(parts) == 2):
               input_name = parts[0].strip()
             # indented as they are under '* action[+]'
-            fsh_conditions += ['* insert SGDecisionTableCondition("' + self.sushi_escape(input_name) + '")']
+            input_id = self.name_to_id(input_name)
+            fsh_conditions += ['* insert SGDecisionTableCondition("' + self.sushi_escape(input_id) + '")']
             
             
           output_name = str(output).strip()
@@ -603,9 +604,10 @@ class dt_extractor(extractor):
             output_expr = parts[1].strip()
 
           annotation += " " # workaround for https://github.com/FHIR/sushi/issues/1569
-            
-          fsh_rules.append('* insert SGDecisionTableOutput("' + self.sushi_escape( output_name) \
-                          + '","' + self.sushi_escape(output_name) \
+
+          a_id = self.name_to_id(self.prefix + "O." + output_name)
+          fsh_rules.append('* insert SGDecisionTableOutput(' + self.escape( a_id) \
+                          + ',"' + self.sushi_escape(output_name) \
                           + '","""' + self.markdown_escape(annotation) + ' """)')
           fsh_rules.extend(fsh_conditions)
 
