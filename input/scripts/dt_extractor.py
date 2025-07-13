@@ -9,10 +9,17 @@ from extractor import extractor
 from installer import installer
 from pathlib import Path
 class dt_extractor(extractor):
-  tab_data : dict      
-  cql_definitions : dict
+  
   prefix = "DT"
- 
+
+  # internal variables
+  cql_definitions : dict
+  cql_definitions_by_type : dict
+  tab_data : dict      
+  cql_definitions = {}
+  cql_definitions_by_type = {'input':{},'output':{},'annotation':{}}
+  tab_data = {}
+  
   def __init__(self,installer:installer):
     super().__init__(installer)
     
@@ -50,8 +57,7 @@ class dt_extractor(extractor):
     dt_id = ""
     description = ""
     sources = ""
-    self.tab_data = {}
-    self.cql_definitions = {}
+
 
     if cover_sheet is None:
       self.log("Could not load cover sheet")      
@@ -136,7 +142,7 @@ class dt_extractor(extractor):
         for cql_id,val in cql_definitions.items():
           if not cql_id:
             self.log("BAD:" + cql_id + " from " + dt_id)
-            sys.exit()
+            sys.exit(2)
           if not cql_id in all_codes:
             self.log("  adding new " + cql_id  + " -> " + str(val))
             if isinstance(val,str):
@@ -228,7 +234,6 @@ class dt_extractor(extractor):
         }]
       normalized_codes[cql_id] = cql_prop
       
-    self.log(pprint.pp(normalized_codes))
     
     cs_properties = {
       'table': {
@@ -240,12 +245,25 @@ class dt_extractor(extractor):
         'type':'#string'
       }
     }
-
     self.installer.generate_cs_and_vs_from_dict(self.prefix,'Decision Table ',normalized_codes,cs_properties)
-    self.log("Extracted from cover")
+    self.log("Extracted codes from decision tables")
+    self.produce_activities()
+
     return True
 
-  
+  def produce_activities(self):    
+    for code,expr in self.cql_definitions_by_type['output'].items():
+      a_id = self.name_to_id(self.prefix + "Output." + code)
+      fsh_activity =  "Profile: " + a_id + "\n"
+      fsh_activity += "Parent: $SGActivityDefinition\n"
+      fsh_activity +=  "Title: " + a_id + "\n"
+      fsh_activity += 'Description: """' + self.escape(expr)  + '\n"""'
+      fsh_activity += 'Usage: #definition\n'
+      fsh_activity += '* ^abstract = true\n'
+
+      self.installer.add_resource('activitydefinitions',a_id, fsh_activity)
+
+    return True
   
   def create_cql_skeleton_for_tab(self,tab_id,cql_codes,properties = {}):
     lib_name = self.prefix + "Elements-" + tab_id 
@@ -335,7 +353,7 @@ class dt_extractor(extractor):
 
         if not guidance_col:
           self.log("Did not find Guidance column of decision table " + decision_id)
-          
+          b
         if not ref_col:
           self.log("Did not find Reference column of decision table " + decision_id)
                     
@@ -418,8 +436,19 @@ class dt_extractor(extractor):
       reference_expr = "Reference for the source content (L1)"
       output_dmns += [self.create_dmn_output_expression(dt_id, reference_name , reference_expr)]
 
-      
-    found_definitions = False 
+
+    fsh_plan =  "Profile: "  + dt_id + "\n"
+    fsh_plan += "Parent: $SGDecisionTable\n"
+    fsh_plan += "Title: " + dt_id + "\n"
+    fsh_plan += 'Description: """' + self.escape(name) + '\n"""'
+    fsh_plan += 'Usage: #definition\n'
+    fsh_plan += '* ^abstract = true\n'
+    vers = self.installer.get_ig_version() 
+    fsh_plan += '* insert SGDecisionTable( ' + dt_id + "," + vers + ')\n'
+    fsh_citations = set()
+    fsh_rules = []
+
+    found_definitions = False    
     while in_table:
       row_offset += 1      
       t_row = data["input_row"] + row_offset
@@ -471,6 +500,16 @@ class dt_extractor(extractor):
         in_table = False
         break
 
+      if is_merged_line_annotation:
+        self.log("Found pre-amble annotation=" + first_val)        
+        pre_annotation += first_val + "\n"
+        continue
+
+      guidance = "" if self.is_nan(guidance) else str(guidance).strip()
+      reference = "" if self.is_nan(reference) else str(reference).strip()
+      annotation = "" if self.is_nan(annotation) else str(annotation).strip()
+      output = "" if self.is_nan(output) else str(output).strip()
+      
    
       debug = { 'tab_id' : tab_id,
                 'dt_id': dt_id,
@@ -492,17 +531,6 @@ class dt_extractor(extractor):
                }
       self.log(pprint.pp(debug))
             
-      
-      guidance = "" if self.is_nan(guidance) else guidance
-      reference = "" if self.is_nan(reference) else reference
-      annotation = "" if self.is_nan(annotation) else annotation
-      output = "" if self.is_nan(output) else output
-      
-      if is_merged_line_annotation:
-        self.log("Found pre-amble annotation=" + first_val)        
-        pre_annotation += first_val + "\n"
-        continue
-
       if pre_annotation:
         pre_annotation += "\n\n"
       
@@ -521,6 +549,39 @@ class dt_extractor(extractor):
           #we may hav had some extraneous/blank input definitions that we want to skip processing on in the future
           inputs = inputs[0:len(input_dmns)]
           rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
+          rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
+                    
+          fsh_conditions = []
+          for input in inputs:
+            if self.is_blank(input) or self.is_dash(input):
+              continue
+            input_name = str(input).strip()
+            parts = input_name.split("\n",1)
+            if (len(parts) == 2):
+              input_name = parts[0].strip()
+            # indented as they are under '* action[+]'
+            fsh_conditions += ['  * insert SGDecisionTableCondition("' + self.escape(input_name) + '")']
+            
+            
+          output_name = str(output).strip()
+          output_expr = output
+          parts = output_name.split("\n",1)
+          if (len(parts) == 2):
+            output_name = parts[0].strip()            
+            output_expr = parts[1].strip()
+            
+          fsh_rules.append('* insert SGDecisionTableOutput("' + self.escape( output_name) \
+                          + '","' + self.escape(output_name) \
+                          + '","' + self.escape(annotation) + ")")
+          fsh_rules.extend(fsh_conditions)
+
+          if not self.is_blank(guidance):
+            fsh_rules.append('* insert SGDecisionTableGuidance("' + self.escape(guidance) + '")')
+            fsh_rules.extend(fsh_conditions)
+
+          if not self.is_blank(reference):
+            fsh_citations.add('* insert SGDecisionTableCitation("' + self.escape(reference) + '")')
+          
           pre_annotation = "" #reset it          
       elif is_contra_table:
         if self.is_blank(output):
@@ -533,7 +594,11 @@ class dt_extractor(extractor):
         self.log("WARNING - UNKNOWN table type")
         return False
 
-    dt_dmn_id = "decisionTable." + self.name_to_id(table_type) + "." + dt_id
+    self.log(fsh_rules)
+    fsh_plan += "\n" + "\n".join(fsh_citations) +  "\n" + "\n".join(fsh_rules)
+    self.installer.add_resource('plandefinitions',dt_id, fsh_plan)
+
+    dt_dmn_id = self.prefix + "." + self.name_to_id(table_type) + "." + dt_id
     dt_dmn = "    <dmn:decisionTable >\n"
     for input_dmn in input_dmns:
       dt_dmn += "        " + input_dmn + "\n"
@@ -543,7 +608,6 @@ class dt_extractor(extractor):
       dt_dmn += "        " + rule_dmn + "\n"
 
     dt_dmn += "    </dmn:decisionTable>"
-
     
 
     trigger_parts = trigger.split(" ",1)
@@ -599,7 +663,7 @@ class dt_extractor(extractor):
     if guidance:
       rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",guidance))
     if annotation:
-      rule_dmn_entries.append( self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
     if reference:
       rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",reference))
             
@@ -641,6 +705,7 @@ class dt_extractor(extractor):
     rule_dmn = "<dmn:rule id='" + rule_dmn_id + "'>" + "\n".join(rule_dmn_entries)  + "</dmn:rule>"          
     return rule_dmn
 
+
   def create_dmn_entry(self,tab_id:str,dt_id:str,rule_name:str,type:str,name:str):
     expr = False
     if type == "input" or type == "output":
@@ -660,6 +725,7 @@ class dt_extractor(extractor):
         if not dt_id in self.cql_definitions[tab_id]:
           self.cql_definitions[tab_id][dt_id] = {}
         self.cql_definitions[tab_id][dt_id][name] = expr
+        self.cql_definitions_by_type[type][name] = expr
 
         self.log("Added CQL via dmn with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + name + "\n\tEXPR=" + expr)
 

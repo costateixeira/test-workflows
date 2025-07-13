@@ -32,6 +32,10 @@ dependencies:
     id: cql
     version: 1.0.0
     reason: This IG uses CQL profiles and capabilities provided by the Using CQL With FHIR IG
+  hl7.fhir.uv.cpg:
+    id: cpg
+    version: 2.0.0
+    reason: For Decision Tables
   hl7.fhir.uv.crmi:
     id: crmi
     version: 1.0.0

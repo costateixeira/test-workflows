@@ -9,6 +9,7 @@
       indent="yes"
       encoding="UTF-8"
       doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
+      doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
       omit-xml-declaration="yes"/>
 
   <xsl:template match="/">
@@ -17,7 +18,7 @@
         <title>
           <xsl:value-of select="//dmn:decision/@name"/>
         </title>
-        <link rel="stylesheet" type="text/css" href="includes/dmn.css"/>
+        <link rel="stylesheet" type="text/css" href="dmn.css"/>
       </head>
       <body>
         <xsl:apply-templates select="//dmn:decision"/>

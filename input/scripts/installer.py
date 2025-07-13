@@ -12,7 +12,8 @@ from lxml import etree
 
 class installer:
   resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'rulesets' : {},
-                'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {}}  
+                'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {},
+                'plandefinitions':{}, 'activitydefinitions':{}}  
   cqls = {}
   codesystems = {}
   codesystem_titles = {}
@@ -32,19 +33,25 @@ class installer:
     Path("input/dmn").mkdir(exist_ok=True, parents=True)
     Path("input/cql").mkdir(exist_ok=True, parents=True)
     Path("input/fsh").mkdir(exist_ok=True, parents=True)
+    Path("input/fsh/activitydefinitions").mkdir(exist_ok=True, parents=True)
+    Path("input/fsh/plandefinitions").mkdir(exist_ok=True, parents=True)
     Path("input/pagecontent").mkdir(exist_ok=True, parents=True)
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
     self.add_rulesets()
+    self.initialize_dmn()
 
-    script_directory = os.path.dirname(os.path.abspath(__file__))
+
+  def initialize_dmn(self):
     try:
+      Path("input/images-source").mkdir(exist_ok=True, parents=True)
       Path("input/pagecontent/includes").mkdir(exist_ok=True, parents=True)
+      script_directory = os.path.dirname(os.path.abspath(__file__))
       source_file = script_directory + "/" +  self.dmn_css_file
-      shutil.copy(source_file,Path("input/pagecontent/") / f"{self.dmn_css_file}")
-      resolved_file = script_directory + "/" +  self.dmn2html_xslt_file
-      self.log("xslt at " + resolved_file)
-      with open(Path(resolved_file), "rb") as f:
+      shutil.copy(source_file,Path("input/images-source/dmn.css"))
+      transformed_file = script_directory + "/" +  self.dmn2html_xslt_file
+      self.log("xslt at " + transformed_file)
+      with open(Path(transformed_file), "rb") as f:
         self.dmn2html_xslt = ET.XSLT(ET.parse(f))
     except BaseException as e:
       self.log("WARNING: Could not find XSLT at input/includes/dmn2html.xslt -- HTML DMN rendering will be unavailable.")
@@ -115,12 +122,22 @@ class installer:
   def name_to_lower_id(self,name):    
     if ( not (isinstance(name,str))):
       return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
+    id = re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
+    if len(id) > 250:
+      self.log("ERROR: name of id is too long: " + id)        
+    id = id[:250] # max filename size is 255, leave space for extensions such as .fsh
+    return id
+
     
   def name_to_id(self,name):    
     if ( not (isinstance(name,str))):
       return None
-    return re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
+    id = re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
+    if len(id) > 250:
+      self.log("ERROR: name of id is too long: " + id)        
+    id = id[:250] # max filename size is 255, leave space for extensions such as .fsh
+    return id
+
 
 
   def escape_code(self,input):
@@ -299,8 +316,8 @@ class installer:
           self.log("Installed " + file_path)
         except IOError as e:
           result = False
-          log("Could not save resource of type: " + directory + "  with id: " + id + "\n")
-          log(f"\tError: {e}")
+          self.log("Could not save resource of type: " + directory + "  with id: " + id + "\n")
+          self.log(f"\tError: {e}")
     return result
 
   def render_codesystem(self,id:str):
