@@ -5,7 +5,7 @@ title: SMART Base
 description: Base SMART Guidelines implementation guide to be used as the base dependency for all SMART Guidelines IGs
 status: draft # draft | active | retired | unknown
 experimental: false
-version: 0.1.0
+version: 0.2.0
 # fhirVersion: 4.3.0 # https://www.hl7.org/fhir/valueset-FHIR-version.html
 # fhirVersion: 5.0.0 # https://www.hl7.org/fhir/valueset-FHIR-version.html
 fhirVersion: 4.0.1 # https://www.hl7.org/fhir/valueset-FHIR-version.html
