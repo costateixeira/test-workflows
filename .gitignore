@@ -35,6 +35,18 @@ __pycache__/
 .idea/*
 
 
+# emacs #
+#########
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.swp
+
 # word #
 ########
 ~$*
