@@ -1,5 +1,5 @@
 
-RuleSet: SGDecisionTable( library, name , version )
+RuleSet: SGDecisionTable( library, version )
 * ^abstract = true
 * meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-shareableplandefinition"
 * meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-publishableplandefinition"
@@ -21,7 +21,7 @@ RuleSet: SGDecisionTableCitation( citation )
 RuleSet: SGDecisionTableOutput( action, title, description)
 * action[output]
   * title = "{title}"
-  * description = {description}
+  * description = """{description} """
   * definitionCanonical = Canonical({action})
   * dynamicValue[+]
     * path = "status"
@@ -38,9 +38,9 @@ RuleSet: SGDecisionTableCondition( condition )
   * condition[+]
     * kind = #applicability
     * expression
-      * description = "{condition}"
+      * description = {condition}
       * language = #text/cql-identifier
-      * expression = "{condition}"
+      * expression = {condition}
 
 
 
@@ -55,9 +55,9 @@ RuleSet: SGDecisionTableMedicationRequestAction( action, title, description, rat
   * condition[+]
     * kind = #applicability
     * expression
-      * description = "{condition}"
+      * description = {condition}
       * language = #text/cql-identifier
-      * expression = "{condition}"
+      * expression = {condition}
   * definitionCanonical = Canonical({action})
   * dynamicValue[+]
     * path = "status"
@@ -72,7 +72,7 @@ RuleSet: SGDecisionTableMedicationRequestAction( action, title, description, rat
 
 RuleSet: SGDecisionTableMedicationRequestUpdate( action, title, description, condition, mrid )
 * action[+]
-  * title = "{title}"
+  * title = {title}
   * description = {description}
   * type = $action-type#update
   * insert SGDecisionTableCondition({condition})
@@ -99,7 +99,7 @@ RuleSet: SGDecisionTableGuidance( text )
     * path = "payload.contentString"
     * expression
       * language = #text/cql-identifier
-      * expression = "{text}"
+      * expression = {text}
 /*
   * dynamicValue[+]
     * path = "payload.contentAttachment.language"

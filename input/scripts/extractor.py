@@ -120,7 +120,14 @@ class extractor(object):
   def markdown_escape(self,input):
     if not isinstance(input,str):
       return ""
-    return input.replace('"""','\\"\\"\\"') 
+    input = input.replace('"""','\\"\\"\\"')
+    return self.sushi_escape(input)
+
+  def sushi_escape(self,input):
+    input = input.replace("(","\\(")
+    input = input.replace(")","\\)")
+    input = input.replace("\n","\\n")
+    return input
     
   def is_nan(self,v):
     return (isinstance(v, float) and v != v)

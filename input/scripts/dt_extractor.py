@@ -441,13 +441,13 @@ class dt_extractor(extractor):
 
       vers = self.installer.get_ig_version()
       plan_id = self.name_to_id(self.prefix +"." + dt_id)
-      e_name = self.escape(name)
+      e_name = self.sushi_escape(name)
       fsh_plan =  f"Profile: {plan_id}\n"
       fsh_plan += "Parent: $SGDecisionTable\n"
       fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
-      fsh_plan += 'Description: """' + self.markdown_escape(name) + '"""\n'
+      fsh_plan += 'Description: """' + self.markdown_escape(name) + ' """\n'
       #fsh_plan += "Usage: #definition\n"
-      fsh_plan += '* insert SGDecisionTable( ' + dt_id + ",\""  + e_name + "\"," + vers + ')\n'
+      fsh_plan += '* insert SGDecisionTable( ' + dt_id + ",\""  + vers + ')\n'
       fsh_citations = set()
       fsh_rules = []
     
@@ -568,16 +568,18 @@ class dt_extractor(extractor):
         self.log("Got input column")
         if not found_definitions:
           #it is a input variable definition
-          self.log("rendeing dmn for decision table " )
+          self.log("rendeing dmn input definition for decision table " )
           pre_annotation = "" #reset it
           input_dmns += self.process_input_definition_row(tab_id,dt_id,inputs)
           #we may hav had some extraneous/blank input definitions that we want to skip processing on in the future
-          inputs = inputs[0:len(input_dmns)]
+          self.log("Found " + str(len(input_dmns)) + " input columns in decision table " + dt_id)
+          prev_inputs = [""]*len(input_dmns)
         else:
           #it is a rule
           rule_name = "dt." + dt_id + "." + str(row_offset)
           #we may hav had some extraneous/blank input definitions that we want to skip processing on in the future
           inputs = inputs[0:len(input_dmns)]
+          self.log("rendeing dmn input  for decision table " )
           rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
           rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
                     
@@ -590,7 +592,7 @@ class dt_extractor(extractor):
             if (len(parts) == 2):
               input_name = parts[0].strip()
             # indented as they are under '* action[+]'
-            fsh_conditions += ['* insert SGDecisionTableCondition("' + self.escape(input_name) + '")']
+            fsh_conditions += ['* insert SGDecisionTableCondition("' + self.sushi_escape(input_name) + '")']
             
             
           output_name = str(output).strip()
@@ -599,18 +601,20 @@ class dt_extractor(extractor):
           if (len(parts) == 2):
             output_name = parts[0].strip()            
             output_expr = parts[1].strip()
+
+          annotation += " " # workaround for https://github.com/FHIR/sushi/issues/1569
             
-          fsh_rules.append('* insert SGDecisionTableOutput("' + self.escape( output_name) \
-                          + '","' + self.escape(output_name) \
-                          + '","""' + self.markdown_escape(annotation) + '""")')
+          fsh_rules.append('* insert SGDecisionTableOutput("' + self.sushi_escape( output_name) \
+                          + '","' + self.sushi_escape(output_name) \
+                          + '","""' + self.markdown_escape(annotation) + ' """)')
           fsh_rules.extend(fsh_conditions)
 
           if not self.is_blank(guidance):
-            fsh_rules.append('* insert SGDecisionTableGuidance("""' + self.markdown_escape(guidance) + '""")')
+            fsh_rules.append('* insert SGDecisionTableGuidance("""' + self.markdown_escape(guidance) + ' """)')
             fsh_rules.extend(fsh_conditions)
 
           if not self.is_blank(reference):
-            fsh_citations.add('* insert SGDecisionTableCitation("""' + self.markdown_escape(reference) + '""")')
+            fsh_citations.add('* insert SGDecisionTableCitation("""' + self.markdown_escape(reference) + ' """)')
           
           pre_annotation = "" #reset it          
       elif is_contra_table:
@@ -625,7 +629,7 @@ class dt_extractor(extractor):
         return False
 
     if is_regular_table:
-      fsh_plan += "\n" + "\n".join(fsh_citations) +  "\n" + "\n".join(fsh_rules)
+      fsh_plan +=  "\n".join(fsh_citations) +  "\n" + "\n".join(fsh_rules)
       self.installer.add_resource('plandefinitions',plan_id, fsh_plan)
 
     dt_dmn_id = self.prefix + "." + self.name_to_id(table_type) + "." + dt_id
