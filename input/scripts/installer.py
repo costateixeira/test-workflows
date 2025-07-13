@@ -144,6 +144,7 @@ class installer:
       #we need to make use of hashes
       self.log("ERROR: name of id is too long. hashing.: " + id)
       id = self.to_hash(id,55)
+      self.log("Escaping id " + name + " to " + id )
     return id
 
   def to_hash(self,input:str,len:int):
@@ -152,17 +153,20 @@ class installer:
 
 
   def escape_code(self,input):
+    original = input
     if ( not (isinstance(input,str))):
         return None
+    input = input.strip()
     input = re.sub(r"['\"]","",input)
     #SUSHI BUG on processing codes with double quote.  sushi fails
     #Example \"Bivalent oral polio vaccine (bOPV)–inactivated polio vaccine (IPV)\" schedule (in countries with high vaccination coverage [e.g. 90–95%] and low importation risk [where neighbouring countries and/or countries that share substantial population movement have a similarly high coverage])" 
 
-    input = re.sub(r"\s+"," ",input).strip()
+    input = re.sub(r"\s+"," ",input)
     if len(input) > 245:
        # max filename size is 255, leave space for extensions such as .fsh
       self.log("ERROR: name of id is too long.hashing: " + input)        
       input = self.to_hash(input,245)
+      self.log("Escaping code " + original + " to " + input )
     return input
 
   def xml_escape(self,input):

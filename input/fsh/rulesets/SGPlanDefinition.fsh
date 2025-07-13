@@ -35,12 +35,12 @@ RuleSet: SGDecisionTableOutput( action, title, description)
       * expression = "'proposal'"
 
 RuleSet: SGDecisionTableCondition( condition )
-* condition[+]
-  * kind = #applicability
-  * expression
-    * description = "{condition}"
-    * language = #text/cql-identifier
-    * expression = "{condition}"
+  * condition[+]
+    * kind = #applicability
+    * expression
+      * description = "{condition}"
+      * language = #text/cql-identifier
+      * expression = "{condition}"
 
 
 

@@ -117,6 +117,11 @@ class extractor(object):
       self.installer.log( prefix + statement )
       prefix = "\t"
 
+  def markdown_escape(self,input):
+    if not isinstance(input,str):
+      return ""
+    return input.replace('"""','\\"\\"\\"') 
+    
   def is_nan(self,v):
     return (isinstance(v, float) and v != v)
       

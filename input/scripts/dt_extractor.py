@@ -179,7 +179,7 @@ class dt_extractor(extractor):
             if title != all_codes[cql_id]['title']:
               self.log("ERROR: cql expression " + cql_id + " has repeated non-matching definition in decision table with id " + dt_id + " on tab_id " + tab_id )
 
-          dt_codes += [cql_id]
+          dt_codes += [self.escape_code(cql_id)]
           
         dt_vs_id = self.name_to_id(self.prefix + '-'+dt_id)
         self.installer.generate_vs_from_list(dt_vs_id,self.prefix, \
@@ -412,6 +412,7 @@ class dt_extractor(extractor):
     input_dmns = []
     output_dmns = []
     inputs = []
+    prev_inputs = inputs
     
     if is_contra_table:
       contra_id = self.name_to_id(table_type)
@@ -438,18 +439,18 @@ class dt_extractor(extractor):
       output_dmns += [self.create_dmn_output_expression(dt_id, reference_name , reference_expr)]
 
 
-    vers = self.installer.get_ig_version()
-    plan_id = self.name_to_id(self.prefix +"." + dt_id)
-    e_name = self.escape(name)
-    fsh_plan =  f"Profile: {plan_id}\n"
-    fsh_plan += "Parent: $SGDecisionTable\n"
-    fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
-    fsh_plan += f"Description: \"\"\"{name}\"\"\"\n"
-    #fsh_plan += "Usage: #definition\n"
-    fsh_plan += '* insert SGDecisionTable( ' + dt_id + ",\""  + e_name + "\"," + vers + ')\n'
-    fsh_citations = set()
-    fsh_rules = []
-
+      vers = self.installer.get_ig_version()
+      plan_id = self.name_to_id(self.prefix +"." + dt_id)
+      e_name = self.escape(name)
+      fsh_plan =  f"Profile: {plan_id}\n"
+      fsh_plan += "Parent: $SGDecisionTable\n"
+      fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
+      fsh_plan += 'Description: """' + self.markdown_escape(name) + '"""\n'
+      #fsh_plan += "Usage: #definition\n"
+      fsh_plan += '* insert SGDecisionTable( ' + dt_id + ",\""  + e_name + "\"," + vers + ')\n'
+      fsh_citations = set()
+      fsh_rules = []
+    
     found_definitions = False    
     while in_table:
       row_offset += 1      
@@ -463,7 +464,7 @@ class dt_extractor(extractor):
       first_val = df[data["col"]][t_row]
       self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
 
-      found_definitions = len(inputs) > 0
+      found_definitions = (len(prev_inputs) > 0)
       prev_inputs = inputs
       inputs = []
       trailing_nan_input = True
@@ -529,9 +530,13 @@ class dt_extractor(extractor):
           inputs = [] #the annotation was put in inputs
         continue
 
+      if pre_annotation:
+        pre_annotation += "\n\n"
+      
       guidance = "" if self.is_nan(guidance) else str(guidance).strip()
       reference = "" if self.is_nan(reference) else str(reference).strip()
       annotation = "" if self.is_nan(annotation) else str(annotation).strip()
+      annotation = pre_annotation + annotation
       output = "" if self.is_nan(output) else str(output).strip()
       
    
@@ -558,8 +563,6 @@ class dt_extractor(extractor):
 #      if dt_id == "IMMZ.D2.DT.Cholera.WC-rBSvaccine2doses":
 #        sys.exit(99)
             
-      if pre_annotation:
-        pre_annotation += "\n\n"
       
       if is_regular_table:
         self.log("Got input column")
@@ -587,7 +590,7 @@ class dt_extractor(extractor):
             if (len(parts) == 2):
               input_name = parts[0].strip()
             # indented as they are under '* action[+]'
-            fsh_conditions += ['  * insert SGDecisionTableCondition("' + self.escape(input_name) + '")']
+            fsh_conditions += ['* insert SGDecisionTableCondition("' + self.escape(input_name) + '")']
             
             
           output_name = str(output).strip()
@@ -598,16 +601,16 @@ class dt_extractor(extractor):
             output_expr = parts[1].strip()
             
           fsh_rules.append('* insert SGDecisionTableOutput("' + self.escape( output_name) \
-                          + '"\n    ,"' + self.escape(output_name) \
-                          + '"\n    ,"""\n' + annotation + "\n\"\"\")")
+                          + '","' + self.escape(output_name) \
+                          + '","""' + self.markdown_escape(annotation) + '""")')
           fsh_rules.extend(fsh_conditions)
 
           if not self.is_blank(guidance):
-            fsh_rules.append('* insert SGDecisionTableGuidance("' + self.escape(guidance) + '")')
+            fsh_rules.append('* insert SGDecisionTableGuidance("""' + self.markdown_escape(guidance) + '""")')
             fsh_rules.extend(fsh_conditions)
 
           if not self.is_blank(reference):
-            fsh_citations.add('* insert SGDecisionTableCitation("""' + self.escape(reference) + '\n""")')
+            fsh_citations.add('* insert SGDecisionTableCitation("""' + self.markdown_escape(reference) + '""")')
           
           pre_annotation = "" #reset it          
       elif is_contra_table:
@@ -621,8 +624,9 @@ class dt_extractor(extractor):
         self.log("WARNING - UNKNOWN table type")
         return False
 
-    fsh_plan += "\n" + "\n".join(fsh_citations) +  "\n" + "\n".join(fsh_rules)
-    self.installer.add_resource('plandefinitions',plan_id, fsh_plan)
+    if is_regular_table:
+      fsh_plan += "\n" + "\n".join(fsh_citations) +  "\n" + "\n".join(fsh_rules)
+      self.installer.add_resource('plandefinitions',plan_id, fsh_plan)
 
     dt_dmn_id = self.prefix + "." + self.name_to_id(table_type) + "." + dt_id
     dt_dmn = "    <dmn:decisionTable >\n"
