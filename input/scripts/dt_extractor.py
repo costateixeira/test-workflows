@@ -127,9 +127,10 @@ class dt_extractor(extractor):
       tab_codes = {}
       tab_markdown = "### Decision Tables for Tab  " + tab_id + "\n"
 
-
+      full_dt_id = self.prefix + "-" + dt_id
+      full_tab_id = self.prefix + 's-'+tab_id
       for dt_id,cql_definitions in dts.items():
-        dt_include = "{% include " + self.prefix + "-" + dt_id + ".html %}\n"
+        dt_include = "{% include " + full_dt_id + ".html %}\n"
         dt_markdown = "### Decision Table " + dt_id + "\n"
         dt_markdown += dt_include
         tab_markdown += "#### Decision Table " + dt_id + "\n"
@@ -188,10 +189,10 @@ class dt_extractor(extractor):
 
       self.installer.add_page(self.prefix + "s-" + tab_id,tab_markdown)
       cql_desc ="This library contains Decision Table elements from the decision table " \
-        + "<a href='" + self.prefix + dt_id + ".html'>" + dt_id + "</a>"
+        + "<a href='" + full_dt_id + ".html'>" + dt_id + "</a>"
       properties = {'description':cql_desc}
       self.create_cql_skeleton_for_tab(tab_id,tab_codes,properties)        
-      tab_vs_id = self.name_to_id(self.prefix + 's-'+tab_id)
+      tab_vs_id = self.name_to_id(full_tab_id)
       self.installer.generate_vs_from_list(tab_vs_id,self.prefix,'Decision Tables For Tab ' + tab_id,list(tab_codes.keys()))
       properties = {'decisionTables' : ", ".join(dt_codes) }
 
@@ -390,7 +391,7 @@ class dt_extractor(extractor):
         else:
           inputs += [val]
     return inputs
- 
+  
 
   def extract_activity_table(self,id:str,name:str,tab:str,dt_id:str,row):
     self.log("Looking for decision table ID=" + dt_id + " for activivity id /name (" + id + "/" + name + "): row=\n" + str(row))
@@ -406,7 +407,8 @@ class dt_extractor(extractor):
     is_regular_table = False
     is_schedule_table = False
     trigger = data["trigger"]
-    br = data["br"]
+    business_rule = data["br"]
+    
     self.log("\n\n\nTT=" +       str(df[data["col"]][data["input_row"]]))
     if self.name_to_id(ul_corner) == self.name_to_id("Decision ID"):
       table_type = df[data["col"]][data["input_row"]]
@@ -418,161 +420,110 @@ class dt_extractor(extractor):
     else:
       self.log("Could not determine type of table from " + ul_corner + "/" + table_type )
       return False
-        
+    
     self.log("Using decision tab of type (" + table_type + ") " + dt_id + " in sheet " + tab + " at r,c:"  + str(data["row"]) +"," + str(data["col"])  )
     self.log("Tab data = \n\t" + pprint.pformat(data).replace("\n","\n\t"))
 
-
-
     in_table = True
     row_offset = 0
-    pre_annotation = ""
-    rule_dmns = []
-    input_dmns = []
-    output_dmns = []
-    inputs = []
-    prev_inputs = inputs
+    dmn = {'rule':[],'input' : [], 'output' : []}
+    fsh = {'plan':"",'citations':"",'rules':""}
+    rule = {'inputs':[],'output':None,'guidance':None,'annotation':None,'reference':None}
     
+    full_dt_id = self.name_to_id(self.prefix +"." + dt_id)
+    full_tab_id = self.name_to_id(self.prefix +"s." + tab_id)
+    full_lib_id = self.get_library_id(tab_id)
+
     if is_contra_table:
-      contra_id = self.name_to_id(table_type)
-      contra_dmn_id = "input." + contra_id
-      contra_dmn = "<dmn:input id='" + contra_dmn_id + "' label='" + self.xml_escape(table_type) + "'></dmn:input>"
-      self.log("rendereing contraindication input dmn for decision table ")
-      input_dmns += [contra_dmn]
-
-    if is_regular_table:
-      output_name = "Care Plan"
-      output_expr = "Produce a suggested Care Plan for consideration by health worker"
-      output_dmns += [self.create_dmn_output_expression(dt_id, output_name , output_expr)]
-
-      guidance_name = "Guidance displayed to health worker"
-      guidance_expr = "Request to communicate guidance to the health worker"
-      output_dmns += [self.create_dmn_output_expression(dt_id, guidance_name , guidance_expr)]
-
-      annotation_name = "Annotations"
-      annotation_expr = "Additional information for the health worker"
-      output_dmns += [self.create_dmn_output_expression(dt_id, annotation_name , annotation_expr)]
-
-      reference_name = "Reference(s)"
-      reference_expr = "Reference for the source content (L1)"
-      output_dmns += [self.create_dmn_output_expression(dt_id, reference_name , reference_expr)]
-
-
-      plan_id = self.name_to_id(self.prefix +"." + dt_id)
-      fsh_plan = self.get_fsh_plan(tab_id,dt_id,plan_id,name)
-      self.log("fsh plan=" + fsh_plan)
-      fsh_rules = ""
-      fsh_citations = ""
+      dmn['input'].extend(self.get_contra_dmns(full_dt_id,table_type))
+    elif is_regular_table:
+      dmn['output'] += self.get_regular_dmns(full_dt_id)
+      fsh['plan'] = self.get_fsh_plan(full_tab_id,full_dt_id,full_lib_id,name)
     
     while in_table:
       row_offset += 1      
-      t_row = data["input_row"] + row_offset
-
-      if not t_row in df[data["output_col"]]:
+      prev_rule = rule
+      rule = self.get_rule(df,data ,row_offset,prev_rule)
+      if not rule:        #end of table
         break
-
-      found_definitions = (len(inputs) >  0)
-
-      vals = df.iloc[t_row, data["col"]:data["output_col"]].tolist()
-      first_val = vals[0]
-      self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
-      trailing_vals = vals[1:]
-
-      prev_inputs = inputs
-      inputs = self.extract_inputs(vals,prev_inputs)
-
-      output = df[data["output_col"]][t_row]  if data["output_col"] else float('nan')
-      guidance = df[data["guidance_col"]][t_row] if data["guidance_col"] else float('nan')
-      reference = df[data["reference_col"]][t_row] if data["reference_col"] else float('nan')
-      annotation = df[data["annotation_col"]][t_row] if data["annotation_col"] else float('nan')
-
-      
-      trailing_nan_input = all([self.is_nan(v) for v in trailing_vals])
-      trailing_blank_input = all([self.is_blank(v) for v in trailing_vals])      
-      not_in_table = self.is_nan(first_val) and  trailing_nan_input  \
-        and self.is_nan(output) and self.is_nan(guidance)  and self.is_nan(annotation)
-      is_merged_line_annotation = isinstance(first_val,str) and first_val and trailing_nan_input \
-        and self.is_blank(output) and self.is_blank(guidance) and self.is_blank(annotation)
-
-
-      self.log("MLA" + str({'isinstance':isinstance(first_val,str),'is first val': bool(first_val),
-                            'training nan' : trailing_nan_input ,'i_b_o' :  self.is_blank(output),
-                            'i_b_g' :  self.is_blank(guidance),'i_b_a' : self.is_blank(annotation),
-                            'found_defs' : found_definitions}))
-
-      if not_in_table:
-        self.log("Saw end of decision table starting at:" + str(t_row))
-        break
-
-        
-      if is_merged_line_annotation:
-        self.log("Found pre-amble annotation=" + first_val)        
-        pre_annotation += first_val + "\n"
-        if not found_definitions:
-          inputs = [] #the annotation was put in inputs
-        continue
-
-      if pre_annotation:
-        pre_annotation += "\n\n"
-      
-      guidance = "" if self.is_nan(guidance) else str(guidance).strip()
-      reference = "" if self.is_nan(reference) else str(reference).strip()
-      annotation = "" if self.is_nan(annotation) else str(annotation).strip()
-      annotation = pre_annotation + annotation
-      output = "" if self.is_nan(output) else str(output).strip()
-      
-      self.log(pprint.pp({ 'tab_id' : tab_id, 'dt_id': dt_id,'not_in_table' : not_in_table,'first_val' : first_val,
-                           'trailing_nan_input' : trailing_nan_input,'trailing_blank_input' : trailing_blank_input,
-                           'is_merged_line_annotation' : is_merged_line_annotation,'is_contra_table' : is_contra_table,
-                           'is_regular_table' : is_regular_table, 'is_schedule_table' : is_schedule_table,
-                           'annotation' :  annotation, 'reference' : reference,  'output' : output,  'guidance' : guidance, 
-                           'vals' : vals, 'inputs' : inputs, 'prev_inputs' : prev_inputs}))
       
       if is_regular_table:
         self.log("Got input column")
-        if not found_definitions:
+        if len(prev_rule['inputs']) == 0:
           #it is a input variable definition
-          self.log("rendeing dmn input definition for decision table " )
-          pre_annotation = "" #reset it
-          input_dmns += self.process_input_definition_row(tab_id,dt_id,inputs)
-          self.log("Found " + str(len(input_dmns)) + " input columns in decision table " + dt_id)
+          dmn['input'].extend(self.get_dmn_input_definition(full_tab_id,full_dt_id,rule))
         else:
           #it is a rule
-          rule_name = "dt." + dt_id + "." + str(row_offset)
-          #we may hav had some extraneous/blank input definitions that we want to skip processing on in the future
-          inputs = inputs[0:len(input_dmns)]
-          self.log("rendeing dmn input  for decision table " )
-          rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
-          rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
-          fsh_rules += self.get_fsh_rules(inputs,output,guidance,annotation,reference)
-          fsh_citations += self.get_fsh_citations(reference)          
-          pre_annotation = "" #reset it          
+          dmn['rule'].extend(self.get_dmn_input_rule(full_tab_id,full_dt_id,row_offset,rule))
+          fsh['rules'] += self.get_fsh_rule(rule)
+          fsh['citations'] += self.get_fsh_citations(rule)
       elif is_contra_table:
-        if self.is_blank(output):
-          continue
-        self.log("got contraindication")
-        rule_name = "contra." + dt_id + "." + str(row_offset)        
-        rule_dmns += [self.process_contra_indication_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
-        pre_annotation = "" #reset it
+        dmn['rule'].extend(self.get_dmn_contra_indication_rule(full_tab_id,full_dt_id,row_offset,rule))
       else:
         self.log("WARNING - UNKNOWN table type")
         return False
-
+      
     if is_regular_table:
-      fsh_plan +=  "\n"+ fsh_citations + "\n" + fsh_rules
-      self.installer.add_resource('plandefinitions',plan_id, fsh_plan)
-
-    dt_dmn_id = self.prefix + "." + self.name_to_id(table_type) + "." + dt_id
-    dt_dmn = "    <dmn:decisionTable >\n"
-    for input_dmn in input_dmns:
-      dt_dmn += "        " + input_dmn + "\n"
-    for output_dmn in output_dmns:
-      dt_dmn += "        " + output_dmn + "\n"
-    for rule_dmn in rule_dmns:
-      dt_dmn += "        " + rule_dmn + "\n"
-
-    dt_dmn += "    </dmn:decisionTable>"
+      fsh['plan'] +=  "\n"+ fsh['citations'] + "\n" + fsh['rules']
+      self.installer.add_resource('plandefinitions',full_dt_id, fsh['plan'])
+      
+    dmn_tab = self.get_dmn(full_tab_id,full_dt_id,business_rule,trigger,dmn)
+    self.installer.add_dmn_table(full_tab_id,dmn_tab)
     
+    self.tab_data[tab_id]['tables'][dt_id]['used'] = True
+    return True
+
+
+
+
+  def get_rule(self,df,data,row_offset,prev_rule):
+    t_row = data["input_row"] + row_offset
+    
+    if not t_row in df[data["output_col"]]:
+      return None
+    
+    vals = df.iloc[t_row, data["col"]:data["output_col"]].tolist()
+    first_val = vals[0]
+    self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
+
+    trailing_vals = vals[1:]    
+    trailing_blank_input = all([self.is_blank(v) for v in trailing_vals])      
+    trailing_nan_input = all([self.is_nan(v) for v in trailing_vals])
+    
+    rule = {'inputs' :[],
+            'output' : df[data["output_col"]][t_row].strip() if isinstance(df[data["output_col"]][t_row],str) else None,
+            'guidance' : df[data["guidance_col"]][t_row].strip() if isinstance(df[data["guidance_col"]][t_row],str) else None,
+            'reference' :df[data["reference_col"]][t_row].strip() if isinstance(df[data["reference_col"]][t_row],str) else None,
+            'annotation' : df[data["annotation_col"]][t_row].strip() if isinstance(df[data["annotation_col"]][t_row],str) else None
+            }
+
+    blank_outputs = self.is_blank(rule['output']) and self.is_blank(rule['guidance']) and self.is_blank(rule['annotation'])
+    
+    if self.is_blank(first_val) and trailing_blank_input and blank_outputs:
+      #end of table
+      return rule
+
+    if len(prev_rule['inputs']) == 0 and not self.is_blank(prev_rule['annotation']):
+      #merge in previous annotation to current annotation
+      if self.is_blank(rule['annotation']):
+        rule['annotation'] = prev_rule['annotation']
+      else:
+        rule['annotation'] = prev_rule['annotation'] + "\n\n" + rule['annotation']
+
+    if (not self.is_blank(first_val)) and trailing_blank_input and blank_outputs:
+      #we are in a merged line annotation
+      if self.is_blank(rule['annotation']):
+        rule['annotation'] = first_val
+      else:
+        rule['annotation'] = rule['annotation'] + "\n\n" + first_val
+    else:
+      rule['inputs'] = self.extract_inputs(vals,prev_rule['inputs'])
+
+    return rule
+
+
+
+  def get_dmn(self,dmn_tab_id,dmn_dt_id,trigger,business_rule,dmn):
 
     trigger_parts = trigger.split(" ",1)
     if (len(trigger_parts) == 2):
@@ -581,62 +532,108 @@ class dt_extractor(extractor):
     else:
       trigger_id = trigger.strip()
       trigger_expr = trigger_id
-
     trigger_url =  self.installer.get_ig_canonical() + "/bpmn/" \
       + trigger_id + ".bpmn#" + urllib.parse.quote(trigger_expr)
-    dt_dmn = "<dmn:question>" + self.xml_escape(br) + "</dmn:question>" \
-      "<dmn:usingTask href='" + trigger_url + "'/>" \
-      + dt_dmn
-    self.installer.add_dmn_table(self.prefix + "-" + dt_id,dt_dmn)
-    self.tab_data[tab_id]['tables'][dt_id]['used'] = True
-    return True
-  
-  def process_contra_indication_input_row(self,tab_id:str,dt_id:str,rule_name:str,inputs,output:str,guidance:str,annotation:str,reference:str):
+
+    dmn_url = self.installer.get_ig_canonical() + "/dmn/" + dmn_tab_id + ".dmn"
+    dmn_namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
+    
+    dmn = "<dmn:definitions  xmlns:dmn='" + dmn_namespace + "'\n" \
+        + " namespace='" + self.installer.get_ig_canonical() + "'\n" \
+        + " label='"  + self.escape(business_rule) + "'\n" \
+        + " id='" + dmn_tab_id + "'>\n" \
+        + "  <dmn:decision id='" + dmn_dt_id + "' label='" + self.escape(business_rule) + "'>\n" \
+        + "    <dmn:question>" + self.xml_escape(business_rule) + "</dmn:question>" \
+        + "    <dmn:usingTask href='" + trigger_url + "'/>" \
+        +  "    <dmn:decisionTable id='" + self.name_to_id(dmn_dt_id) + "'>\n" \
+        + "\n      ".join(dmn['input']) + "\n" \
+        + "\n      ".join(dmn['output']) + "\n" \
+        + "\n      ".join(dmn['rule']) + "\n" \
+        + "    </dmn:decisionTable>" \
+        + "  </dmn:decision>\n" \
+        + "</dmn:definitions>\n"
+
+    return dmn
+
+  def get_contra_dmns(self,dt_id,table_type):
+    self.log("rendering contraindication input dmn for decision table ")
+    contra_id = self.name_to_id(table_type + dt_id)
+    contra_dmn_id = "input." + contra_id
+    contra_dmn = "<dmn:input id='" + contra_dmn_id + "' label='" + self.xml_escape(table_type) + "'></dmn:input>"
+    return [contra_dmn]
+
+
+  def get_regular_dmns(self,dt_id):
+    outputs = []
+    output_name = "Care Plan"
+    output_expr = "Produce a suggested Care Plan for consideration by health worker"
+    outputs += [self.create_dmn_output_expression(dt_id, output_name , output_expr)]
+
+    guidance_name = "Guidance displayed to health worker"
+    guidance_expr = "Request to communicate guidance to the health worker"
+    outputs += [self.create_dmn_output_expression(dt_id, guidance_name , guidance_expr)]
+
+    annotation_name = "Annotations"
+    annotation_expr = "Additional information for the health worker"
+    outputs += [self.create_dmn_output_expression(dt_id, annotation_name , annotation_expr)]
+
+    reference_name = "Reference(s)"
+    reference_expr = "Reference for the source content (L1)"
+    outputs += [self.create_dmn_output_expression(dt_id, reference_name , reference_expr)]
+    return outputs
+
+      
+  def get_dmn_contra_indication_rule(self,tab_id:str,dt_id:str,row_offset,rule:dict):
+    if self.is_blank(rule['output']):
+      return []
+    rule_name = "contra." + dt_id + "." + str(row_offset)        
     rule_dmn_entries = []            
-    for val in inputs:
+    for val in rule['inputs']:
       if self.is_blank(val) or self.is_dash(val) or self.is_nan(val):
         continue
       self.log("Adding contra '" + str(val) + "'")
       rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"input",str(val)))
 
-    rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",output))
+    rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",rule['output']))
 
-    if annotation:
-      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
-    if reference:
-      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",reference))          
+    if rule['annotation']:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",rule['annotation']))
+    if rule['reference']:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",rule['reference']))          
 
-    if guidance:
-      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",guidance))
-    if annotation:
-      rule_dmn_entries.append( self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
-    if reference:
-      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",reference))
+    if rule['guidance']:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",rule['guidance']))
+    if rule['annotation']:
+      rule_dmn_entries.append( self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",rule['annotation']))
+    if rule['reference']:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",rule['reference']))
     
     return self.create_dmn_rule(rule_name,rule_dmn_entries)
 
     
-  def process_input_row(self,tab_id:str,dt_id:str,rule_name:str,inputs,output:str,guidance:str,annotation:str,reference:str):
+  def get_dmn_input_rule(self,tab_id:str,dt_id:str,row_offset,rule):
+    rule_name = "dt." + dt_id + "." + str(row_offset) #HASH of inputs and outputs or so
+
     rule_dmn_entries = []            
-    for val in inputs:
+    for val in rule['inputs']:
       self.log("Processing input defintion: " + str(val))
       rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"input",val))
 
-    rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",output))
+    rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",rule['output']))
 
-    if guidance:
-      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",guidance))
-    if annotation:
-      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",annotation))
-    if reference:
-      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",reference))
+    if rule['guidance']:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",rule['guidance']))
+    if rule['annotation']:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",rule['annotation']))
+    if rule['reference']:
+      rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"annotation",rule['reference']))
             
     return self.create_dmn_rule(rule_name,rule_dmn_entries)
 
   
-  def process_input_definition_row(self,tab_id:str,dt_id:str,inputs):
+  def get_dmn_input_definition(self,tab_id:str,dt_id:str,rule:dict):
     input_dmns = []
-    for val in inputs:
+    for val in rule['inputs']:
       if self.is_blank(val) or self.is_dash(val) or self.is_nan(val):
         continue
 
@@ -675,45 +672,51 @@ class dt_extractor(extractor):
         fsh_conditions += '* insert SGDecisionTableCondition("' + self.sushi_escape(input_id) + '")'
     return fsh_conditions
 
-  def get_fsh_plan(self,tab_id,dt_id,plan_id,name):
+  def get_fsh_plan(self,tab_id,dt_id,lib_id,name):
     vers = self.installer.get_ig_version()
     e_name = self.sushi_escape(name)
-    fsh_plan =  f"Profile: {plan_id}\n"
+    fsh_plan =  f"Profile: {dt_id}\n"
     fsh_plan += "Parent: $SGDecisionTable\n"
     fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
     fsh_plan += 'Description: """' + self.markdown_escape(name) + ' """\n'
     #fsh_plan += "Usage: #definition\n"
-    lib_id = self.prefix  + "Elements-" + tab_id
     fsh_plan += '* insert SGDecisionTable( ' + dt_id + ","  + vers + ')\n'
     return fsh_plan
+
+  def get_library_id(self,tab_id):
+    return self.name_to_id(self.prefix  + "Elements-" + tab_id)
+
+  def get_output_activity_id(self,output_name):
+    return self.name_to_id(self.prefix  + "O-" + output_name)
   
-  def get_fsh_rules(self,inputs,output,guidance,annotation,reference):
+  def get_fsh_rule(self,rule:dict):
     fsh_rules = ""
-    fsh_conditions = self.get_fsh_conditions(inputs)
+    fsh_conditions = self.get_fsh_conditions(rule)
             
-    output_name = str(output).strip()
-    output_expr = output
+    output_name = str(rule['output']).strip()
+    output_expr = output_name
     parts = output_name.split("\n",1)
     if (len(parts) == 2):
       output_name = parts[0].strip()            
       output_expr = parts[1].strip()
 
-    annotation += " " # workaround for https://github.com/FHIR/sushi/issues/1569
+    if not self.is_blank(rule['annotation']):
+      rule['annotation'] += " " # workaround for https://github.com/FHIR/sushi/issues/1569
 
-    a_id = self.name_to_id(self.prefix + "O." + output_name)
-    fsh_rules += '* insert SGDecisionTableOutput(' + self.escape( a_id) \
+    a_id = self.get_output_activity_id(output_name)
+    fsh_rules += '* insert SGDecisionTableOutput(' + a_id \
       + ',"' + self.sushi_escape(output_name) \
-      + '","""' + self.markdown_escape(annotation) + ' """)\n'
+      + '","""' + self.markdown_escape(rule['annotation']) + ' """)\n'
     fsh_rules += fsh_conditions
 
-    if not self.is_blank(guidance):
-      fsh_rules += '* insert SGDecisionTableGuidance("""' + self.markdown_escape(guidance) + ' """)\n'
+    if not self.is_blank(rule['guidance']):
+      fsh_rules += '* insert SGDecisionTableGuidance("""' + self.markdown_escape(rule['guidance']) + ' """)\n'
       fsh_rules += fsh_conditions
     return fsh_rules
 
-  def get_fsh_citations(self,reference):
-    if not self.is_blank(reference):
-      return '* insert SGDecisionTableCitation("""' + self.markdown_escape(reference) + ' """)\n'
+  def get_fsh_citations(self,rule):
+    if not self.is_blank(rule['reference']):
+      return '* insert SGDecisionTableCitation("""' + self.markdown_escape(rule['reference']) + ' """)\n'
     else:
       return ""
         
