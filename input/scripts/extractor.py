@@ -121,9 +121,9 @@ class extractor(object):
     if not isinstance(input,str):
       return ""
     input = input.replace('"""','\\"\\"\\"')
-    return self.sushi_escape(input)
+    return input
 
-  def sushi_escape(self,input):
+  def ruleset_escape(self,input):
     # strings in rulesets are handled poorly
     input = input.replace(",","\\,")
     input = input.replace("'","")

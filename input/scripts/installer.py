@@ -25,6 +25,8 @@ class installer:
   dmn2html_xslt = None
   dmn2html_xslt_file = "includes/dmn2html.xslt"  #relative to directory containing this file
   dmn_css_file = "includes/dmn.css"  #relative to directory containing this file
+  dmn_namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
+      
   
   def __init__(self):
     logfile_path = Path("temp/DAKExtract.log.txt")
@@ -87,6 +89,11 @@ class installer:
   def get_ig_config(self):
     return self.sushi_config
 
+  def get_ig_publisher(self):
+    if not 'publisher' in self.sushi_config or not 'name' in self.sushi_config['publisher']:
+      return "Self Published"
+    return self.sushi_config['publisher']['name']
+  
   def get_ig_canonical(self):
     return self.sushi_config['canonical']
 
@@ -189,6 +196,7 @@ class installer:
 
 
   def add_rulesets(self):
+    return True
     for ruleset_file in glob.glob(self.get_base_dir() + "/input/fsh/rulesets/*fsh"):      
       ruleset_id =  str(os.path.splitext(os.path.basename(ruleset_file))[0])
       with open(ruleset_file, 'r') as file:
@@ -266,12 +274,11 @@ class installer:
   def install_dmn(self,id,dmn:str):
     try:
       #self.log(dmn_wrapped)
-      ET.register_namespace('dmn' , dmn_namespace )
+      ET.register_namespace('dmn' , self.dmn_namespace )
       dmn_tree = ET.XML(dmn)
       ET.indent(dmn_tree)
     except BaseException as e:
-      self.log("ERROR: Generated invalid XML for DMN id " + id +".")
-      self.log(f"\tError: {e}")
+      self.log("ERROR: Generated invalid XML for DMN id " + id +"\n" +  f"\tError: {e}\n" )
       return False
     
     try:
