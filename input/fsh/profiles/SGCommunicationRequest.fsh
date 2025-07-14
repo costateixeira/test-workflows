@@ -10,9 +10,5 @@ Description: "Provide communication"
 * status = #active
 
 
-Profile: SGDecisionTableGuidance
-Parent: SGCommunicationRequest
-Title: "SMART Guidelines Decision Table Guidance"
-Description: """Guidance to health worker coming from a DAK Decision Table"""
 
 
