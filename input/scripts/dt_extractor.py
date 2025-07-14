@@ -722,7 +722,11 @@ class dt_extractor(extractor):
   def get_fsh_rule(self,rule:dict):
     fsh_rules = ""
     fsh_conditions = self.get_fsh_conditions(rule)
-            
+
+    if self.is_blank(rule['output']):
+      self.log("ERROR: misformed decision table near rule=" + str(rule))
+      sys.exit(44)
+
     output_name = str(rule['output']).strip()
     output_expr = output_name
     parts = output_name.split("\n",1)
@@ -731,15 +735,17 @@ class dt_extractor(extractor):
       output_expr = parts[1].strip()
 
     if self.is_blank(rule['annotation']):
-      annotation = ""
+      description = ""
     else:
-      annotation = rule['annotation'] + " " # workaround for https://github.com/FHIR/sushi/issues/1569
-    annotation = self.escape(annotation)
-    
+      description = "\n" + rule['annotation'] + " " # workaround for https://github.com/FHIR/sushi/issues/1569
+
+      
+    description = self.markdown_escape(rule['output'] + "\n" + description)
+    title = self.escape(output_name)
     a_id = self.get_output_activity_id(output_name)
     fsh_rules +=  "* action[+]\n"
-    fsh_rules += f"  * title = \"{annotation}\"\n"
-    fsh_rules +=  "  * description = {description}\n"
+    fsh_rules += f"  * title = \"{title}\"\n"
+    fsh_rules += f"  * description = \"\"\"{description}\"\"\"\n"
     fsh_rules += f"  * definitionCanonical = Canonical({a_id})\n"
     fsh_rules +=  "  * dynamicValue[+]\n"
     fsh_rules +=  "    * path = \"status\"\n"
@@ -764,7 +770,7 @@ class dt_extractor(extractor):
       fsh_rules += "    * path = \"status\"\n"
       fsh_rules += "    * expression\n"
       fsh_rules += "      * language = #text/cql-expression\n"
-      fsh_rules += "      * expression = 'active'\n"
+      fsh_rules += "      * expression = \"active\"\n"
       fsh_rules += "  * dynamicValue[+]\n"
       fsh_rules += "    * path = \"payload.contentString\"\n"
       fsh_rules += "    * expression\n"
