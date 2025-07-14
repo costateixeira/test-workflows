@@ -373,6 +373,25 @@ class dt_extractor(extractor):
     return True    
 
 
+  def extract_inputs(self,vals,prev_inputs):
+    found_definitions = (len(prev_inputs) >  0)
+    inputs = []
+    for i,val in enumerate(vals):
+      if not found_definitions:
+        if self.is_dash(val) or self.is_blank(val):
+          #we are done with the inputs
+          break
+        inputs += [val]
+      else:
+        if self.is_nan(val)  and len(inputs) < len(prev_inputs):
+          #merged cells end up as NaNs
+          self.log('  => setting to previous value')
+          inputs += [prev_inputs[i]]
+        else:
+          inputs += [val]
+    return inputs
+ 
+
   def extract_activity_table(self,id:str,name:str,tab:str,dt_id:str,row):
     self.log("Looking for decision table ID=" + dt_id + " for activivity id /name (" + id + "/" + name + "): row=\n" + str(row))
     tab_id =self.name_to_id(tab)
@@ -439,59 +458,28 @@ class dt_extractor(extractor):
       output_dmns += [self.create_dmn_output_expression(dt_id, reference_name , reference_expr)]
 
 
-      vers = self.installer.get_ig_version()
       plan_id = self.name_to_id(self.prefix +"." + dt_id)
-      e_name = self.sushi_escape(name)
-      fsh_plan =  f"Profile: {plan_id}\n"
-      fsh_plan += "Parent: $SGDecisionTable\n"
-      fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
-      fsh_plan += 'Description: """' + self.markdown_escape(name) + ' """\n'
-      #fsh_plan += "Usage: #definition\n"
-      fsh_plan += '* insert SGDecisionTable( ' + dt_id + ",\""  + vers + ')\n'
-      fsh_citations = set()
-      fsh_rules = []
+      fsh_plan = self.get_fsh_plan(tab_id,dt_id,plan_id,name)
+      self.log("fsh plan=" + fsh_plan)
+      fsh_rules = ""
+      fsh_citations = ""
     
-    found_definitions = False    
     while in_table:
       row_offset += 1      
       t_row = data["input_row"] + row_offset
 
       if not t_row in df[data["output_col"]]:
-        in_table = False
         break
 
-      is_first_row = (len(inputs) == 0)
-      first_val = df[data["col"]][t_row]
+      found_definitions = (len(inputs) >  0)
+
+      vals = df.iloc[t_row, data["col"]:data["output_col"]].tolist()
+      first_val = vals[0]
       self.log("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
+      trailing_vals = vals[1:]
 
-      found_definitions = (len(prev_inputs) > 0)
       prev_inputs = inputs
-      inputs = []
-      trailing_nan_input = True
-      trailing_blank_input = True
-      i = 0
-      vals = []
-      for c in range(data["col"] ,data["output_col"]):
-        val = df[c][t_row]
-        vals += [val]
-        self.log(' v='  + str(val) + "/" + str(i) + "/" + str(len(prev_inputs)))
-        if is_first_row:
-          if self.is_dash(val) or self.is_blank(val):
-            #we are done with the inputs
-            break
-          inputs += [val]
-        else:
-          if self.is_nan(val)  and i < len(prev_inputs):
-            self.log('  => setting to previous value')
-            inputs += [prev_inputs[i]]
-          else:
-            inputs += [val]
-
-        trailing_nan_input &=  ( i == 0 or self.is_nan(val) )
-        trailing_blank_input &=  ( i==0 or self.is_blank(val))
-        i += 1
-
-
+      inputs = self.extract_inputs(vals,prev_inputs)
 
       output = df[data["output_col"]][t_row]  if data["output_col"] else float('nan')
       guidance = df[data["guidance_col"]][t_row] if data["guidance_col"] else float('nan')
@@ -499,34 +487,28 @@ class dt_extractor(extractor):
       annotation = df[data["annotation_col"]][t_row] if data["annotation_col"] else float('nan')
 
       
+      trailing_nan_input = all([self.is_nan(v) for v in trailing_vals])
+      trailing_blank_input = all([self.is_blank(v) for v in trailing_vals])      
       not_in_table = self.is_nan(first_val) and  trailing_nan_input  \
         and self.is_nan(output) and self.is_nan(guidance)  and self.is_nan(annotation)
-
       is_merged_line_annotation = isinstance(first_val,str) and first_val and trailing_nan_input \
         and self.is_blank(output) and self.is_blank(guidance) and self.is_blank(annotation)
 
 
-      self.log("MLA" + str({
-        'isinstance':isinstance(first_val,str),
-        'is first val': bool(first_val),
-        'training nan' : trailing_nan_input ,
-        'i_b_o' :  self.is_blank(output),
-        'i_b_g' :  self.is_blank(guidance),
-        'i_b_a' : self.is_blank(annotation),
-        'i_f_r' : is_first_row
-        }))
-      
+      self.log("MLA" + str({'isinstance':isinstance(first_val,str),'is first val': bool(first_val),
+                            'training nan' : trailing_nan_input ,'i_b_o' :  self.is_blank(output),
+                            'i_b_g' :  self.is_blank(guidance),'i_b_a' : self.is_blank(annotation),
+                            'found_defs' : found_definitions}))
 
       if not_in_table:
         self.log("Saw end of decision table starting at:" + str(t_row))
-        in_table = False
         break
 
         
       if is_merged_line_annotation:
         self.log("Found pre-amble annotation=" + first_val)        
         pre_annotation += first_val + "\n"
-        if is_first_row:
+        if not found_definitions:
           inputs = [] #the annotation was put in inputs
         continue
 
@@ -539,30 +521,12 @@ class dt_extractor(extractor):
       annotation = pre_annotation + annotation
       output = "" if self.is_nan(output) else str(output).strip()
       
-   
-      debug = { 'tab_id' : tab_id,
-                'dt_id': dt_id,
-                'not_in_table' : not_in_table,
-                'first_val' : first_val,
-                'trailing_nan_input' : trailing_nan_input,
-                'trailing_blank_input' : trailing_blank_input,
-                'is_merged_line_annotation' : is_merged_line_annotation,
-                'is_contra_table' : is_contra_table,
-                'is_regular_table' : is_regular_table,
-                'is_schedule_table' : is_schedule_table,
-                'annotation' :  annotation, 
-                'reference' : reference, 
-                'output' : output, 
-                'guidance' : guidance, 
-                'vals' : vals, 
-                'inputs' : inputs, 
-                'prev_inputs' : prev_inputs
-               }
-      self.log(pprint.pp(debug))
-
-#      if dt_id == "IMMZ.D2.DT.Cholera.WC-rBSvaccine2doses":
-#        sys.exit(99)
-            
+      self.log(pprint.pp({ 'tab_id' : tab_id, 'dt_id': dt_id,'not_in_table' : not_in_table,'first_val' : first_val,
+                           'trailing_nan_input' : trailing_nan_input,'trailing_blank_input' : trailing_blank_input,
+                           'is_merged_line_annotation' : is_merged_line_annotation,'is_contra_table' : is_contra_table,
+                           'is_regular_table' : is_regular_table, 'is_schedule_table' : is_schedule_table,
+                           'annotation' :  annotation, 'reference' : reference,  'output' : output,  'guidance' : guidance, 
+                           'vals' : vals, 'inputs' : inputs, 'prev_inputs' : prev_inputs}))
       
       if is_regular_table:
         self.log("Got input column")
@@ -571,9 +535,7 @@ class dt_extractor(extractor):
           self.log("rendeing dmn input definition for decision table " )
           pre_annotation = "" #reset it
           input_dmns += self.process_input_definition_row(tab_id,dt_id,inputs)
-          #we may hav had some extraneous/blank input definitions that we want to skip processing on in the future
           self.log("Found " + str(len(input_dmns)) + " input columns in decision table " + dt_id)
-          prev_inputs = [""]*len(input_dmns)
         else:
           #it is a rule
           rule_name = "dt." + dt_id + "." + str(row_offset)
@@ -582,42 +544,8 @@ class dt_extractor(extractor):
           self.log("rendeing dmn input  for decision table " )
           rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
           rule_dmns += [self.process_input_row(tab_id,dt_id,rule_name,inputs,output,guidance,annotation,reference)]
-                    
-          fsh_conditions = []
-          for input in inputs:
-            if self.is_blank(input) or self.is_dash(input):
-              continue
-            input_name = str(input).strip()
-            parts = input_name.split("\n",1)
-            if (len(parts) == 2):
-              input_name = parts[0].strip()
-            # indented as they are under '* action[+]'
-            input_id = self.name_to_id(input_name)
-            fsh_conditions += ['* insert SGDecisionTableCondition("' + self.sushi_escape(input_id) + '")']
-            
-            
-          output_name = str(output).strip()
-          output_expr = output
-          parts = output_name.split("\n",1)
-          if (len(parts) == 2):
-            output_name = parts[0].strip()            
-            output_expr = parts[1].strip()
-
-          annotation += " " # workaround for https://github.com/FHIR/sushi/issues/1569
-
-          a_id = self.name_to_id(self.prefix + "O." + output_name)
-          fsh_rules.append('* insert SGDecisionTableOutput(' + self.escape( a_id) \
-                          + ',"' + self.sushi_escape(output_name) \
-                          + '","""' + self.markdown_escape(annotation) + ' """)')
-          fsh_rules.extend(fsh_conditions)
-
-          if not self.is_blank(guidance):
-            fsh_rules.append('* insert SGDecisionTableGuidance("""' + self.markdown_escape(guidance) + ' """)')
-            fsh_rules.extend(fsh_conditions)
-
-          if not self.is_blank(reference):
-            fsh_citations.add('* insert SGDecisionTableCitation("""' + self.markdown_escape(reference) + ' """)')
-          
+          fsh_rules += self.get_fsh_rules(inputs,output,guidance,annotation,reference)
+          fsh_citations += self.get_fsh_citations(reference)          
           pre_annotation = "" #reset it          
       elif is_contra_table:
         if self.is_blank(output):
@@ -631,7 +559,7 @@ class dt_extractor(extractor):
         return False
 
     if is_regular_table:
-      fsh_plan +=  "\n".join(fsh_citations) +  "\n" + "\n".join(fsh_rules)
+      fsh_plan +=  "\n"+ fsh_citations + "\n" + fsh_rules
       self.installer.add_resource('plandefinitions',plan_id, fsh_plan)
 
     dt_dmn_id = self.prefix + "." + self.name_to_id(table_type) + "." + dt_id
@@ -733,8 +661,62 @@ class dt_extractor(extractor):
       input_dmns.append(self.create_dmn_input_expression(dt_id,val_id,val_definition))
       self.log("Added CQL with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + val_id + "\n\tEXPR=" + val_definition)
     return input_dmns
-              
+
+  def get_fsh_conditions(self,inputs):
+    fsh_conditions = ""
+    for input in inputs:
+      if self.is_blank(input) or self.is_dash(input):
+        continue
+      input_name = str(input).strip()
+      parts = input_name.split("\n",1)
+      if (len(parts) == 2):
+        input_name = parts[0].strip()
+        input_id = self.name_to_id(input_name)
+        fsh_conditions += '* insert SGDecisionTableCondition("' + self.sushi_escape(input_id) + '")'
+    return fsh_conditions
+
+  def get_fsh_plan(self,tab_id,dt_id,plan_id,name):
+    vers = self.installer.get_ig_version()
+    e_name = self.sushi_escape(name)
+    fsh_plan =  f"Profile: {plan_id}\n"
+    fsh_plan += "Parent: $SGDecisionTable\n"
+    fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
+    fsh_plan += 'Description: """' + self.markdown_escape(name) + ' """\n'
+    #fsh_plan += "Usage: #definition\n"
+    lib_id = self.prefix  + "Elements-" + tab_id
+    fsh_plan += '* insert SGDecisionTable( ' + dt_id + ","  + vers + ')\n'
+    return fsh_plan
   
+  def get_fsh_rules(self,inputs,output,guidance,annotation,reference):
+    fsh_rules = ""
+    fsh_conditions = self.get_fsh_conditions(inputs)
+            
+    output_name = str(output).strip()
+    output_expr = output
+    parts = output_name.split("\n",1)
+    if (len(parts) == 2):
+      output_name = parts[0].strip()            
+      output_expr = parts[1].strip()
+
+    annotation += " " # workaround for https://github.com/FHIR/sushi/issues/1569
+
+    a_id = self.name_to_id(self.prefix + "O." + output_name)
+    fsh_rules += '* insert SGDecisionTableOutput(' + self.escape( a_id) \
+      + ',"' + self.sushi_escape(output_name) \
+      + '","""' + self.markdown_escape(annotation) + ' """)\n'
+    fsh_rules += fsh_conditions
+
+    if not self.is_blank(guidance):
+      fsh_rules += '* insert SGDecisionTableGuidance("""' + self.markdown_escape(guidance) + ' """)\n'
+      fsh_rules += fsh_conditions
+    return fsh_rules
+
+  def get_fsh_citations(self,reference):
+    if not self.is_blank(reference):
+      return '* insert SGDecisionTableCitation("""' + self.markdown_escape(reference) + ' """)\n'
+    else:
+      return ""
+        
   def create_dmn_rule(self,rule_name:str,rule_dmn_entries):
     rule_id = self.name_to_id(rule_name)
     rule_dmn_id = "rule." + rule_id

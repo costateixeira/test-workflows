@@ -20,7 +20,7 @@ Description: "Defines the minimum expectations for PlanDefinition resources used
 * action[output].definitionCanonical 1..1
 // * action[output].definitionCanonical only Canonical(SGActivityDefinition) 
 * action[output].code = $DecisionTableActions#output (exactly)
-* action[output].description = "Output action referencing an SGActivityDefinition instance."
+// * action[output].description = "Output action referencing an SGActivityDefinition instance."
 
 
 
@@ -28,7 +28,7 @@ Description: "Defines the minimum expectations for PlanDefinition resources used
 * action[guidance].definitionCanonical 1..1
 //* action[guidance].definitionCanonical only Reference(CommunicationRequest)
 * action[guidance].code = $DecisionTableActions#guidance (exactly)
-* action[guidance].description = "Guidance action referencing a CommunicationRequest instance."
+//* action[guidance].description = "Guidance action referencing a CommunicationRequest instance."
 
 // annotation: optional, must reference CommunicationRequest
 //* action[annotation].definitionCanonical 1..1
