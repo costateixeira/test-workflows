@@ -119,7 +119,7 @@ class extractor(object):
 
   def markdown_escape(self,input):
     if not isinstance(input,str):
-      return ""
+      return " "
     input = input.replace('"""','\\"\\"\\"')
     return input
 

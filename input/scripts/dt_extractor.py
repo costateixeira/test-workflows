@@ -693,15 +693,15 @@ class dt_extractor(extractor):
     version = self.installer.get_ig_version()
     publisher = self.escape(self.installer.get_ig_publisher())
     e_name = self.escape(name)
-    fsh_plan =  f"Profile: {dt_id}\n"
-    fsh_plan += "Parent: $SGDecisionTable\n"
+    fsh_plan =  f"Instance: {dt_id}\n"
+    fsh_plan += "InstanceOf: $SGDecisionTable\n"
     fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
     fsh_plan += 'Description: """' + self.markdown_escape(name) + ' """\n'
-    #fsh_plan += "Usage: #definition\n"
-    fsh_plan += "* ^abstract = true\n"
+    fsh_plan += "Usage: #definition\n"
+    #fsh_plan += "* ^abstract = true\n"
     fsh_plan += '* meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-shareableplandefinition"\n'
     fsh_plan += '* meta.profile[+] = "http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-publishableplandefinition"\n'
-    fsh_plan += f"* library = Canonical({dt_id})\n"
+    fsh_plan += f"* library = Canonical({tab_id})\n"
     fsh_plan += "* extension[+]\n"
     fsh_plan += '  * url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"\n'
     fsh_plan += '  * valueCode = #computable\n'
@@ -734,28 +734,29 @@ class dt_extractor(extractor):
       annotation = ""
     else:
       annotation = rule['annotation'] + " " # workaround for https://github.com/FHIR/sushi/issues/1569
-
+    annotation = self.escape(annotation)
+    
     a_id = self.get_output_activity_id(output_name)
-    fsh_rules += "  * action[output]\n"
-    fsh_rules += f"  * title = {annotation}\n"
-    fsh_rules += "   * description = {description}\n"
-    fsh_rules += f"   * definitionCanonical = Canonical({a_id})\n"
-    fsh_rules += "  * dynamicValue[+]\n"
-    fsh_rules += "    * path = \"status\"\n"
-    fsh_rules += "    * expression\n"
-    fsh_rules += "    * language = #text/cql-expression\n"
-    fsh_rules += "    * expression = \"draft\"\n"
-    fsh_rules += "  * dynamicValue[+]\n"
-    fsh_rules += "    * path = \"intent\"\n"
-    fsh_rules += "    * expression\n"
-    fsh_rules += "      * language = #text/cql-expression\n"
-    fsh_rules += "      * expression = \"proposal\"\n"
+    fsh_rules +=  "* action[+]\n"
+    fsh_rules += f"  * title = \"{annotation}\"\n"
+    fsh_rules +=  "  * description = {description}\n"
+    fsh_rules += f"  * definitionCanonical = Canonical({a_id})\n"
+    fsh_rules +=  "  * dynamicValue[+]\n"
+    fsh_rules +=  "    * path = \"status\"\n"
+    fsh_rules +=  "    * expression\n"
+    fsh_rules +=  "      * language = #text/cql-expression\n"
+    fsh_rules +=  "      * expression = \"draft\"\n"
+    fsh_rules +=  "  * dynamicValue[+]\n"
+    fsh_rules +=  "    * path = \"intent\"\n"
+    fsh_rules +=  "    * expression\n"
+    fsh_rules +=  "      * language = #text/cql-expression\n"
+    fsh_rules +=  "      * expression = \"proposal\"\n"
 
     fsh_rules += fsh_conditions
 
     if not self.is_blank(rule['guidance']):
-      text = rule['guidance']
-      fsh_rules += "* action[guidance]\n"
+      text = self.markdown_escape(rule['guidance'])
+      fsh_rules += "* action[+]\n"
       fsh_rules += "  * title = \"Health worker guidance\"\n"
       fsh_rules += "  * description = \"Communicate guidance to the health worker\"\n"
       fsh_rules += "  * definitionCanonical = Canonical(SGDecisionTableGuidance)\n"
@@ -769,18 +770,18 @@ class dt_extractor(extractor):
       fsh_rules += "    * expression\n"
       fsh_rules += "      * language = #text/cql-identifier\n"
       fsh_rules += f"      * expression = \"\"\"{text}\"\"\"\n"
-      fsh_rules += " * dynamicValue[+]\n"
-      fsh_rules += "   * path = \"category.coding\"\n"
-      fsh_rules += "   * expression\n"
-      fsh_rules += "     * description = \"Category of communication\"\n"
-      fsh_rules += "     * language = #text/cql-expression\n"
-      fsh_rules += "     * expression = \"Code { system: 'http://terminology.hl7.org/CodeSystem/communication-category', code: 'alert' }\"\n"
-      fsh_rules += " * dynamicValue[+]\n"
-      fsh_rules += "   * path = \"priority\"\n"
-      fsh_rules += "   * expression\n"
-      fsh_rules += "     * description = \"Alert priority\"\n"
-      fsh_rules += "     * language = #text/cql-expression\n"
-      fsh_rules += "     * expression = \"Code { system: 'http://hl7.org/fhir/request-priority', code: 'routine' }\"\n"      
+      fsh_rules += "  * dynamicValue[+]\n"
+      fsh_rules += "    * path = \"category.coding\"\n"
+      fsh_rules += "    * expression\n"
+      fsh_rules += "      * description = \"Category of communication\"\n"
+      fsh_rules += "      * language = #text/cql-expression\n"
+      fsh_rules += "      * expression = \"Code { system: 'http://terminology.hl7.org/CodeSystem/communication-category', code: 'alert' }\"\n"
+      fsh_rules += "  * dynamicValue[+]\n"
+      fsh_rules += "    * path = \"priority\"\n"
+      fsh_rules += "    * expression\n"
+      fsh_rules += "      * description = \"Alert priority\"\n"
+      fsh_rules += "      * language = #text/cql-expression\n"
+      fsh_rules += "      * expression = \"Code { system: 'http://hl7.org/fhir/request-priority', code: 'routine' }\"\n"      
       fsh_rules += fsh_conditions
     return fsh_rules
 
