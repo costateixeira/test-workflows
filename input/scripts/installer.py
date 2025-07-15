@@ -131,21 +131,17 @@ class installer:
       self.log("**Warning** found duplicated decitiosn table with id=" + dt_id)
     self.dmn_tables[dt_id] = dt_dmn
 
-  def name_to_lower_id(self,name):    
+  def name_to_lower_id(self,name):
     if ( not (isinstance(name,str))):
       return None
-    id = re.sub('[^0-9a-zA-Z\\-\\.]+', '', name).lower()
-    if len(id) > 245:
-       # max filename size is 255, leave space for extensions such as .fsh
-      self.log("ERROR: name of id is too long.hashing: " + id)        
-      id = self.to_hash(id,245)
-    return id
-
+    return self.name_to_id(name.lower())
     
   def name_to_id(self,name):    
     if ( not (isinstance(name,str))):
       return None
     id = re.sub('[^0-9a-zA-Z\\-\\.]+', '', name)
+    # to work around jekyll error, make sure there are no trailing periods...
+    id = id.rstrip('.')
     if len(id) > 55:
       # make length of an id is 64 characters
       #we need to make use of hashes
@@ -154,8 +150,9 @@ class installer:
       self.log("Escaping id " + name + " to " + id )
     return id
 
+
   def to_hash(self,input:str,len:int):
-    return input[:len -11] + "." + str(hashlib.shake_256(input.encode()).hexdigest(5))
+    return input[:len -10] + str(hashlib.shake_256(input.encode()).hexdigest(5))
 
 
 

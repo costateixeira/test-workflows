@@ -13,17 +13,9 @@
       omit-xml-declaration="yes"/>
 
   <xsl:template match="/">
-    <html xmlns="http://www.w3.org/1999/xhtml">
-      <head>
-        <title>
-          <xsl:value-of select="//dmn:decision/@name"/>
-        </title>
-        <link rel="stylesheet" type="text/css" href="dmn.css"/>
-      </head>
-      <body>
-        <xsl:apply-templates select="//dmn:decision"/>
-      </body>
-    </html>
+    <div class="decision-table">
+      <xsl:apply-templates select="//dmn:decision"/>
+    </div>
   </xsl:template>
 
   <xsl:template match="dmn:decision">
