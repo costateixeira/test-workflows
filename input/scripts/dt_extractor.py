@@ -256,12 +256,25 @@ class dt_extractor(extractor):
     for code,expr in self.cql_definitions_by_type['output'].items():
       a_id = self.name_to_id(self.prefix + "O." + code)
       # this should be moved to a ruleset so we can do:
-      fsh_activity =  f"Profile: {a_id}\n"
-      fsh_activity += "Parent: $SGActivityDefinition\n"
+      fsh_activity =  f"Instance: {a_id}\n"
+      fsh_activity += "InstanceOf: $SGActivityDefinition\n"
       fsh_activity += f"Title: \"Decision Table Output {code}\"\n"
       fsh_activity += f"Description: \"\"\"{expr}\n\"\"\"\n"
-      #fsh_activity += "Usage: #definition"
-      fsh_activity += "* ^abstract = true\n"
+      fsh_activity += "Usage: #definition\n"
+      fsh_activity += "* publisher = \"World Health Organization (WHO)\"\n"
+      fsh_activity += "* experimental = false\n"
+      fsh_activity += "* version = \"" + self.installer.get_ig_version() + "\"\n"
+      fsh_activity += f"* name = \"{code}\"\n"
+      fsh_activity += "* status = #draft\n"
+      fsh_activity += "* contact[+]\n"
+      fsh_activity += "  * telecom[+]\n"
+      fsh_activity += "    * system = #url\n"
+      fsh_activity += "    * value = \"https://who.int\"\n"
+      fsh_activity += "* kind = #CommunicationRequest\n"
+      fsh_activity += "* intent = #proposal\n"
+      fsh_activity += "* doNotPerform = false\n"
+      
+      #fsh_activity += "* ^abstract = true\n"
 
       self.installer.add_resource('activitydefinitions',a_id, fsh_activity)
 
@@ -686,7 +699,9 @@ class dt_extractor(extractor):
         fsh_conditions += '  * expression\n'
         fsh_conditions += f"    * description = \"\"\"{condition}\"\"\"\n"
         fsh_conditions += '    * language = #text/cql-identifier\n'
-        fsh_conditions += f"    * expression = \"\"\"{condition}\"\"\"\n"        
+        fsh_conditions += f"    * expression = \"\"\"{condition}\"\"\"\n"
+        print(fsh_conditions)
+        sys.exit(99)
     return fsh_conditions
 
   def get_fsh_plan(self,tab_id,dt_id,lib_id,name):

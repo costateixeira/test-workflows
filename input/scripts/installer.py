@@ -55,7 +55,7 @@ class installer:
       Path("input/pagecontent/includes").mkdir(exist_ok=True, parents=True)
       script_directory = self.get_base_dir() + "/input/scripts" 
       source_file = script_directory + "/" +  self.dmn_css_file
-      shutil.copy(source_file,Path("input/images-source/dmn.css"))
+      # shutil.copy(source_file,Path("input/images-source/dmn.css"))
       transformed_file = script_directory + "/" +  self.dmn2html_xslt_file
       self.log("xslt at " + transformed_file)
       with open(Path(transformed_file), "rb") as f:
@@ -63,7 +63,7 @@ class installer:
     except BaseException as e:
       self.log("WARNING: Could not find XSLT at input/includes/dmn2html.xslt -- HTML DMN rendering will be unavailable.")
       self.log(f"\tError: {e}")
-      sys.exit()
+      sys.exit(88)
 
 
     
