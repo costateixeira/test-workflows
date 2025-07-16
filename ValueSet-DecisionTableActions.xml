@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ValueSet xmlns="http://hl7.org/fhir">
+  <id value="DecisionTableActions"/>
+  <text>
+    <status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p class="res-header-id"><b>Generated Narrative: ValueSet DecisionTableActions</b></p><a name="DecisionTableActions"> </a><a name="hcDecisionTableActions"> </a><ul><li>Include all codes defined in <a href="CodeSystem-DecisionTableActions.html"><code>http://smart.who.int/base/CodeSystem/DecisionTableActions</code></a></li></ul></div>
+  </text>
+  <url value="http://smart.who.int/base/ValueSet/DecisionTableActions"/>
+  <version value="0.2.0"/>
+  <name value="DecisionTableActions"/>
+  <title value="Smart Guidelines Decision Table Actions"/>
+  <status value="active"/>
+  <experimental value="true"/>
+  <date value="2025-07-16T10:56:51+00:00"/>
+  <publisher value="WHO"/>
+  <contact>
+    <name value="WHO"/>
+    <telecom>
+      <system value="url"/>
+      <value value="http://who.int"/>
+    </telecom>
+  </contact>
+  <description value="Value Set for Smart Guidelines Documentation Decision Table Actions"/>
+  <compose>
+    <include>
+      <system value="http://smart.who.int/base/CodeSystem/DecisionTableActions"/>
+    </include>
+  </compose>
+</ValueSet>

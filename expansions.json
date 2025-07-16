@@ -1,0 +1,872 @@
+{
+  "resourceType" : "Bundle",
+  "id" : "b9ce6c9e-cbd7-471a-8e7d-338467f1544b",
+  "meta" : {
+    "lastUpdated" : "2025-07-16T10:57:45.465+00:00"
+  },
+  "type" : "collection",
+  "entry" : [{
+    "fullUrl" : "http://smart.who.int/base/ValueSet/CDHIv1",
+    "resource" : {
+      "resourceType" : "ValueSet",
+      "text" : {
+        "status" : "generated",
+        "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"/><p style=\"border: black 1px dotted; background-color: #EEEEEE; padding: 8px; margin-bottom: 8px\">Expansion performed internally based on <a href=\"CodeSystem-CDHIv1.html\">codesystem Classification of Digital Health Interventions v1 v0.2.0 (CodeSystem)</a></p><p>This value set contains 119 concepts</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>System</b></td><td><b>Display (en-US)</b></td><td><b><a href=\"ValueSet-CDHIv1.html\">Hierarchy of the Classification of Digital Health Interventions v1</a></b></td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.0\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.460\">1.0</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Clients</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.461\">1.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Targeted client communication</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.1.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.461.461\">1.1.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit health event alerts to specific population group(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.1.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.461.462\">1.1.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit targeted health information to client(s) based on health status or demographics</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.1.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.461.463\">1.1.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit targeted alerts and reminders to client(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.1.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.461.464\">1.1.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit diagnostics result, or availability of result, to client(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.462\">1.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Untargeted client communication</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.2.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.462.461\">1.2.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit untargeted health information to an undefined population</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.2.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.462.462\">1.2.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit untargeted</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.463\">1.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Client to client communication</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.3.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.463.461\">1.3.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Peer group for clients</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.464\">1.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Personal health tracking</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.4.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.464.461\">1.4.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Access by client to own medical records</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.4.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.464.462\">1.4.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Self monitoring of health or diagnostic data by client 1.4.3 Active data capture/ documentation by client</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.4.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.464.463\">1.4.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Active data capture/ documentation by client</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.5\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.465\">1.5</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Citizen‐based reporting</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.5.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.465.461\">1.5.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Reporting of health system feedback by clients</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.5.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.465.462\">1.5.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Reporting of public health events by clients</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.6\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.466\">1.6</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>On‐demand information services to clients</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.6.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.466.461\">1.6.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Client look‐up of health information</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.7\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.467\">1.7</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Client financial transactions</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.7.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.467.461\">1.7.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit or manage out‐of‐pocket payments by client(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.7.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.467.462\">1.7.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit or manage vouchers to client(s) for health services</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-1.7.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-1.467.463\">1.7.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit or manage incentives to client(s) for health services</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.0\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.460\">2.0</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Health workers</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.461\">2.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Client identification and registration</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.1.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.461.461\">2.1.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Verify client unique identity</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.1.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.461.462\">2.1.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Enrol client for health services/clinical care plan</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.462\">2.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Client health records</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.2.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.462.461\">2.2.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Longitudinal tracking of clients’ health status and services</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.2.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.462.462\">2.2.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage client’s structured clinical records</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.2.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.462.463\">2.2.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage client’s unstructured clinical records</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.2.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.462.464\">2.2.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Routine health indicator data collection and management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.463\">2.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Health worker decision support</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.3.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.463.461\">2.3.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Provide prompts and alerts based according to protocol</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.3.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.463.462\">2.3.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Provide checklist according to protocol</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.3.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.463.463\">2.3.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Screen clients by risk or other health status</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.464\">2.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Telemedicine</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.4.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.464.461\">2.4.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Consultations between remote client and health worker</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.4.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.464.462\">2.4.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Remote monitoring of client health or diagnostic data by provider</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.4.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.464.463\">2.4.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmission of medical data to health worker</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.4.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.464.464\">2.4.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Consultations for case management between health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.5\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.465\">2.5</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Health worker communication</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.5.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.465.461\">2.5.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Communication from health worker(s) to supervisor</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.5.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.465.462\">2.5.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Communication and performance feedback to health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.5.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.465.463\">2.5.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit routine news and workflow notifications to health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.5.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.465.464\">2.5.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit non‐routine health event alerts to health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.5.5\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.465.465\">2.5.5</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Peer group for health workers</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.6\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.466\">2.6</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Referral co‐ordination</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.6.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.466.461\">2.6.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Coordinate emergency response and transport</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.6.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.466.462\">2.6.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage referrals between points of service within health sector</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.6.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.466.463\">2.6.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage referrals between health and other sectors</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.7\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.467\">2.7</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Health worker activity planning and scheduling</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.7.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.467.461\">2.7.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Identify client(s) in need of services</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.7.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.467.462\">2.7.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Schedule health worker's activities</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.8\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.468\">2.8</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Health worker training</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.8.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.468.461\">2.8.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Provide training content to health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.8.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.468.462\">2.8.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Assess capacity of health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.9\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.469\">2.9</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Prescription and medication management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.9.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.469.461\">2.9.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit or track prescription orders</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.9.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.469.462\">2.9.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Track client's medication consumption</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.9.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.469.463\">2.9.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Report adverse drug events</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.10\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.4610\">2.10</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Laboratory and Diagnostics Imaging Management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.10.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.4610.461\">2.10.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit diagnostic result to health worker</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.10.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.4610.462\">2.10.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit and track diagnostic orders</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.10.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.4610.463\">2.10.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Capture diagnostic results from digital devices</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-2.10.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-2.4610.464\">2.10.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Track biological specimens</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.0\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.460\">3.0</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Health system managers</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.461\">3.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Human resource management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.1.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.461.461\">3.1.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>List health workforce cadres and related identification information</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.1.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.461.462\">3.1.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Monitor performance of health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.1.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.461.463\">3.1.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage certification/registration of health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.1.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.461.464\">3.1.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Record training credentials of health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.462\">3.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Supply chain management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.2.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.462.461\">3.2.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage inventory and distribution of health commodities</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.2.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.462.462\">3.2.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Notify stock levels of health commodities</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.2.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.462.463\">3.2.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Monitor cold‐chain sensitive commodities</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.2.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.462.464\">3.2.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Register licensed drugs and health commodities</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.2.5\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.462.465\">3.2.5</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage procurement of commodities</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.2.6\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.462.466\">3.2.6</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Report counterfeit or substandard drugs by clients</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.463\">3.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Public health event notification</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.3.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.463.461\">3.3.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Notification of public health events from point of diagnosis</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.464\">3.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Civil Registration and Vital Statistics</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.4.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.464.461\">3.4.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Notify birth event</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.4.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.464.462\">3.4.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Register birth event</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.4.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.464.463\">3.4.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Certify birth event</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.4.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.464.464\">3.4.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Notify death event</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.4.5\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.464.465\">3.4.5</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Register death event</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.4.6\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.464.466\">3.4.6</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Certify death event</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.5\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.465\">3.5</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Health financing</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.5.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.465.461\">3.5.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Register and verify client insurance membership</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.5.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.465.462\">3.5.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Track insurance billing and claims submission</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.5.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.465.463\">3.5.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Track and manage insurance reimbursement</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.5.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.465.464\">3.5.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit routine payroll payment to health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.5.5\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.465.465\">3.5.5</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Transmit or manage incentives to health worker(s)</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.5.6\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.465.466\">3.5.6</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Manage budget and expenditures</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.6\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.466\">3.6</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Equipment and asset management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.6.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.466.461\">3.6.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Monitor status of health equipment</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.6.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.466.462\">3.6.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Track regulation and licensing of medical equipment</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.7\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.467\">3.7</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Facility management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.7.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.467.461\">3.7.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>List health facilities and related information</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-3.7.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-3.467.462\">3.7.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Assess health facilities</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.0\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.460\">4.0</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Data services</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.461\">4.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Data collection, management, and use</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.1.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.461.461\">4.1.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Non‐routine data collection and management</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.1.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.461.462\">4.1.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Data storage and aggregation</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.1.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.461.463\">4.1.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Data synthesis and visualisation</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.1.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.461.464\">4.1.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Automated analysis of data to generate new information or predictions on future events</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.462\">4.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Data coding</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.2.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.462.461\">4.2.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Parse unstructured data into structured data</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.2.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.462.462\">4.2.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Merge, de‐duplicate, and curate coded datasets or terminologies</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.2.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.462.463\">4.2.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Classify disease codes or cause of mortality</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.463\">4.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Location mapping</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.3.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.463.461\">4.3.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Map location of health facilities/structures</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.3.2\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.463.462\">4.3.2</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Map location of health events</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.3.3\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.463.463\">4.3.3</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Map location of clients and households</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.3.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.463.464\">4.3.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Map location of health worker</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.4\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.464\">4.4</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Data exchange and interoperability</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDHIv1-4.4.1\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDHIv1.html#CDHIv1-4.464.461\">4.4.1</a></td><td>http://smart.who.int/base/CodeSystem/CDHIv1</td><td>Data exchange across systems</td><td><span title=\"SOURCEISBROADERTHANTARGET\">&gt;</span>ValueSet-CDHIv1.html</td></tr></table></div>"
+      },
+      "url" : "http://smart.who.int/base/ValueSet/CDHIv1",
+      "version" : "0.2.0",
+      "name" : "CDHIv1",
+      "title" : "Classification of Digital Health Interventions v1",
+      "status" : "active",
+      "experimental" : true,
+      "date" : "2025-07-16T10:56:51+00:00",
+      "expansion" : {
+        "identifier" : "urn:uuid:99c2ddff-d5f2-4e70-8007-cf9e816f0ad1",
+        "timestamp" : "2025-07-16T10:59:31+00:00",
+        "total" : 119,
+        "offset" : 0,
+        "parameter" : [{
+          "name" : "displayLanguage",
+          "valueCode" : "en-US"
+        },
+        {
+          "name" : "count",
+          "valueInteger" : 1000
+        },
+        {
+          "name" : "offset",
+          "valueInteger" : 0
+        },
+        {
+          "name" : "excludeNested",
+          "valueBoolean" : false
+        },
+        {
+          "name" : "used-codesystem",
+          "valueUri" : "http://smart.who.int/base/CodeSystem/CDHIv1|0.2.0"
+        }],
+        "contains" : [{
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.0",
+          "display" : "Clients"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.1",
+          "display" : "Targeted client communication"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.1.1",
+          "display" : "Transmit health event alerts to specific population group(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.1.2",
+          "display" : "Transmit targeted health information to client(s) based on health status or demographics"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.1.3",
+          "display" : "Transmit targeted alerts and reminders to client(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.1.4",
+          "display" : "Transmit diagnostics result, or availability of result, to client(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.2",
+          "display" : "Untargeted client communication"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.2.1",
+          "display" : "Transmit untargeted health information to an undefined population"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.2.2",
+          "display" : "Transmit untargeted"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.3",
+          "display" : "Client to client communication"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.3.1",
+          "display" : "Peer group for clients"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.4",
+          "display" : "Personal health tracking"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.4.1",
+          "display" : "Access by client to own medical records"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.4.2",
+          "display" : "Self monitoring of health or diagnostic data by client 1.4.3 Active data capture/ documentation by client"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.4.3",
+          "display" : "Active data capture/ documentation by client"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.5",
+          "display" : "Citizen‐based reporting"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.5.1",
+          "display" : "Reporting of health system feedback by clients"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.5.2",
+          "display" : "Reporting of public health events by clients"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.6",
+          "display" : "On‐demand information services to clients"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.6.1",
+          "display" : "Client look‐up of health information"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.7",
+          "display" : "Client financial transactions"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.7.1",
+          "display" : "Transmit or manage out‐of‐pocket payments by client(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.7.2",
+          "display" : "Transmit or manage vouchers to client(s) for health services"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "1.7.3",
+          "display" : "Transmit or manage incentives to client(s) for health services"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.0",
+          "display" : "Health workers"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.1",
+          "display" : "Client identification and registration"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.1.1",
+          "display" : "Verify client unique identity"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.1.2",
+          "display" : "Enrol client for health services/clinical care plan"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.2",
+          "display" : "Client health records"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.2.1",
+          "display" : "Longitudinal tracking of clients’ health status and services"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.2.2",
+          "display" : "Manage client’s structured clinical records"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.2.3",
+          "display" : "Manage client’s unstructured clinical records"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.2.4",
+          "display" : "Routine health indicator data collection and management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.3",
+          "display" : "Health worker decision support"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.3.1",
+          "display" : "Provide prompts and alerts based according to protocol"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.3.2",
+          "display" : "Provide checklist according to protocol"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.3.3",
+          "display" : "Screen clients by risk or other health status"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.4",
+          "display" : "Telemedicine"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.4.1",
+          "display" : "Consultations between remote client and health worker"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.4.2",
+          "display" : "Remote monitoring of client health or diagnostic data by provider"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.4.3",
+          "display" : "Transmission of medical data to health worker"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.4.4",
+          "display" : "Consultations for case management between health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.5",
+          "display" : "Health worker communication"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.5.1",
+          "display" : "Communication from health worker(s) to supervisor"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.5.2",
+          "display" : "Communication and performance feedback to health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.5.3",
+          "display" : "Transmit routine news and workflow notifications to health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.5.4",
+          "display" : "Transmit non‐routine health event alerts to health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.5.5",
+          "display" : "Peer group for health workers"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.6",
+          "display" : "Referral co‐ordination"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.6.1",
+          "display" : "Coordinate emergency response and transport"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.6.2",
+          "display" : "Manage referrals between points of service within health sector"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.6.3",
+          "display" : "Manage referrals between health and other sectors"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.7",
+          "display" : "Health worker activity planning and scheduling"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.7.1",
+          "display" : "Identify client(s) in need of services"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.7.2",
+          "display" : "Schedule health worker's activities"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.8",
+          "display" : "Health worker training"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.8.1",
+          "display" : "Provide training content to health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.8.2",
+          "display" : "Assess capacity of health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.9",
+          "display" : "Prescription and medication management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.9.1",
+          "display" : "Transmit or track prescription orders"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.9.2",
+          "display" : "Track client's medication consumption"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.9.3",
+          "display" : "Report adverse drug events"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.10",
+          "display" : "Laboratory and Diagnostics Imaging Management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.10.1",
+          "display" : "Transmit diagnostic result to health worker"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.10.2",
+          "display" : "Transmit and track diagnostic orders"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.10.3",
+          "display" : "Capture diagnostic results from digital devices"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "2.10.4",
+          "display" : "Track biological specimens"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.0",
+          "display" : "Health system managers"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.1",
+          "display" : "Human resource management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.1.1",
+          "display" : "List health workforce cadres and related identification information"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.1.2",
+          "display" : "Monitor performance of health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.1.3",
+          "display" : "Manage certification/registration of health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.1.4",
+          "display" : "Record training credentials of health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.2",
+          "display" : "Supply chain management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.2.1",
+          "display" : "Manage inventory and distribution of health commodities"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.2.2",
+          "display" : "Notify stock levels of health commodities"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.2.3",
+          "display" : "Monitor cold‐chain sensitive commodities"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.2.4",
+          "display" : "Register licensed drugs and health commodities"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.2.5",
+          "display" : "Manage procurement of commodities"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.2.6",
+          "display" : "Report counterfeit or substandard drugs by clients"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.3",
+          "display" : "Public health event notification"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.3.1",
+          "display" : "Notification of public health events from point of diagnosis"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.4",
+          "display" : "Civil Registration and Vital Statistics"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.4.1",
+          "display" : "Notify birth event"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.4.2",
+          "display" : "Register birth event"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.4.3",
+          "display" : "Certify birth event"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.4.4",
+          "display" : "Notify death event"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.4.5",
+          "display" : "Register death event"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.4.6",
+          "display" : "Certify death event"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.5",
+          "display" : "Health financing"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.5.1",
+          "display" : "Register and verify client insurance membership"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.5.2",
+          "display" : "Track insurance billing and claims submission"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.5.3",
+          "display" : "Track and manage insurance reimbursement"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.5.4",
+          "display" : "Transmit routine payroll payment to health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.5.5",
+          "display" : "Transmit or manage incentives to health worker(s)"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.5.6",
+          "display" : "Manage budget and expenditures"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.6",
+          "display" : "Equipment and asset management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.6.1",
+          "display" : "Monitor status of health equipment"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.6.2",
+          "display" : "Track regulation and licensing of medical equipment"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.7",
+          "display" : "Facility management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.7.1",
+          "display" : "List health facilities and related information"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "3.7.2",
+          "display" : "Assess health facilities"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.0",
+          "display" : "Data services"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.1",
+          "display" : "Data collection, management, and use"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.1.1",
+          "display" : "Non‐routine data collection and management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.1.2",
+          "display" : "Data storage and aggregation"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.1.3",
+          "display" : "Data synthesis and visualisation"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.1.4",
+          "display" : "Automated analysis of data to generate new information or predictions on future events"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.2",
+          "display" : "Data coding"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.2.1",
+          "display" : "Parse unstructured data into structured data"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.2.2",
+          "display" : "Merge, de‐duplicate, and curate coded datasets or terminologies"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.2.3",
+          "display" : "Classify disease codes or cause of mortality"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.3",
+          "display" : "Location mapping"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.3.1",
+          "display" : "Map location of health facilities/structures"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.3.2",
+          "display" : "Map location of health events"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.3.3",
+          "display" : "Map location of clients and households"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.3.4",
+          "display" : "Map location of health worker"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.4",
+          "display" : "Data exchange and interoperability"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+          "code" : "4.4.1",
+          "display" : "Data exchange across systems"
+        }]
+      }
+    }
+  },
+  {
+    "fullUrl" : "http://smart.who.int/base/ValueSet/CDSCv1",
+    "resource" : {
+      "resourceType" : "ValueSet",
+      "text" : {
+        "status" : "generated",
+        "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"/><p style=\"border: black 1px dotted; background-color: #EEEEEE; padding: 8px; margin-bottom: 8px\">Expansion performed internally based on <a href=\"CodeSystem-CDSCv1.html\">codesystem Classification of Digital Health System Categories v1 v0.2.0 (CodeSystem)</a></p><p>This value set contains 25 concepts</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>System</b></td><td><b>Display (en-US)</b></td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-A\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-A\">A</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Census, population information &amp; data warehouse</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-B\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-B\">B</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Civil Registration and Vital Statistics</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-C\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-C\">C</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Client applications</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-D\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-D\">D</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Client communication system</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-E\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-E\">E</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Clinical terminology and classifications</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-F\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-F\">F</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Community-based Information System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-G\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-G\">G</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Data interchange interoperability and accessibility</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-H\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-H\">H</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Electronic Medical Record</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-I\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-I\">I</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Emergency response system</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-J\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-J\">J</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Environmental monitoring systems</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-K\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-K\">K</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Facility Management Information System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-L\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-L\">L</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Geographic Information Systems</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-M\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-M\">M</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Health finance and insurance system</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-N\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-N\">N</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Health Management Information System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-O\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-O\">O</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Human Resource Information System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-P\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-P\">P</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Identification registries and directories</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-Q\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-Q\">Q</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Knowledge Management</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-R\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-R\">R</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Laboratory and Diagnostic System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-S\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-S\">S</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Learning and Training System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-T\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-T\">T</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Logistics Management Information System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-U\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-U\">U</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Pharmacy Information System</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-V\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-V\">V</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Public health and disease surveillance</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-W\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-W\">W</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Research information system</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-X\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-X\">X</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>SHR and health information repositories</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/CDSCv1-Y\"> </a>\u00a0\u00a0<a href=\"CodeSystem-CDSCv1.html#CDSCv1-Y\">Y</a></td><td>http://smart.who.int/base/CodeSystem/CDSCv1</td><td>Telemedicine</td></tr></table></div>"
+      },
+      "url" : "http://smart.who.int/base/ValueSet/CDSCv1",
+      "version" : "0.2.0",
+      "name" : "CDSCv1",
+      "title" : "Classification of Digital Health System Categories v1",
+      "status" : "active",
+      "experimental" : true,
+      "date" : "2025-07-16T10:56:51+00:00",
+      "expansion" : {
+        "identifier" : "urn:uuid:ce843ba5-d7ab-400e-aa9e-0a33400be861",
+        "timestamp" : "2025-07-16T10:59:31+00:00",
+        "total" : 25,
+        "offset" : 0,
+        "parameter" : [{
+          "name" : "displayLanguage",
+          "valueCode" : "en-US"
+        },
+        {
+          "name" : "count",
+          "valueInteger" : 1000
+        },
+        {
+          "name" : "offset",
+          "valueInteger" : 0
+        },
+        {
+          "name" : "excludeNested",
+          "valueBoolean" : false
+        },
+        {
+          "name" : "used-codesystem",
+          "valueUri" : "http://smart.who.int/base/CodeSystem/CDSCv1|0.2.0"
+        }],
+        "contains" : [{
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "A",
+          "display" : "Census, population information & data warehouse"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "B",
+          "display" : "Civil Registration and Vital Statistics"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "C",
+          "display" : "Client applications"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "D",
+          "display" : "Client communication system"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "E",
+          "display" : "Clinical terminology and classifications"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "F",
+          "display" : "Community-based Information System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "G",
+          "display" : "Data interchange interoperability and accessibility"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "H",
+          "display" : "Electronic Medical Record"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "I",
+          "display" : "Emergency response system"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "J",
+          "display" : "Environmental monitoring systems"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "K",
+          "display" : "Facility Management Information System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "L",
+          "display" : "Geographic Information Systems"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "M",
+          "display" : "Health finance and insurance system"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "N",
+          "display" : "Health Management Information System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "O",
+          "display" : "Human Resource Information System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "P",
+          "display" : "Identification registries and directories"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "Q",
+          "display" : "Knowledge Management"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "R",
+          "display" : "Laboratory and Diagnostic System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "S",
+          "display" : "Learning and Training System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "T",
+          "display" : "Logistics Management Information System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "U",
+          "display" : "Pharmacy Information System"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "V",
+          "display" : "Public health and disease surveillance"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "W",
+          "display" : "Research information system"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "X",
+          "display" : "SHR and health information repositories"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+          "code" : "Y",
+          "display" : "Telemedicine"
+        }]
+      }
+    }
+  },
+  {
+    "fullUrl" : "http://smart.who.int/base/ValueSet/DecisionTableActions",
+    "resource" : {
+      "resourceType" : "ValueSet",
+      "text" : {
+        "status" : "generated",
+        "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"/><p style=\"border: black 1px dotted; background-color: #EEEEEE; padding: 8px; margin-bottom: 8px\">Expansion performed internally based on <a href=\"CodeSystem-DecisionTableActions.html\">codesystem Smart Guidelines Actions (columns) for Decision Tables v0.2.0 (CodeSystem)</a></p><p>This value set contains 3 concepts</p><table class=\"codes\"><tr><td style=\"white-space:nowrap\"><b>Code</b></td><td><b>System</b></td><td><b>Display (en-US)</b></td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/DecisionTableActions-output\"> </a>\u00a0\u00a0<a href=\"CodeSystem-DecisionTableActions.html#DecisionTableActions-output\">output</a></td><td>http://smart.who.int/base/CodeSystem/DecisionTableActions</td><td>Output</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/DecisionTableActions-guidance\"> </a>\u00a0\u00a0<a href=\"CodeSystem-DecisionTableActions.html#DecisionTableActions-guidance\">guidance</a></td><td>http://smart.who.int/base/CodeSystem/DecisionTableActions</td><td>Guidance</td></tr><tr><td style=\"white-space:nowrap\"><a name=\"x-http://smart.who.int/base/CodeSystem/DecisionTableActions-annotation\"> </a>\u00a0\u00a0<a href=\"CodeSystem-DecisionTableActions.html#DecisionTableActions-annotation\">annotation</a></td><td>http://smart.who.int/base/CodeSystem/DecisionTableActions</td><td>Annotation</td></tr></table></div>"
+      },
+      "url" : "http://smart.who.int/base/ValueSet/DecisionTableActions",
+      "version" : "0.2.0",
+      "name" : "DecisionTableActions",
+      "title" : "Smart Guidelines Decision Table Actions",
+      "status" : "active",
+      "experimental" : true,
+      "date" : "2025-07-16T10:56:51+00:00",
+      "expansion" : {
+        "identifier" : "urn:uuid:5e926295-7260-4a05-86f7-b33deef3cd7f",
+        "timestamp" : "2025-07-16T10:59:31+00:00",
+        "total" : 3,
+        "offset" : 0,
+        "parameter" : [{
+          "name" : "displayLanguage",
+          "valueCode" : "en-US"
+        },
+        {
+          "name" : "count",
+          "valueInteger" : 1000
+        },
+        {
+          "name" : "offset",
+          "valueInteger" : 0
+        },
+        {
+          "name" : "excludeNested",
+          "valueBoolean" : false
+        },
+        {
+          "name" : "used-codesystem",
+          "valueUri" : "http://smart.who.int/base/CodeSystem/DecisionTableActions|0.2.0"
+        }],
+        "contains" : [{
+          "system" : "http://smart.who.int/base/CodeSystem/DecisionTableActions",
+          "code" : "output",
+          "display" : "Output"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/DecisionTableActions",
+          "code" : "guidance",
+          "display" : "Guidance"
+        },
+        {
+          "system" : "http://smart.who.int/base/CodeSystem/DecisionTableActions",
+          "code" : "annotation",
+          "display" : "Annotation"
+        }]
+      }
+    }
+  }]
+}

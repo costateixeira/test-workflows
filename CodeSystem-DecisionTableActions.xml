@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<CodeSystem xmlns="http://hl7.org/fhir">
+  <id value="DecisionTableActions"/>
+  <text>
+    <status value="generated"/><div xmlns="http://www.w3.org/1999/xhtml"><p class="res-header-id"><b>Generated Narrative: CodeSystem DecisionTableActions</b></p><a name="DecisionTableActions"> </a><a name="hcDecisionTableActions"> </a><p>This case-insensitive code system <code>http://smart.who.int/base/CodeSystem/DecisionTableActions</code> defines the following codes:</p><table class="codes"><tr><td style="white-space:nowrap"><b>Code</b></td><td><b>Display</b></td></tr><tr><td style="white-space:nowrap">output<a name="DecisionTableActions-output"> </a></td><td>Output</td></tr><tr><td style="white-space:nowrap">guidance<a name="DecisionTableActions-guidance"> </a></td><td>Guidance</td></tr><tr><td style="white-space:nowrap">annotation<a name="DecisionTableActions-annotation"> </a></td><td>Annotation</td></tr></table></div>
+  </text>
+  <url value="http://smart.who.int/base/CodeSystem/DecisionTableActions"/>
+  <version value="0.2.0"/>
+  <name value="DecisionTableActions"/>
+  <title value="Smart Guidelines Actions (columns) for Decision Tables"/>
+  <status value="active"/>
+  <experimental value="false"/>
+  <date value="2025-07-16T10:56:51+00:00"/>
+  <publisher value="WHO"/>
+  <contact>
+    <name value="WHO"/>
+    <telecom>
+      <system value="url"/>
+      <value value="http://who.int"/>
+    </telecom>
+  </contact>
+  <description value="CodeSystem for Smart Guidelines Documentation Actions for Decision Tables&quot;"/>
+  <caseSensitive value="false"/>
+  <content value="complete"/>
+  <count value="3"/>
+  <concept>
+    <code value="output"/>
+    <display value="Output"/>
+  </concept>
+  <concept>
+    <code value="guidance"/>
+    <display value="Guidance"/>
+  </concept>
+  <concept>
+    <code value="annotation"/>
+    <display value="Annotation"/>
+  </concept>
+</CodeSystem>

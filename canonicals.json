@@ -1,0 +1,303 @@
+[
+  {
+    "id" : "SGDecisionTableGuidance",
+    "type" : "ActivityDefinition",
+    "url" : "http://smart.who.int/base/ActivityDefinition/SGDecisionTableGuidance",
+    "version" : "0.2.0",
+    "name" : "SGDecisionTableGuidance"
+  },
+  {
+    "id" : "CDHIv1",
+    "type" : "CodeSystem",
+    "url" : "http://smart.who.int/base/CodeSystem/CDHIv1",
+    "version" : "0.2.0",
+    "name" : "CDHIv1"
+  },
+  {
+    "id" : "CDSCv1",
+    "type" : "CodeSystem",
+    "url" : "http://smart.who.int/base/CodeSystem/CDSCv1",
+    "version" : "0.2.0",
+    "name" : "CDSCv1"
+  },
+  {
+    "id" : "DecisionTableActions",
+    "type" : "CodeSystem",
+    "url" : "http://smart.who.int/base/CodeSystem/DecisionTableActions",
+    "version" : "0.2.0",
+    "name" : "DecisionTableActions"
+  },
+  {
+    "id" : "DocumentationSections",
+    "type" : "CodeSystem",
+    "url" : "http://smart.who.int/base/CodeSystem/DocumentationSections",
+    "version" : "0.2.0",
+    "name" : "DocumentationSections"
+  },
+  {
+    "id" : "CDHIv1Hierarchy",
+    "type" : "ConceptMap",
+    "url" : "http://smart.who.int/base/ConceptMap/CDHIv1Hierarchy",
+    "version" : "0.2.0",
+    "name" : "CDHIv1Hierarchy"
+  },
+  {
+    "id" : "smart.who.int.base",
+    "type" : "ImplementationGuide",
+    "url" : "http://smart.who.int/base/ImplementationGuide/smart.who.int.base",
+    "version" : "0.2.0",
+    "name" : "Base"
+  },
+  {
+    "id" : "FunctionalRequirement",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/FunctionalRequirement",
+    "version" : "0.2.0",
+    "name" : "FunctionalRequirement"
+  },
+  {
+    "id" : "LinkIdExt",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/LinkIdExt",
+    "version" : "0.2.0",
+    "name" : "LinkIdExt"
+  },
+  {
+    "id" : "Markdown",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/Markdown",
+    "version" : "0.2.0",
+    "name" : "Markdown"
+  },
+  {
+    "id" : "NonFunctionalRequirement",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/NonFunctionalRequirement",
+    "version" : "0.2.0",
+    "name" : "NonFunctionalRequirement"
+  },
+  {
+    "id" : "SGActivityDefinition",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGActivityDefinition",
+    "version" : "0.2.0",
+    "name" : "SGActivityDefinition"
+  },
+  {
+    "id" : "SGActor",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGActor",
+    "version" : "0.2.0",
+    "name" : "SGActor"
+  },
+  {
+    "id" : "SGActorExt",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGActorExt",
+    "version" : "0.2.0",
+    "name" : "SGActorExt"
+  },
+  {
+    "id" : "SGBusinessProcess",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGBusinessProcess",
+    "version" : "0.2.0",
+    "name" : "SGBusinessProcess"
+  },
+  {
+    "id" : "SGCodeSystem",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGCodeSystem",
+    "version" : "0.2.0",
+    "name" : "SGCodeSystem"
+  },
+  {
+    "id" : "SGCommunicationRequest",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGCommunicationRequest",
+    "version" : "0.2.0",
+    "name" : "SGCommunicationRequest"
+  },
+  {
+    "id" : "SGConceptMap",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGConceptMap",
+    "version" : "0.2.0",
+    "name" : "SGConceptMap"
+  },
+  {
+    "id" : "SGDecisionTable",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGDecisionTable",
+    "version" : "0.2.0",
+    "name" : "SGDecisionTable"
+  },
+  {
+    "id" : "SGDocumentation",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGDocumentation",
+    "version" : "0.2.0",
+    "name" : "SGDocumentation"
+  },
+  {
+    "id" : "SGGraphDefinition",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGGraphDefinition",
+    "version" : "0.2.0",
+    "name" : "SGGraphDefinition"
+  },
+  {
+    "id" : "SGGroupDefinition",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGGroupDefinition",
+    "version" : "0.2.0",
+    "name" : "SGGroupDefinition"
+  },
+  {
+    "id" : "SGImplementationGuide",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGImplementationGuide",
+    "version" : "0.2.0",
+    "name" : "SGImplementationGuide"
+  },
+  {
+    "id" : "SGLibrary",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGLibrary",
+    "version" : "0.2.0",
+    "name" : "SGLibrary"
+  },
+  {
+    "id" : "SGLogicalModel",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGLogicalModel",
+    "version" : "0.2.0",
+    "name" : "SGLogicalModel"
+  },
+  {
+    "id" : "SGMarkdown",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGMarkdown",
+    "version" : "0.2.0",
+    "name" : "SGMarkdown"
+  },
+  {
+    "id" : "SGMeasure",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGMeasure",
+    "version" : "0.2.0",
+    "name" : "SGMeasure"
+  },
+  {
+    "id" : "SGPlanDefinition",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGPlanDefinition",
+    "version" : "0.2.0",
+    "name" : "SGPlanDefinition"
+  },
+  {
+    "id" : "SGQuestionnaire",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGQuestionnaire",
+    "version" : "0.2.0",
+    "name" : "SGQuestionnaire"
+  },
+  {
+    "id" : "SGRequirementExt",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGRequirementExt",
+    "version" : "0.2.0",
+    "name" : "SGRequirementExt"
+  },
+  {
+    "id" : "SGRequirements",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGRequirements",
+    "version" : "0.2.0",
+    "name" : "SGRequirements"
+  },
+  {
+    "id" : "SGString",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGString",
+    "version" : "0.2.0",
+    "name" : "SGString"
+  },
+  {
+    "id" : "SGStructureDefinition",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGStructureDefinition",
+    "version" : "0.2.0",
+    "name" : "SGStructureDefinition"
+  },
+  {
+    "id" : "SGStructureMap",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGStructureMap",
+    "version" : "0.2.0",
+    "name" : "SGStructureMap"
+  },
+  {
+    "id" : "SGTransaction",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGTransaction",
+    "version" : "0.2.0",
+    "name" : "SGTransaction"
+  },
+  {
+    "id" : "SGUserStory",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGUserStory",
+    "version" : "0.2.0",
+    "name" : "SGUserStory"
+  },
+  {
+    "id" : "SGValueSet",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGValueSet",
+    "version" : "0.2.0",
+    "name" : "SGValueSet"
+  },
+  {
+    "id" : "SGcode",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/SGcode",
+    "version" : "0.2.0",
+    "name" : "SGcode"
+  },
+  {
+    "id" : "Satisfies",
+    "type" : "StructureDefinition",
+    "url" : "http://smart.who.int/base/StructureDefinition/Satisfies",
+    "version" : "0.2.0",
+    "name" : "Satisfies"
+  },
+  {
+    "id" : "CDHIv1",
+    "type" : "ValueSet",
+    "url" : "http://smart.who.int/base/ValueSet/CDHIv1",
+    "version" : "0.2.0",
+    "name" : "CDHIv1"
+  },
+  {
+    "id" : "CDSCv1",
+    "type" : "ValueSet",
+    "url" : "http://smart.who.int/base/ValueSet/CDSCv1",
+    "version" : "0.2.0",
+    "name" : "CDSCv1"
+  },
+  {
+    "id" : "DecisionTableActions",
+    "type" : "ValueSet",
+    "url" : "http://smart.who.int/base/ValueSet/DecisionTableActions",
+    "version" : "0.2.0",
+    "name" : "DecisionTableActions"
+  },
+  {
+    "id" : "DocumentationSection",
+    "type" : "ValueSet",
+    "url" : "http://smart.who.int/base/ValueSet/DocumentationSection",
+    "version" : "0.2.0",
+    "name" : "DocumentationSection"
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "resourceType" : "ValueSet",
+  "id" : "DecisionTableActions",
+  "text" : {
+    "status" : "generated",
+    "div" : "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p class=\"res-header-id\"><b>Generated Narrative: ValueSet DecisionTableActions</b></p><a name=\"DecisionTableActions\"> </a><a name=\"hcDecisionTableActions\"> </a><ul><li>Include all codes defined in <a href=\"CodeSystem-DecisionTableActions.html\"><code>http://smart.who.int/base/CodeSystem/DecisionTableActions</code></a></li></ul></div>"
+  },
+  "url" : "http://smart.who.int/base/ValueSet/DecisionTableActions",
+  "version" : "0.2.0",
+  "name" : "DecisionTableActions",
+  "title" : "Smart Guidelines Decision Table Actions",
+  "status" : "active",
+  "experimental" : true,
+  "date" : "2025-07-16T10:56:51+00:00",
+  "publisher" : "WHO",
+  "contact" : [{
+    "name" : "WHO",
+    "telecom" : [{
+      "system" : "url",
+      "value" : "http://who.int"
+    }]
+  }],
+  "description" : "Value Set for Smart Guidelines Documentation Decision Table Actions",
+  "compose" : {
+    "include" : [{
+      "system" : "http://smart.who.int/base/CodeSystem/DecisionTableActions"
+    }]
+  }
+}
