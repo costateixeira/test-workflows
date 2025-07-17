@@ -337,7 +337,7 @@ class installer:
     self.log(ET)
     self.log(ET.ElementTree)
     self.log(xml)
-    if isinstance(xml,ET.ElementTree):
+    if isinstance(xml,ET._ElementTree):
       xml_tree = xml
     elif isinstance(xml,str):
       try:

@@ -105,8 +105,8 @@ class dt_extractor(extractor):
         tab = dt_id
       has_non_empty |= bool(row["tab"])
 
-      if tab != 'BCG':
-        continue
+      #if tab != 'BCG':
+      #  continue
 
       if not self.load_tab(tab):      
         self.log("Could not load tab data for "  + tab)
