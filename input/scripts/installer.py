@@ -22,11 +22,17 @@ class installer:
   pages = {}
   logfile = None
   sushi_config = {}
-  dmn2html_xslt = None
-  dmn2html_xslt_file = "includes/dmn2html.xslt"  #relative to directory containing this file
-  dmn_css_file = "includes/dmn.css"  #relative to directory containing this file
-  dmn_namespace =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
-      
+  xslts = {'dmn':{'tranformer' = None,
+                  'file' = "includes/dmn2html.xslt",  #relative to directory containing this file
+                  'namespace' =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
+                  },
+           'bpmn':{'tranformer' = None,
+                  'file' = "includes/bpmn2html.xslt",  #relative to directory containing this file
+                  'namespace' =  "http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  }}
+
+
+  
   
   def __init__(self):
     logfile_path = Path("temp/DAKExtract.log.txt")
@@ -34,38 +40,38 @@ class installer:
     logfile_path.parent.mkdir(exist_ok=True, parents=True)
     self.logfile = open(logfile_path,"w")
     Path("input/dmn").mkdir(exist_ok=True, parents=True)
+    Path("input/bpmn").mkdir(exist_ok=True, parents=True)
     Path("input/cql").mkdir(exist_ok=True, parents=True)
     Path("input/fsh").mkdir(exist_ok=True, parents=True)
+    Path("input/fsh/actordefinitions").mkdir(exist_ok=True, parents=True)
     Path("input/fsh/activitydefinitions").mkdir(exist_ok=True, parents=True)
     Path("input/fsh/plandefinitions").mkdir(exist_ok=True, parents=True)
     Path("input/pagecontent").mkdir(exist_ok=True, parents=True)
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
     self.add_rulesets()
-    self.initialize_dmn()
+    self.initialize_xslts()
 
  
   def get_base_dir(self):
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     
-  def initialize_dmn(self):
+  def initialize_xslts(self):
+    for prefix,xslt in self.xslts:
     try:
-      Path("input/images-source").mkdir(exist_ok=True, parents=True)
-      Path("input/pagecontent/includes").mkdir(exist_ok=True, parents=True)
       script_directory = self.get_base_dir() + "/input/scripts" 
-      source_file = script_directory + "/" +  self.dmn_css_file
-      # shutil.copy(source_file,Path("input/images-source/dmn.css"))
-      transformed_file = script_directory + "/" +  self.dmn2html_xslt_file
-      self.log("xslt at " + transformed_file)
-      with open(Path(transformed_file), "rb") as f:
-        self.dmn2html_xslt = ET.XSLT(ET.parse(f))
+      xsl_file = script_directory + "/" +  xslt['file']
+      self.log("initializing xslt at " + xsl_file)
+      ET.register_namespace(prefix , xslt['namespace'])
+      with open(Path(xsl_file), "rb") as f:
+        self.xslts[prefix]['transformer'] = ET.XSLT(ET.parse(f))
+
+
     except BaseException as e:
-      self.log("WARNING: Could not find XSLT at input/includes/dmn2html.xslt -- HTML DMN rendering will be unavailable.")
+      self.log("WARNING: Could not find XSLT at " + xslt['file'])
       self.log(f"\tError: {e}")
       sys.exit(88)
-
-
     
     
   def read_sushi_config(self):
@@ -266,12 +272,45 @@ class installer:
       self.log("Could not save CQL with id: " + id + "\n")
       self.log(f"\tError: {e}")
     return True
-    
 
+
+  def transform_xml(self,prefix:str,xml,out_path ):
+
+    if not prefix in self.xslts or not self.xslts[prefix]['trasnformer']:
+      self.log("trying to transform unregistered thing "  + prefix)
+      return False
+
+    if isinstance(xml,ET.ElementTree):
+      xml_tree = xml
+    elif isinstance(xml,str):
+      try:
+        xml_tree = ET.XML(xml)
+        ET.indent(xml_tree)
+      except BaseException as e:
+        self.log("ERROR: Generated invalid XML for DMN id " + id +"\n" +  f"\tError: {e}\n" )
+        return False
+    else:
+      self.log("invalid xml sent to transformer=" + str(xml))
+      return False
+
+    self.log("Transforming " + prefix + " to " + out_path)
+    try:
+        out = self.xslts[prefix]['transform'](xml_tree)
+        out = str(ET.tostring(result.getroot() , encoding="unicode",pretty_print=True, doctype=None))
+        out_file = open(out_path, "w")
+        out_file.write(out)
+        out_file.close()
+    except BaseException as e:
+      self.log("Could not process " + prefix " in " + str(xml_tree))
+      self.log(f"\tError: {e}")
+      return False
+    
+    return True
+
+
+  
   def install_dmn(self,id,dmn:str):
     try:
-      #self.log(dmn_wrapped)
-      ET.register_namespace('dmn' , self.dmn_namespace )
       dmn_tree = ET.XML(dmn)
       ET.indent(dmn_tree)
     except BaseException as e:
@@ -291,27 +330,11 @@ class installer:
       log(f"\tERROR: {e}")
       return False
 
-    if self.dmn2html_xslt:
-      try:
-        html_path = Path("input/pagecontent/") / f"{id}.html"
-        # Use lxml to parse and transform DMN to HTML
-        # Pass relative stylesheet path for HTML output
-        self.log("Transforming dmn to html on " + id)
-        html_result = self.dmn2html_xslt(dmn_tree)
-        #self.log(html_result)
-        #self.log(ET.tostring(html_result,encoding="unicode"))
-        # Patch: ensure CSS is referenced as just 'dmn.css'        
-        html_file = open(html_path, "w")
-        html_file.write(ET.tostring(html_result, encoding="unicode"))
-        html_file.close()
-        self.log(f"Generated HTML DMN table for {id}: {html_path}")
-      except BaseException as e:
-        self.log("Could not process DMN into HTML")
-        self.log(f"\tError: {e}")
-        return False
+    html_path = Path("input/pagecontent/") / f"{id}.xhtml"
+    return self.transform_xml("dmn",dmn_tree,  html_path )
+    
       
-    return True
-
+  
   def install_resources(self):
     result = True
     for directory, instances in self.resources.items() :

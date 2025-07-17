@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="2.0"
+<xsl:stylesheet version="1.1"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:dmn="https://www.omg.org/spec/DMN/20240513/MODEL/"
+    xmlns:xhtml="http://www.w3.org/1999/xhtml"
     exclude-result-prefixes="dmn">
 
   <xsl:output
-      method="xml"
+      method="html"
       indent="yes"
       encoding="UTF-8"
-      doctype-public="-//W3C//DTD XHTML 1.0 Strict//EN"
-      doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"
+      
+      doctype-public="-//W3C//DTD HTML 4.01//EN"
+      doctype-system="http://www.w3.org/TR/html4/strict.dtd"
       omit-xml-declaration="yes"/>
 
   <xsl:template match="/">
@@ -19,11 +21,11 @@
   </xsl:template>
 
   <xsl:template match="dmn:decision">
-    <table class="decision">
+    <xhtml:table class="decision">
       <!-- First row: Decision ID and name -->
-      <tr class="decision-header">
-        <td class="row-label">Decision ID</td>
-        <td colspan="{count(dmn:decisionTable/dmn:input) + count(dmn:decisionTable/dmn:output) + count(dmn:decisionTable/dmn:annotation)}">
+      <xhtml:tr class="decision-header">
+        <xhtml:td class="row-label">Decision ID</xhtml:td>
+        <xhtml:td colspan="{count(dmn:decisionTable/dmn:input) + count(dmn:decisionTable/dmn:output) + count(dmn:decisionTable/dmn:annotation)}">
           <span class="decision-id">
             <xsl:value-of select="@id"/>
           </span>
@@ -32,43 +34,43 @@
               <xsl:value-of select="@name"/>
             </span>
 	  </xsl:if>
-        </td>
-      </tr>
+        </xhtml:td>
+      </xhtml:tr>
       <!-- 2nd row: Business Rule -->
       <xsl:if test="dmn:question">
-	<tr class="decision-header">
-	  <td class="row-label">Business Rule</td>
-	  <td colspan="{count(dmn:decisionTable/dmn:input) + count(dmn:decisionTable/dmn:output) + count(dmn:decisionTable/dmn:annotation)}">
+	<xhtml:tr class="decision-header">
+	  <xhtml:td class="row-label">Business Rule</xhtml:td>
+	  <xhtml:td colspan="{count(dmn:decisionTable/dmn:input) + count(dmn:decisionTable/dmn:output) + count(dmn:decisionTable/dmn:annotation)}">
             <span class="decision-id">
               <xsl:value-of select="dmn:question"/>
             </span>
-          </td>
-	</tr>
+          </xhtml:td>
+	</xhtml:tr>
       </xsl:if>
 
       <!-- 3rd row: Business Rule -->
       <xsl:if test="dmn:usingTask">
-	<tr class="decision-header">
-	  <td class="row-label">Trigger</td>
-	  <td colspan="{count(dmn:decisionTable/dmn:input) + count(dmn:decisionTable/dmn:output) + count(dmn:decisionTable/dmn:annotation)}">
+	<xhtml:tr class="decision-header">
+	  <xhtml:td class="row-label">Trigger</xhtml:td>
+	  <xhtml:td colspan="{count(dmn:decisionTable/dmn:input) + count(dmn:decisionTable/dmn:output) + count(dmn:decisionTable/dmn:annotation)}">
             <span class="decision-id">
 	      <a href="{dmn:usingTask/@href}"><xsl:value-of select="dmn:usingTask/@href"/></a>
             </span>
-          </td>
-	</tr>
+          </xhtml:td>
+	</xhtml:tr>
       </xsl:if>
 
-      <tr class="decision-header">
-	<td class="input"/>
-	<td colspan="{count(dmn:decisionTable/dmn:input)}">Inputs</td>
-	<td colspan="{count(dmn:decisionTable/dmn:output)}">Ouputs</td>
-      </tr>
+      <xhtml:tr class="decision-header">
+	<xhtml:td class="input"/>
+	<xhtml:td colspan="{count(dmn:decisionTable/dmn:input)}">Inputs</xhtml:td>
+	<xhtml:td colspan="{count(dmn:decisionTable/dmn:output)}">Ouputs</xhtml:td>
+      </xhtml:tr>
       
       <!-- Fourth row: Inputs and outputs -->
-      <tr class="io-row">
-        <td class="row-label">Inputs/Outputs</td>
+      <xhtml:tr class="io-row">
+        <xhtml:td class="row-label">Inputs/Outputs</xhtml:td>
         <xsl:for-each select=".//dmn:input">	  
-          <td class="input" style="vertical-align: top;">
+          <xhtml:td class="input" style="vertical-align: top;">
 	    <!-- <xsl:variable name="inputPos" select="position()" /> -->
             <!-- <xsl:variable name="inputDef" select="../../dmn:input[position() = $inputPos]" /> -->
 	    <xsl:variable name="inputDef" select="." />
@@ -87,28 +89,28 @@
 		<xsl:value-of select="$inputDef/dmn:inputExpression/dmn:text"/>
 	      </span>
             </xsl:if>
-          </td>
+          </xhtml:td>
         </xsl:for-each>
         <xsl:for-each select=".//dmn:output">
-          <td class="output">
+          <xhtml:td class="output">
             <xsl:value-of select="@label"/>
-          </td>
+          </xhtml:td>
         </xsl:for-each>
         <xsl:for-each select=".//dmn:annotation">
-          <td class="annotation">
+          <xhtml:td class="annotation">
             <xsl:value-of select="@label"/>
-          </td>
+          </xhtml:td>
         </xsl:for-each>
-      </tr>
+      </xhtml:tr>
       <!-- Rule rows -->
       <xsl:for-each select=".//dmn:rule">
-        <tr class="rule">
-          <td class="row-label">
+        <xhtml:tr class="rule">
+          <xhtml:td class="row-label">
             <xsl:variable name="ruleId" select="@id"/>
             <xsl:value-of select="substring-after($ruleId, 'row-')"/>
-          </td>
+          </xhtml:td>
 	  <xsl:for-each select="dmn:inputEntry">
-            <td style="vertical-align: top;">
+            <xhtml:td style="vertical-align: top;">
 	      <!--<xsl:variable name="inputEntryPos" select="position()" />-->
 	      <!-- <xsl:variable name="inputEntryDef" select="../../dmn:inputEntry[position() = $inputEntryPos]" />-->
 	      <xsl:variable name="inputEntryDef" select="." />
@@ -131,20 +133,20 @@
 		<xsl:text>: </xsl:text>
 		<xsl:value-of select="."/>
               </xsl:if>
-            </td>
+            </xhtml:td>
 	  </xsl:for-each>
           <xsl:for-each select="dmn:outputEntry">
-            <td class="outputEntry">
+            <xhtml:td class="outputEntry">
               <xsl:value-of select="."/>
-            </td>
+            </xhtml:td>
           </xsl:for-each>
           <xsl:for-each select="dmn:annotationEntry">
-            <td class="annotationEntry">
+            <xhtml:td class="annotationEntry">
               <xsl:value-of select="."/>
-            </td>
+            </xhtml:td>
           </xsl:for-each>
-        </tr>
+        </xhtml:tr>
       </xsl:for-each>
-    </table>
+    </xhtml:table>
   </xsl:template>
 </xsl:stylesheet>
