@@ -21,14 +21,14 @@ class bpmn_extractor(extractor):
 
 
     def find_files(self):
-        return glob.glob("input/business-processess/*bpmn")
+        return glob.glob("input/business-processes/*bpmn")
         
 
     def extract_file(self):
-        self.inputfile_name
         with open(self.inputfile_name, 'r') as file:
             bpmn = str(file.read())
             if not self.installer.transform_xml("bpmn",bpmn,process_multiline=True):
+                self.log("Could not transform bpmn")
                 return False
         return True
             

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
-		xmlns="http://hl7.org/fhir"
 		xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
 		xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
 		xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"

@@ -25,6 +25,7 @@ def main():
     ins = installer()
 
     bpmn_extractor(ins).extract()
+    sys.exit(992)
     req_extractor(ins).extract()    
     dt_extractor(ins).extract()
     ins.install()
