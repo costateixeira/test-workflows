@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
+
 		xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
 		xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
 		xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
@@ -83,14 +84,22 @@
         <xsl:variable name="actorId" select="@id"/>
         <xsl:variable name="actorName" select="@name"/>
         <file name="input/fsh/ActorDefinition-{$actorId}.fsh" mime-type="text/fsh">
-	  <xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
+
 Instance: ActorDefinition-<xsl:value-of select="$actorId"/>
 InstanceOf: ActorDefinition
 Title: "<xsl:value-of select="$actorName"/>"
+Usage: #definition
 * id = "<xsl:value-of select="$actorId"/>"
 * name = "<xsl:value-of select="$actorName"/>"
-* type = "Actor"
-<xsl:text disable-output-escaping="yes">  ]]&gt;</xsl:text>
+* type = #non-system
+* status = #draft
+* publisher = "World Health Organization (WHO)"
+* experimental = false
+* status = #draft\
+* contact[+]
+  * telecom[+]
+    * system = #url
+    * value = "https://who.int"
         </file>
       </xsl:for-each>
 
@@ -99,14 +108,22 @@ Title: "<xsl:value-of select="$actorName"/>"
         <xsl:variable name="questionnaireId" select="@id"/>
         <xsl:variable name="questionnaireName" select="@name"/>
         <file name="input/fsh/questionniares/{$questionnaireId}.fsh" mime-type="text/fsh">
-	  <xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
+
 Instance: <xsl:value-of select="$questionnaireId"/>
 InstanceOf: Questionnaire
 Title: "<xsl:value-of select="$questionnaireName"/>"
+Usage: #definition
 * id = "<xsl:value-of select="$questionnaireId"/>"
 * name = "Questionnaire: <xsl:value-of select="$questionnaireName"/>"
 * status = #draft
-<xsl:text disable-output-escaping="yes">  ]]&gt;</xsl:text>
+* status = #draft
+* publisher = "World Health Organization (WHO)"
+* experimental = false
+* status = #draft\
+* contact[+]
+  * telecom[+]
+    * system = #url
+    * value = "https://who.int"
         </file>
       </xsl:for-each>
 
@@ -115,14 +132,23 @@ Title: "<xsl:value-of select="$questionnaireName"/>"
         <xsl:variable name="ruleId" select="@id"/>
         <xsl:variable name="ruleName" select="@name"/>
         <file name="input/fsh/planedefinitions/{$ruleId}.fsh" mime-type="text/fsh">
-	  <xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
+
 Instance: <xsl:value-of select="$ruleId"/>
 InstanceOf: PlanDefinition
 Title: "<xsl:value-of select="$ruleName"/>"
+Usage: #definition
 * id = "<xsl:value-of select="$ruleId"/>"
 * name = "Rule: <xsl:value-of select="$ruleName"/>"
 * status = #draft
-<xsl:text disable-output-escaping="yes">  ]]&gt;</xsl:text>
+* publisher = "World Health Organization (WHO)"
+* experimental = false
+* status = #draft\
+* contact[+]
+  * telecom[+]
+    * system = #url
+    * value = "https://who.int"
+
+
         </file>
       </xsl:for-each>
 

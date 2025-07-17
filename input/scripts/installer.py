@@ -283,7 +283,6 @@ class installer:
             True on success, False on error (with logging).
     """
     try:
-      self.log("A0")
       # Parse input if it's a string
       if isinstance(multifile_xml, str):
         try:
@@ -298,35 +297,20 @@ class installer:
       else:
         self.log(f"ERROR: multifile_xml is not a recognized XML type: {type(multifile_xml)}")
         return False
-      self.log("A1")
       self.log(f"Multifile={ET.tostring(multifile_xml)}")
-      self.log(root)
       if root.tag != "files":
         self.log(f"ERROR: Expected root element <files>, got <{root.tag}> instead.")
         return False
-      self.log("A2")
       file_elements = root.findall("file")
       if not file_elements:
         self.log("WARNING: No <file> elements found in multifile XML.")
         return False
-      self.log("A3")
       for file_elem in file_elements:
-        self.log("A4")
         file_path = file_elem.get("name")
         self.log("Extracting "  + file_path)
-        self.log("A5")
         mime_type = file_elem.get("mime-type", "text/plain")
-        self.log("A6")
         #content = etree.XML(file_elem.text) or ""
         content = file_elem.text
-        if not content:
-          self.log("No content in:" + str(content))
-          sys.exit(23)
-          return False
-        self.log(content)
-        self.log(ET.tostring(content))
-
-                 
         if not file_path:
           self.log("ERROR: <file> element missing 'name' attribute, skipping.")
           continue
@@ -335,7 +319,7 @@ class installer:
           os.makedirs(os.path.dirname(file_path), exist_ok=True)
           with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
-            self.log(f"Created file: {file_path} (mime-type: {mime_type}, {len(content)} bytes)")
+            self.log(f"Created file: {file_path} (mime-type: {mime_type}, {len(content)} bytes) with content:" + str(content))
         except Exception as fe:
           self.log(f"ERROR: Could not write to file '{file_path}': {fe}")
           return False          
