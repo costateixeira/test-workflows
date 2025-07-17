@@ -29,5 +29,4 @@ def main():
     dt_extractor(ins).extract()
     ins.install()
 
-
 main()

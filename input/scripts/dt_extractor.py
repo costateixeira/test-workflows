@@ -486,11 +486,13 @@ class dt_extractor(extractor):
         self.log("WARNING - UNKNOWN table type")
         return False
       
+
     if is_regular_table:
       fsh['plan'] +=  "\n"+ fsh['citations'] + "\n" + fsh['rules']
       self.installer.add_resource('plandefinitions',full_dt_id, fsh['plan'])
       
     dmn_tab = self.get_dmn(full_tab_id,full_dt_id,business_rule,trigger,dmn)
+
     self.installer.add_dmn_table(full_tab_id,dmn_tab)
     
     self.tab_data[tab_id]['tables'][dt_id]['used'] = True

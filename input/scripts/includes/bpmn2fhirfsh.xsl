@@ -51,29 +51,6 @@
       select="$questionnaires[ count(. | key('indexQuestionnaireId',@id)[1]) = 1]"/>  
 
 
-
-  <xsl:template match="/bpmn:definitions">
-
-    <xsl:message># Found Actors:</xsl:message>
-    <xsl:for-each select="$actors"><xsl:message><xsl:value-of select="concat('#   actor id: ', @id)"/></xsl:message></xsl:for-each>
-
-    <xsl:message># Found Inner Actors (no child lanes):</xsl:message>
-    <xsl:for-each select="$innerActors"><xsl:message><xsl:value-of select="concat('#   actor: ', @id)"/></xsl:message></xsl:for-each>
-
-    <xsl:message># Found Unique Actors (no child lanes):</xsl:message>
-    <xsl:for-each select="$uniqueActors"><xsl:message><xsl:value-of select="concat('#   actor id: ', @id)"/></xsl:message></xsl:for-each>
-
-
-
-
-
-    <xsl:message># Found User Tasks:</xsl:message>
-    <xsl:for-each select="$questionnaires"><xsl:message><xsl:value-of select="concat('#   questionnaire id: ', @id)"/></xsl:message></xsl:for-each>
-
-    <xsl:message># Found Unique User Tasks:</xsl:message>
-    <xsl:for-each select="$uniqueQuestionnaires"><xsl:message><xsl:value-of select="concat('#   questionniare id: ',@id)"/></xsl:message></xsl:for-each>
-  </xsl:template>
-
   <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
   <!-- Root template: Produce a <files> bundle -->

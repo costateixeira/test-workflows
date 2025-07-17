@@ -15,9 +15,9 @@
       omit-xml-declaration="yes"/>
 
   <xsl:template match="/">
-    <div class="decision-table">
+    <xhtml:div class="decision-table">
       <xsl:apply-templates select="//dmn:decision"/>
-    </div>
+    </xhtml:div>
   </xsl:template>
 
   <xsl:template match="dmn:decision">

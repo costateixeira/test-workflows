@@ -147,6 +147,7 @@ class installer:
   def add_dmn_table(self,dt_id:str,dt_dmn:str):
     if dt_id in self.dmn_tables:
       self.log("**Warning** found duplicated decitiosn table with id=" + dt_id)
+    self.log("Added " + dt_id + " with content\n" + str(dt_dmn))
     self.dmn_tables[dt_id] = dt_dmn
 
   def name_to_lower_id(self,name):
@@ -362,33 +363,44 @@ class installer:
     if not prefix in self.xslts:
       self.log("trying to transform unregistered thing "  + prefix)
       return False
-    if isinstance(xml,ET._ElementTree):
+    self.log("B0")
+    if isinstance(xml,ET._ElementTree) or isinstance(xml,ET._Element):
+      self.log("B1")
       xml_tree = xml
     elif isinstance(xml,str):
+      self.log("B2")
       xml = re.sub(r'<\?xml[^>]+\?>', '', xml)
-      try:
+      try:        
         xml_tree = ET.XML(xml)
+        self.log("B3")
         ET.indent(xml_tree)
+        self.log("B4")
       except BaseException as e:
         self.log("ERROR: Generated invalid XML for " + prefix + "\n" +  f"\tError: {e}\n" )
         return False
     else:
       self.log("invalid xml sent to transformer=" + str(xml))
       return False
-
+    self.log("B5")
     
     try:
-        out = self.xslts[prefix](xml_tree)
-        if out_path:
-          self.log("Transforming " + prefix + " to " + out_path)
-          out = str(ET.tostring(result.getroot() , encoding="unicode",pretty_print=True, doctype=None))
-          out_file = open(out_path, "w")
-          out_file.write(out)
-          out_file.close()
-        elif process_multiline:
-          return self.process_multifile_xml(out)
-        else:
-          return out
+      self.log("B5.1")
+      out = self.xslts[prefix](xml_tree)
+      if out_path:
+        self.log("B5.2")
+        self.log("Transforming " + prefix + " to " + str(out_path))
+        self.log("B5.2.1")
+        out = str(ET.tostring(out.getroot() , encoding="unicode",pretty_print=True, doctype=None))
+        self.log("B5.3")
+        out_file = open(out_path, "w")
+        out_file.write(out)
+        out_file.close()
+      elif process_multiline:
+        self.log("B6")
+        return self.process_multifile_xml(out)
+      else:
+        self.log("B7")
+        return out
     except BaseException as e:
       self.log("Could not process " + prefix + " in " + str(xml_tree))
       self.log(f"\tError: {e}")
