@@ -23,7 +23,8 @@ class installer:
   pages = {}
   logfile = None
   sushi_config = {}
-
+  multifile_xsd = "includes/multifile.xsd" #relative to the dir containing this file
+  multifile_schema = None  
 
   xslts = {}
   
@@ -41,10 +42,28 @@ class installer:
     Path("input/fsh/activitydefinitions").mkdir(exist_ok=True, parents=True)
     Path("input/fsh/plandefinitions").mkdir(exist_ok=True, parents=True)
     Path("input/pagecontent").mkdir(exist_ok=True, parents=True)
+    if not self.load_multifile_schema():
+      raise Exception('Could not load multifile xsd')
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
     #self.add_rulesets()
 
+  def load_multifile_schema(self):
+    """
+        Loads and parses the multifile XML XSD, storing it as self.multifile_schema.
+        """
+    script_directory = self.get_base_dir() + "/input/scripts" 
+    xsd_path = Path(script_directory + "/"  + self.multifile_xsd)
+    try:
+      with open(xsd_path, "rb") as xsd_file:
+        schema_doc = ET.parse(xsd_file)
+        self.multifile_schema = ET.XMLSchema(schema_doc)
+        self.log(f"Loaded multifile.xsd schema from {xsd_path}")
+    except Exception as e:
+      self.log(f"FATAL: Could not load multifile.xsd from {xsd_path}: {e}")
+      self.multifile_schema = None
+      return False
+    return True
  
   def get_base_dir(self):
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -298,6 +317,15 @@ class installer:
         self.log(f"ERROR: multifile_xml is not a recognized XML type: {type(multifile_xml)}")
         return False
       self.log(f"Multifile={ET.tostring(multifile_xml)}")
+
+
+      # Validate XML against schema
+      if not self.multifile_schema.validate(xml_doc):
+        self.log("XML failed XSD validation!")
+        for error in self.multifile_schema.error_log:
+          self.log(f"XSD validation error: {error}")
+        return False
+      
       if root.tag != "files":
         self.log(f"ERROR: Expected root element <files>, got <{root.tag}> instead.")
         return False

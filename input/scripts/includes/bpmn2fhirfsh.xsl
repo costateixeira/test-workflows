@@ -131,7 +131,7 @@ Usage: #definition
       <xsl:for-each select="$rules">
         <xsl:variable name="ruleId" select="@id"/>
         <xsl:variable name="ruleName" select="@name"/>
-        <file name="input/fsh/planedefinitions/{$ruleId}.fsh" mime-type="text/fsh">
+        <file name="input/fsh/plandefinitions/{$ruleId}.fsh" mime-type="text/fsh">
 
 Instance: <xsl:value-of select="$ruleId"/>
 InstanceOf: PlanDefinition
