@@ -1,4 +1,5 @@
 import lxml.etree as ET
+from typing import Union
 import glob
 import re
 import os
@@ -22,16 +23,9 @@ class installer:
   pages = {}
   logfile = None
   sushi_config = {}
-  xslts = {'dmn':{'tranformer' = None,
-                  'file' = "includes/dmn2html.xslt",  #relative to directory containing this file
-                  'namespace' =  "https://www.omg.org/spec/DMN/20240513/MODEL/"
-                  },
-           'bpmn':{'tranformer' = None,
-                  'file' = "includes/bpmn2html.xslt",  #relative to directory containing this file
-                  'namespace' =  "http://www.omg.org/spec/BPMN/20100524/MODEL"
-                  }}
 
 
+  xslts = {}
   
   
   def __init__(self):
@@ -49,29 +43,28 @@ class installer:
     Path("input/pagecontent").mkdir(exist_ok=True, parents=True)
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
-    self.add_rulesets()
-    self.initialize_xslts()
+    #self.add_rulesets()
 
  
   def get_base_dir(self):
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-    
-  def initialize_xslts(self):
-    for prefix,xslt in self.xslts:
+
+  def register_transformer(self,key:str,xsl_file: Union[str,Path],namespaces:dict = {}):
     try:
       script_directory = self.get_base_dir() + "/input/scripts" 
-      xsl_file = script_directory + "/" +  xslt['file']
+      xsl_file = script_directory + "/" +  xsl_file
       self.log("initializing xslt at " + xsl_file)
-      ET.register_namespace(prefix , xslt['namespace'])
+      for prefix,namespace in namespaces.items():
+        ET.register_namespace(prefix , namespace)
       with open(Path(xsl_file), "rb") as f:
-        self.xslts[prefix]['transformer'] = ET.XSLT(ET.parse(f))
-
+        self.xslts[key] = ET.XSLT(ET.parse(f))
 
     except BaseException as e:
-      self.log("WARNING: Could not find XSLT at " + xslt['file'])
+      self.log("WARNING: Could not find XSLT at " + xsl_file)
       self.log(f"\tError: {e}")
       sys.exit(88)
+
     
     
   def read_sushi_config(self):
@@ -337,11 +330,13 @@ class installer:
       return False
     
   
-  def transform_xml(self,prefix:str,xml,out_path = False , process_multiline = False):
-    if not prefix in self.xslts or not self.xslts[prefix]['trasnformer']:
+  def transform_xml(self,prefix:str,xml:Union[str,ET.ElementTree],out_path:Union[str,Path,bool] = False , process_multiline = False):
+    if not prefix in self.xslts:
       self.log("trying to transform unregistered thing "  + prefix)
       return False
-
+    self.log(ET)
+    self.log(ET.ElementTree)
+    self.log(xml)
     if isinstance(xml,ET.ElementTree):
       xml_tree = xml
     elif isinstance(xml,str):
@@ -358,7 +353,7 @@ class installer:
     
     self.log("Transforming " + prefix + " to " + out_path)
     try:
-        out = self.xslts[prefix]['transform'](xml_tree)
+        out = self.xslts[prefix](xml_tree)
         if out_path:
           out = str(ET.tostring(result.getroot() , encoding="unicode",pretty_print=True, doctype=None))
           out_file = open(out_path, "w")
@@ -369,7 +364,7 @@ class installer:
         else:
           return out
     except BaseException as e:
-      self.log("Could not process " + prefix " in " + str(xml_tree))
+      self.log("Could not process " + prefix + " in " + str(xml_tree))
       self.log(f"\tError: {e}")
       return False
     
@@ -399,7 +394,7 @@ class installer:
       return False
 
     html_path = Path("input/pagecontent/") / f"{id}.xhtml"
-    return self.transform_xml("dmn",dmn_tree,  html_path )
+    return self.transform_xml("dmn",dmn_tree,out_path = html_path )
     
       
   
@@ -482,7 +477,7 @@ class installer:
   def add_codesystem_property(self,codesystem_id:str,k:str,v):
     self.codesystem_properties[codesystem_id][k] = v
 
-  def add_dict_to_codesystem(self,codesystem_id:str,inputs):
+  def add_dict_to_codesystem(self,codesystem_id:str,inputs:dict):
     result = True
     for code,expr in inputs.items():
       result &= self.add_to_codesystem(codesystem_id,code,expr)
@@ -518,7 +513,7 @@ class installer:
 
   
 
-  def generate_cs_and_vs_from_dict(self,id:str, title:str, codelist:dict , properties : {}):
+  def generate_cs_and_vs_from_dict(self,id:str, title:str, codelist:dict , properties:dict = {}):
     if not self.initialize_codesystem(id,title):
       self.log("Skipping CS and VS for " + str + " could not initialize")
       return False
@@ -540,18 +535,18 @@ class installer:
     self.add_resource('valuesets',id, valueset)
     return True
   
-  def add_resource(self,dir,id,resource):
+  def add_resource(self,dir,id,resource:str):
     self.resources[dir][id]=resource
 
 
-  def add_cql(self,id,cql):
+  def add_cql(self,id,cql:str):
     self.cqls[id]=cql
 
-  def add_page(self,id,page):
+  def add_page(self,id,page:str):
     self.pages[id]=page
 
 
-  def create_cql_library(self,lib_name,cql_codes, properties = {}):
+  def create_cql_library(self,lib_name,cql_codes:dict ={}, properties:dict = {}):
     lib_id = self.name_to_id(lib_name)
     cql =  "/*\n"
     cql += "@libname: " + lib_name + "\n"

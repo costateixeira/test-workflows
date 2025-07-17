@@ -11,6 +11,8 @@ from pathlib import Path
 class dt_extractor(extractor):
   
   prefix = "DT"
+  xslt_file = "includes/dmn2html.xslt"
+  namespaces = {'dmn': "https://www.omg.org/spec/DMN/20240513/MODEL/"}
 
   # internal variables
   cql_definitions : dict
@@ -22,6 +24,7 @@ class dt_extractor(extractor):
   
   def __init__(self,installer:installer):
     super().__init__(installer)
+    self.installer.register_transformer("dmn",self.xslt_file,self.namespaces)
     
   def find_files(self):
     return glob.glob("input/decision-logic/*xlsx")
@@ -102,8 +105,8 @@ class dt_extractor(extractor):
         tab = dt_id
       has_non_empty |= bool(row["tab"])
 
-      #if tab != 'BCG':
-      #  continue
+      if tab != 'BCG':
+        continue
 
       if not self.load_tab(tab):      
         self.log("Could not load tab data for "  + tab)
@@ -557,7 +560,7 @@ class dt_extractor(extractor):
 
     dmn_url = self.installer.get_ig_canonical() + "/dmn/" + dmn_tab_id + ".dmn"
     
-    dmn_out = "<dmn:definitions  xmlns:dmn='" + self.installer.dmn_namespace + "'\n" \
+    dmn_out = "<dmn:definitions  xmlns:dmn='" + self.namespaces['dmn'] + "'\n" \
         + " namespace='" + self.installer.get_ig_canonical() + "'\n" \
         + " label='"  + self.escape(business_rule) + "'\n" \
         + " id='" + dmn_tab_id + "'>\n" \
