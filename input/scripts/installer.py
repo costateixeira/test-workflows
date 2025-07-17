@@ -274,8 +274,70 @@ class installer:
     return True
 
 
-  def transform_xml(self,prefix:str,xml,out_path ):
+  def process_multifile_xml(self, multifile_xml: Union[str, ET.Element]) -> bool:
+    """
+        Parses a multi-file XML bundle and writes each file to disk according to its 'name' attribute.
+        This is for XML of the form:
+        <files>
+          <file name="path/to/file.ext" mime-type="..."><![CDATA[...]]></file>
+          ...
+        </files>
 
+        Args:
+            multifile_xml: XML as string or lxml.etree.Element/ElementTree
+
+        Returns:
+            True on success, False on error (with logging).
+    """
+    try:
+      # Parse input if it's a string
+      if isinstance(multifile_xml, str):
+        try:
+          root = ET.fromstring(multifile_xml)
+        except Exception as e:
+          self.log(f"ERROR: Could not parse multifile_xml string: {e}")
+          return False
+      elif isinstance(multifile_xml, (ET._Element, ET.ElementBase)):
+        root = multifile_xml
+      elif hasattr(multifile_xml, "getroot"):  # ElementTree
+        root = multifile_xml.getroot()
+      else:
+        self.log(f"ERROR: multifile_xml is not a recognized XML type: {type(multifile_xml)}")
+        return False
+      
+      if root.tag != "files":
+        self.log(f"ERROR: Expected root element <files>, got <{root.tag}> instead.")
+        return False
+      
+      file_elements = root.findall("file")
+      if not file_elements:
+        self.log("WARNING: No <file> elements found in multifile XML.")
+        
+        for file_elem in file_elements:
+          file_path = file_elem.get("name")
+          mime_type = file_elem.get("mime-type", "text/plain")
+          content = file_elem.text or ""
+          
+          if not file_path:
+            self.log("ERROR: <file> element missing 'name' attribute, skipping.")
+            continue
+          
+          try:
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            with open(file_path, "w", encoding="utf-8") as f:
+              f.write(content)
+              self.log(f"Created file: {file_path} (mime-type: {mime_type}, {len(content)} bytes)")
+          except Exception as fe:
+            self.log(f"ERROR: Could not write to file '{file_path}': {fe}")
+            return False
+          
+          return True
+    except Exception as ex:
+      self.log(f"FATAL ERROR in process_multifile_xml: {ex}")
+      return False
+    
+  
+  def transform_xml(self,prefix:str,xml,out_path = False , process_multiline = False):
     if not prefix in self.xslts or not self.xslts[prefix]['trasnformer']:
       self.log("trying to transform unregistered thing "  + prefix)
       return False
@@ -293,13 +355,19 @@ class installer:
       self.log("invalid xml sent to transformer=" + str(xml))
       return False
 
+    
     self.log("Transforming " + prefix + " to " + out_path)
     try:
         out = self.xslts[prefix]['transform'](xml_tree)
-        out = str(ET.tostring(result.getroot() , encoding="unicode",pretty_print=True, doctype=None))
-        out_file = open(out_path, "w")
-        out_file.write(out)
-        out_file.close()
+        if out_path:
+          out = str(ET.tostring(result.getroot() , encoding="unicode",pretty_print=True, doctype=None))
+          out_file = open(out_path, "w")
+          out_file.write(out)
+          out_file.close()
+        elif process_multiline:
+          return self.process_multifile_xml(out)
+        else:
+          return out
     except BaseException as e:
       self.log("Could not process " + prefix " in " + str(xml_tree))
       self.log(f"\tError: {e}")

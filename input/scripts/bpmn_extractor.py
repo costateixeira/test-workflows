@@ -18,9 +18,14 @@ class dt_extractor(extractor):
         return glob.glob("input/business-processess/*bpmn")
         
 
-    def 
-            self.installer.transform_xml("bpmn",bpmn,out_file_path)
-
-    
+    def extract_file(self):
+        self.inputfile_name
+        with open(self.inputfile_name, 'r') as file:
+            bpmn = str(file.read())
+            out_file_path = "input/fshactordefinitions/"actors.fsh
+            if not self.installer.transform_xml("bpmn",bpmn,process_multiline=True):
+                return False
+        return True
+            
 
     
