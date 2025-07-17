@@ -68,7 +68,7 @@
 
 
     <xsl:message># Found User Tasks:</xsl:message>
-    <xsl:for-each select="$questionnaires"><xsl:message><xsl:value-of select="concat('#   questionniare id: ', @id)"/></xsl:message></xsl:for-each>
+    <xsl:for-each select="$questionnaires"><xsl:message><xsl:value-of select="concat('#   questionnaire id: ', @id)"/></xsl:message></xsl:for-each>
 
     <xsl:message># Found Unique User Tasks:</xsl:message>
     <xsl:for-each select="$uniqueQuestionnaires"><xsl:message><xsl:value-of select="concat('#   questionniare id: ',@id)"/></xsl:message></xsl:for-each>
@@ -95,7 +95,6 @@ Usage: #definition
 * status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false
-* status = #draft\
 * contact[+]
   * telecom[+]
     * system = #url
@@ -107,7 +106,7 @@ Usage: #definition
       <xsl:for-each select="$questionnaires">
         <xsl:variable name="questionnaireId" select="@id"/>
         <xsl:variable name="questionnaireName" select="@name"/>
-        <file name="input/fsh/questionniares/{$questionnaireId}.fsh" mime-type="text/fsh">
+        <file name="input/fsh/questionnaires/{$questionnaireId}.fsh" mime-type="text/fsh">
 
 Instance: <xsl:value-of select="$questionnaireId"/>
 InstanceOf: Questionnaire
@@ -116,10 +115,8 @@ Usage: #definition
 * id = "<xsl:value-of select="$questionnaireId"/>"
 * name = "Questionnaire: <xsl:value-of select="$questionnaireName"/>"
 * status = #draft
-* status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false
-* status = #draft\
 * contact[+]
   * telecom[+]
     * system = #url
@@ -142,7 +139,6 @@ Usage: #definition
 * status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false
-* status = #draft\
 * contact[+]
   * telecom[+]
     * system = #url
@@ -291,7 +287,7 @@ Usage: #definition
 
 <!-- 	<xsl:message> -->
 
-<!-- The <xsl:value-of select="$actorName"/> actor participates in the following questionniares:</xsl:message> -->
+<!-- The <xsl:value-of select="$actorName"/> actor participates in the following questionnaires:</xsl:message> -->
 
 
 <!-- 	<xsl:for-each select="$collab/bpmn:participant"> -->
