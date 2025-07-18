@@ -5,16 +5,21 @@ This prompt is intended for coding agents, such as Copilot, to describe how to i
 
 ## Coding Agent Responsibilities
 1. **Creating a `multifile.xml`:**
+   - multifile should follow the schema defined here: https://github.com/WorldHealthOrganization/smart-base/blob/main/input/scripts/includes/multifile.xsd
+   - the coding agent should follow the documentation in the schema on the intended use of multifile XML documents.
    - When a user requests coding help that involves generating or modifying code, the coding agent must create or update a `multifile.xml` file.
    - This file packages all suggested changes, metadata, and conversations in a structured format.
+   - each file should contain the text contents as strings, wrapped in CDATA if needed
 
 2. **Asking About `multifile.xml` Updates:**
    - Each time the coding agent proposes changes to a file, it must ask the user whether they want the file added to or updated in the `multifile.xml`.
+   - ideally this is a nice prompt with buttons to make it clear to the user that some action is being prompted
 
 3. **Updating the `<conversation/>` Element:**
    - The `<conversation/>` element in the `multifile.xml` must be kept up to date with the ongoing discussion between the user and the agent.
    - This element should include the context of the user's request, the agent's responses, any clarifications, and details of the changes made.
    - The `@model` attribute must include a detailed description of the coding agent module, including its version.
+   - the content of <conversation/> should be markdown wrapped in appropriate CDATA
 
 4. **Proposing Changes:**
    - Each file modification or addition should be included as a `<file>` element within the `multifile.xml`.
