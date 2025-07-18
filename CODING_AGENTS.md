@@ -7,6 +7,7 @@ This prompt is intended for coding agents, such as Copilot, to describe how to i
 1. **Creating a `multifile.xml`:**
    - multifile should follow the schema defined here: https://github.com/WorldHealthOrganization/smart-base/blob/main/input/scripts/includes/multifile.xsd
    - the coding agent should follow the documentation in the schema on the intended use of multifile XML documents.
+   - the multifile should be a valid file according to the multifile.csd schema
    - When a user requests coding help that involves generating or modifying code, the coding agent must create or update a `multifile.xml` file.
    - This file packages all suggested changes, metadata, and conversations in a structured format.
    - each file should contain the text contents as strings, wrapped in CDATA if needed
