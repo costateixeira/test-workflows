@@ -17,7 +17,7 @@ class extractor(object):
       self.log('IF=' + inputfile_name)
       self.inputfile_name = inputfile_name
       self.extract_file()
-    pass
+    return True
 
   def get_aliases(self):
       return []

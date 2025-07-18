@@ -92,8 +92,17 @@
           </xhtml:td>
         </xsl:for-each>
         <xsl:for-each select=".//dmn:output">
-          <xhtml:td class="output">
-            <xsl:value-of select="@label"/>
+          <xhtml:td class="output"  style="vertical-align: top;">
+	    <xsl:variable name="outputDef" select="." />
+	    <strong>
+	      <xsl:variable name="csURL">CodeSystem-DT.html#:~:text=<xsl:value-of select="$putputDef/@label"/></xsl:variable>
+	      <xsl:element name="a">
+		<xsl:attribute name="href">
+		  <xsl:value-of select="$csURL"/>
+		</xsl:attribute>
+		<xsl:value-of select="$outputDef/@label"/>
+	      </xsl:element>
+	    </strong>
           </xhtml:td>
         </xsl:for-each>
         <xsl:for-each select=".//dmn:annotation">

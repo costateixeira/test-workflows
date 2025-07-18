@@ -21,7 +21,7 @@ class dt_extractor(extractor):
   cql_definitions = {}
   cql_definitions_by_type = {'input':{},'output':{},'annotation':{}}
   tab_data = {}
-  
+  dt_data = {}  
   def __init__(self,installer:installer):
     super().__init__(installer)
     self.installer.register_transformer("dmn",self.xslt_file,self.namespaces)
@@ -32,6 +32,59 @@ class dt_extractor(extractor):
   def find_cql_files(self):
     return glob.glob("input/cql/*cql")
 
+  def extract(self):
+    super().extract()
+    self.generate_decision_table_page()
+
+
+  def generate_decision_table_page(self):
+    page_id = "decision-logic.md"
+    page_content = "This page describes the decision support logic included in the WHO Digital Adaptation Kit (DAK): " \
+      + self.installer.get_ig_title() + "\n" \
+      + """
+The decision-support logic component provides the decision logic and algorithms, as well as the scheduling of services, in accordance with WHO guidelines. The decision logic and algorithms in this implementation guide deconstruct the recommendations within the guidelines and guidance into a machine-readable format that clearly labels the inputs and outputs to be operationalized in a digital decision-support system, such as an electronic medical record (EMR) system.
+
+# Decision Support Logic Overview
+The table below provides an overview of the decision-support tables and algorithms for the different business processes in an EMR. The structure of the decision-support tables is based on an adaptation of the Decision Model and Notation (DMN™), an industry standard for modeling and executing decision logic. These decision-support tables detail the business rules, data inputs, and outputs to support EMR business processes.
+
+## Overview of decision logic support tables
+<div style=" width: 100%;">
+  <table border="1" class="dataframe table table-striped table-bordered">
+    <thead>
+      <tr style="text-align: left;">
+        <th>Decision Table ID</th>
+        <th>Decision Table Description</th>
+        <th>Reference/Source</th>
+      </tr>
+    </thead>
+    <tbody style="text-align: left; vertical-align: top">
+"""
+    dt_src = ""
+    for dt_id,dt_data in self.dt_data.items():
+      #dt_data = {"tab":tab,"dt_id":dt_id,"description":row["description"],"source":row["sources"]}
+      if not self.is_blank(dt_data['source']):
+        # a merged cell
+        dt_src = dt_data['source']
+      dt_desc = dt_data['description']
+      dt_desc += f"<br/>S(<a href="#{dt_id}">View</a>,<a href="{dt_id}.dmn">DMN</a>)
+      page_content += "      <tr><td>{dt_id}</td><td>{dt_desc}</td><td>{dt_src}</td></tr>\n"
+
+    page_content += """
+  </tbody>
+</table>
+"""
+    
+    page_content += "\n\n## Decision logic support tables\n\n"
+    
+    for dt_id,dt_data in self.dt_data.items():
+      #dt_data = {"tab":tab,"dt_id":dt_id,"description":row["description"],"source":row["sources"]}
+      page_content += f"### {dt_desc} <a name='{dt_id}'> </ a>\n"
+      page_content += "{% include '" + dt_id + ".xml' %}\n"
+
+      page_content += "      <tr><td>{dt_id}</td><td>{dt_desc}</td><td>{dt_src}</td></tr>\n"
+    
+    
+    return self.installer.add_page(page_id,page_content)
   
   def extract_file(self):
     cover_column_maps = {
@@ -111,10 +164,10 @@ class dt_extractor(extractor):
       if not self.load_tab(tab):      
         self.log("Could not load tab data for "  + tab)
         continue
-
-      data = {"tab":tab,"dt_id":dt_id,"description":row["description"],"source":row["sources"]}
-      if not self.extract_activity_table(id,name,tab,dt_id,data):
-        self.log("Could not extract decition table for id=" + id + " name=" + name + " data=" + str(data))
+      dt_data = {"tab":tab,"dt_id":dt_id,"description":row["description"],"source":row["sources"]}
+      self.dt_data[dt_id] = dt_data
+      if not self.extract_activity_table(id,name,tab,dt_id,dt_data):
+        self.log("Could not extract decition table for id=" + id + " name=" + name + " data=" + str(dt_data))
 
 
     cql_files = self.find_cql_files()
@@ -491,9 +544,9 @@ class dt_extractor(extractor):
       fsh['plan'] +=  "\n"+ fsh['citations'] + "\n" + fsh['rules']
       self.installer.add_resource('plandefinitions',full_dt_id, fsh['plan'])
       
-    dmn_tab = self.get_dmn(full_tab_id,full_dt_id,business_rule,trigger,dmn)
+    dmn_tab = self.get_dmn(full_dt_id,business_rule,trigger,dmn)
 
-    self.installer.add_dmn_table(full_tab_id,dmn_tab)
+    self.installer.add_dmn_table(full_dt_id,dmn_tab)
     
     self.tab_data[tab_id]['tables'][dt_id]['used'] = True
     return True
@@ -548,7 +601,7 @@ class dt_extractor(extractor):
 
 
 
-  def get_dmn(self,dmn_tab_id,dmn_dt_id,trigger,business_rule,dmn):
+  def get_dmn(self,dmn_dt_id,trigger,business_rule,dmn):
 
     trigger_parts = trigger.split(" ",1)
     if (len(trigger_parts) == 2):
@@ -560,12 +613,12 @@ class dt_extractor(extractor):
     trigger_url =  self.installer.get_ig_canonical() + "/bpmn/" \
       + trigger_id + ".bpmn#" + urllib.parse.quote(trigger_expr)
 
-    dmn_url = self.installer.get_ig_canonical() + "/dmn/" + dmn_tab_id + ".dmn"
+    dmn_url = self.installer.get_ig_canonical() + "/dmn/" + dmn_dt_id + ".dmn"
     
     dmn_out = "<dmn:definitions  xmlns:dmn='" + self.namespaces['dmn'] + "'\n" \
         + " namespace='" + self.installer.get_ig_canonical() + "'\n" \
         + " label='"  + self.escape(business_rule) + "'\n" \
-        + " id='" + dmn_tab_id + "'>\n" \
+        + " id='" + dmn_dt_id + "'>\n" \
         + "  <dmn:decision id='" + dmn_dt_id + "' label='" + self.escape(business_rule) + "'>\n" \
         + "    <dmn:question>" + self.xml_escape(business_rule) + "</dmn:question>" \
         + "    <dmn:usingTask href='" + trigger_url + "'/>" \

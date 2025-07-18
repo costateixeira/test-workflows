@@ -24,6 +24,7 @@ class installer:
   logfile = None
   sushi_config = {}
   multifile_xsd = "includes/multifile.xsd" #relative to the dir containing this file
+  sushi_file = "sushi-config.yaml"
   multifile_schema = None  
 
   xslts = {}
@@ -84,12 +85,11 @@ class installer:
       self.log(f"\tError: {e}")
       sys.exit(88)
 
-    
+
     
   def read_sushi_config(self):
-    sushi_file = "sushi-config.yaml"
     try:
-        with open(sushi_file, 'r') as file:
+        with open(self.sushi_file, 'r') as file:
             self.sushi_config = yaml.safe_load(file)
             if not self.sushi_config:
               self.log("Could not load sushi config")
@@ -431,7 +431,7 @@ class installer:
       log(f"\tERROR: {e}")
       return False
 
-    html_path = Path("input/pagecontent/") / f"{id}.xhtml"
+    html_path = Path("input/pagecontent/") / f"{id}.xml"
     return self.transform_xml("dmn",dmn_tree,out_path = html_path )
     
       
