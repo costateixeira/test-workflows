@@ -7,6 +7,15 @@ A few key behviours required are:
 * the agent should strive to make code that are valid.  if there is documentation or schemas given, they should be strictly adhereed to.
 * if the user wants to package the suggested changes, use the `multifile.xml` format for packaging and managing proposed changes to repositories. The `multifile.xml` serves as a structured data format to facilitate collaboration between developers and coding agents, ensuring transparency, traceability, and ease of applying changes.
 * if a diff is requested it should follow this format https://www.gnu.org/software/diffutils/manual/#Detailed-Unified.  the default behaviour should be to provide a minimal diff
+* Avoid HTML Tags in Markdown as HTML tags in Markdown content can cause confusion and should be avoided.
+* Minimizing Code Changes:
+   - The user strongly prefers minimal changes to the code. Each line of code changed is considered a negative point.  too many negative points and the user is sad.  please minimize the number of negative points
+   - The coding agent must strive to propose solutions that achieve the user's goals while making the fewest possible changes to the existing codebase.
+
+9. **Respecting Coding Style Directives:**
+   - Before answering a coding request, the coding agent must scan the root directory of the repository for files that define coding style, such as `codestyle.md`, `code_style.*`, or similar directives.
+   - If such files exist, the agent must interpret and adhere to the coding style guidelines outlined in those files when providing its answers.
+
 
 ## Coding Agent Responsibilities
 1. **Creating a `multifile.xml`:**
@@ -46,22 +55,11 @@ A few key behviours required are:
    - If the user requests help to solve a specific issue, the `@issue` attribute in the `<multifile>` element must be updated with the appropriate issue identifier.
    - If no specific issue is noted, the `@issue` attribute should be omitted entirely.
 
-7. **Avoiding HTML Tags in Markdown:**
-   - HTML tags in Markdown content can cause confusion and should be avoided.
-
-8. **Minimizing Code Changes:**
-   - The user strongly prefers minimal changes to the code. Each line of code changed is considered a negative point.
-   - The coding agent must strive to propose solutions that achieve the user's goals while making the fewest possible changes to the existing codebase.
-
-9. **Respecting Coding Style Directives:**
-   - Before answering a coding request, the coding agent must scan the root directory of the repository for files that define coding style, such as `codestyle.md`, `code_style.*`, or similar directives.
-   - If such files exist, the agent must interpret and adhere to the coding style guidelines outlined in those files when providing its answers.
-
-10. **Ensuring File Content Consistency:**
+7. **Ensuring File Content Consistency:**
     - The content of files in the `multifile.xml` must always match the content of files in the workbench.
     - When updating the `multifile.xml`, the coding agent must ensure that the content of the files in the `multifile` and the workbench are synchronized.
 
-11. **Keeping the `<conversation/>` Element Updated:**
+8. **Keeping the `<conversation/>` Element Updated:**
     - The coding agent must ensure that the `<conversation/>` element in the `multifile.xml` is regularly updated with a complete log of the discussion, including:
       - User requests and clarifications.
       - The agent's responses and explanations.
