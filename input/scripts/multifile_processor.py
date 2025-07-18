@@ -1,66 +1,149 @@
 import os
 import sys
+import subprocess
 import xml.etree.ElementTree as ET
 
-def parse_multifile(file_path):
-    """Parse the multifile XML and return a dictionary of files and their content."""
-    try:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
+class MultifileProcessor:
+    def __init__(self, xml_path):
+        self.xml_path = xml_path
+        self.repo = None
+        self.branch = None
+        self.commit_message = None
+        self.files = []
 
-        files = {}
-        for file_element in root.findall("file"):
-            path = file_element.get("path")
-            content = file_element.text or ""
-            files[path] = content.strip()
-        return files
-    except ET.ParseError as e:
-        print(f"Error parsing XML file: {e}", file=sys.stderr)
-        sys.exit(1)
-
-def save_files(files, interactive=False):
-    """Save files to disk, creating directories as needed."""
-    for file_path, content in files.items():
+    def is_git_repo(self):
+        """Check if the current directory is part of a Git repository."""
         try:
-            # Ensure the directory exists (if there is a directory component)
-            directory = os.path.dirname(file_path)
-            if directory:  # Only create directories if the directory path is not empty
-                os.makedirs(directory, exist_ok=True)
-            
-            # Write the file content
-            with open(file_path, "w") as f:
-                f.write(content)
-            print(f"Saved: {file_path}")
-        except PermissionError:
-            print(f"Permission denied: Unable to create directory for {file_path}. Check your permissions.", file=sys.stderr)
-        except OSError as e:
-            print(f"OS error: Unable to create directory or save file {file_path}. Error: {e}", file=sys.stderr)
-        except Exception as e:
-            print(f"Unexpected error: {e}", file=sys.stderr)
+            subprocess.run(
+                ["git", "rev-parse", "--is-inside-work-tree"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=True
+            )
+            return True
+        except subprocess.CalledProcessError:
+            return False
 
-def main():
-    """Main entry point for the script."""
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} <multifile.xml>", file=sys.stderr)
-        sys.exit(1)
+    def get_current_branch(self):
+        """Get the current Git branch."""
+        try:
+            result = subprocess.run(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                stdout=subprocess.PIPE,
+                check=True
+            )
+            return result.stdout.decode().strip()
+        except subprocess.CalledProcessError:
+            return None
 
-    file_path = sys.argv[1]
-    if not os.path.exists(file_path):
-        print(f"Error: File not found: {file_path}", file=sys.stderr)
-        sys.exit(1)
+    def switch_to_branch(self):
+        """Switch to the branch specified in the XML or create it if it doesn't exist."""
+        current_branch = self.get_current_branch()
+        if self.branch != current_branch:
+            print(f"Current branch is '{current_branch}', but XML specifies branch '{self.branch}'.")
+            confirm = input(f"Do you want to switch to branch '{self.branch}'? (yes/no): ").strip().lower()
+            if confirm in ["yes", "y"]:
+                branches = subprocess.run(
+                    ["git", "branch"],
+                    stdout=subprocess.PIPE
+                ).stdout.decode()
+                if self.branch not in branches.split():
+                    subprocess.run(["git", "checkout", "-b", self.branch], check=True)
+                else:
+                    subprocess.run(["git", "checkout", self.branch], check=True)
+                print(f"Switched to branch '{self.branch}'.")
 
-    files = parse_multifile(file_path)
+    def parse_multifile_xml(self):
+        """Parse multifile.xml and extract metadata and file contents."""
+        try:
+            tree = ET.parse(self.xml_path)
+            root = tree.getroot()
+            self.repo = root.attrib.get("repo")
+            self.branch = root.attrib.get("branch", "main")
+            meta = root.find("meta")
+            if meta is not None:
+                commit_elem = meta.find("commit")
+                if commit_elem is not None:
+                    self.commit_message = commit_elem.text.strip()
+            self.files = []
+            for file_elem in root.findall("file"):
+                path = file_elem.get("path")
+                diff_format = file_elem.get("diff")
+                content = file_elem.text.strip() if file_elem.text else ""
+                self.files.append({"path": path, "content": content, "diff": diff_format})
+        except ET.ParseError as e:
+            print(f"Error parsing XML: {e}", file=sys.stderr)
+            sys.exit(1)
 
-    print("The following files will be updated or created:")
-    for file_path in files.keys():
-        print(f"  - {file_path}")
+    def apply_changes(self):
+        """Apply the changes specified in the XML to the repository."""
+        for file in self.files:
+            path = file["path"]
+            diff = file["diff"]
+            content = file["content"]
+            if diff:
+                try:
+                    with open("temp.diff", "w") as temp_diff:
+                        temp_diff.write(content)
+                    subprocess.run(["git", "apply", "temp.diff"], check=True)
+                    os.remove("temp.diff")
+                    print(f"Applied diff to: {path}")
+                except Exception as e:
+                    print(f"Error applying diff to {path}: {e}", file=sys.stderr)
+                    sys.exit(1)
+            else:
+                directory = os.path.dirname(path)
+                if directory:
+                    os.makedirs(directory, exist_ok=True)
+                with open(path, "w") as f:
+                    f.write(content)
+                print(f"Updated file: {path}")
 
-    confirm = input("Do you want to proceed? (yes/no): ").strip().lower()
-    if confirm not in ["yes", "y"]:
-        print("Aborted.")
-        sys.exit(0)
+    def run(self):
+        """Main execution method."""
+        if not self.is_git_repo():
+            print("Error: This script must be run inside a Git repository.", file=sys.stderr)
+            sys.exit(1)
 
-    save_files(files, interactive=True)
+        if not os.path.exists(self.xml_path):
+            print(f"Error: File not found: {self.xml_path}", file=sys.stderr)
+            sys.exit(1)
+
+        self.parse_multifile_xml()
+        self.switch_to_branch()
+        self.apply_changes()
+
+        diff_choice = input("Would you like to see a diff of the applied changes? (yes/no): ").strip().lower()
+        if diff_choice in ["yes", "y"]:
+            subprocess.run(["git", "diff"])
+
+        commit_choice = input("Would you like to commit the changes? (yes/no): ").strip().lower()
+        if commit_choice in ["yes", "y"]:
+            if self.commit_message:
+                use_commit_message = input(
+                    f"Use commit message from <commit/>? '{self.commit_message}' (yes/no): "
+                ).strip().lower()
+                if use_commit_message in ["yes", "y"]:
+                    subprocess.run(["git", "commit", "-am", self.commit_message], check=True)
+                else:
+                    custom_message = input("Enter your commit message: ").strip()
+                    subprocess.run(["git", "commit", "-am", custom_message], check=True)
+            else:
+                custom_message = input("Enter your commit message: ").strip()
+                subprocess.run(["git", "commit", "-am", custom_message], check=True)
+
+        push_choice = input("Would you like to push the changes? (yes/no): ").strip().lower()
+        if push_choice in ["yes", "y"]:
+            try:
+                subprocess.run(["git", "push", "--set-upstream", "origin", self.branch], check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"Error pushing changes: {e}", file=sys.stderr)
+                sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 2:
+        print("Usage: python multifile_processor.py <path_to_multifile.xml>")
+        sys.exit(1)
+    xml_path = sys.argv[1]
+    processor = MultifileProcessor(xml_path)
+    processor.run()
