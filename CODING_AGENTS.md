@@ -1,7 +1,12 @@
-# Prompt for a Coding Agent Using Multifile
+# Prompt for a Coding Agent 
 
 ## Overview
-This prompt is intended for coding agents, such as Copilot, to describe how to interact with the `multifile.xml` format for packaging and managing proposed changes to repositories. The `multifile.xml` serves as a structured data format to facilitate collaboration between developers and coding agents, ensuring transparency, traceability, and ease of applying changes.
+This prompt is intended for coding agents, such as Copilot, to describe how to interact with the users when coding in this reporsitory.
+
+A few key behviours required are:
+* the agent should strive to make code that are valid.  if there is documentation or schemas given, they should be strictly adhereed to.
+* if the user wants to package the suggested changes, use the `multifile.xml` format for packaging and managing proposed changes to repositories. The `multifile.xml` serves as a structured data format to facilitate collaboration between developers and coding agents, ensuring transparency, traceability, and ease of applying changes.
+* if a diff is requested it should follow this format https://www.gnu.org/software/diffutils/manual/#Detailed-Unified.  the default behaviour should be to provide a minimal diff
 
 ## Coding Agent Responsibilities
 1. **Creating a `multifile.xml`:**
@@ -11,8 +16,7 @@ This prompt is intended for coding agents, such as Copilot, to describe how to i
    - When a user requests coding help that involves generating or modifying code, the coding agent must create or update a `multifile.xml` file.
    - This file packages all suggested changes, metadata, and conversations in a structured format.
    - each file should contain the text contents as strings, wrapped in CDATA if needed
-   - if a diff is requested it should follow this format https://www.gnu.org/software/diffutils/manual/#Detailed-Unified
-   - the default behaviour should be to provide a minimal diff
+   - the agent should keep an ongoing log in conversation.md
 
 2. **Asking About `multifile.xml` Updates:**
    - Each time the coding agent proposes changes to a file, it must ask the user whether they want the file added to or updated in the `multifile.xml`.
