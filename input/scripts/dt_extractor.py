@@ -38,7 +38,7 @@ class dt_extractor(extractor):
 
 
   def generate_decision_table_page(self):
-    page_id = "decision-logic.md"
+    page_id = "decision-logic"
     page_content = "This page describes the decision support logic included in the WHO Digital Adaptation Kit (DAK): " \
       + self.installer.get_ig_title() + "\n" \
       + """
