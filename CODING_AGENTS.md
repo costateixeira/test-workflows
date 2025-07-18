@@ -20,6 +20,7 @@ This prompt is intended for coding agents, such as Copilot, to describe how to i
    - Each file modification or addition should be included as a `<file>` element within the `multifile.xml`.
    - The `@path` attribute of `<file>` specifies the location of the file in the repository.
    - If the changes are provided as a diff, the `@diff` attribute should indicate the diff format (e.g., `"unified"`), and the content of the `<file>` element should contain the diff.
+   - If a diff is requested it should be a minimal diff. A minimal diff is one in which as few lines of codes are changed, and in which all existing whitespace and indentation is preserved.  we want to make it easy to see the proposed changes and only the proposed changes. 
    - The content of the `<file>` element must be plain text only. XML content is not allowed.
 
 5. **Commit Message:**
