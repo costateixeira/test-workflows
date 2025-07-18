@@ -1,6 +1,38 @@
 import os
 import sys
+import subprocess
 import xml.etree.ElementTree as ET
+
+
+def is_git_repo():
+    """
+    Check if the current directory is inside a Git repository.
+
+    Returns:
+        bool: True if inside a Git repository, False otherwise.
+    """
+    try:
+        subprocess.run(["git", "rev-parse", "--is-inside-work-tree"],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+def is_git_clean():
+    """
+    Check if the Git repository is in a clean state (no uncommitted changes).
+
+    Returns:
+        bool: True if the repo is clean, False otherwise.
+    """
+    try:
+        result = subprocess.run(["git", "status", "--porcelain"],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return result.stdout.strip() == b""
+    except subprocess.CalledProcessError:
+        return False
+
 
 def parse_multifile_xml(file_path):
     """
@@ -24,8 +56,9 @@ def parse_multifile_xml(file_path):
 
         return files
     except ET.ParseError as e:
-        print(f"Error parsing XML: {e}")
+        print(f"Error parsing XML: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 def save_files(files, interactive=True):
     """
@@ -48,9 +81,14 @@ def save_files(files, interactive=True):
     for file in files:
         file_path = file["path"]
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "w") as f:
-            f.write(file["content"])
-        print(f"Saved: {file_path}")
+        try:
+            with open(file_path, "w") as f:
+                f.write(file["content"])
+            print(f"Saved: {file_path}")
+        except Exception as e:
+            print(f"Error saving file {file_path}: {e}", file=sys.stderr)
+            sys.exit(1)
+
 
 def main():
     if len(sys.argv) < 2:
@@ -60,12 +98,28 @@ def main():
     xml_path = sys.argv[1]
     interactive = "--non-interactive" not in sys.argv
 
-    if not os.path.exists(xml_path):
-        print(f"Error: File not found: {xml_path}")
+    # Check if inside a Git repository
+    if not is_git_repo():
+        print("Error: This script must be run inside a Git repository.", file=sys.stderr)
         sys.exit(1)
 
+    # Check for a clean Git state if in interactive mode
+    if interactive and not is_git_clean():
+        print("Warning: The Git repository is not in a clean state (uncommitted changes detected).")
+        confirm = input("Do you want to proceed anyway? (yes/no): ").strip().lower()
+        if confirm not in ["yes", "y"]:
+            print("Operation cancelled.")
+            sys.exit(1)
+
+    # Check if the multifile XML file exists
+    if not os.path.exists(xml_path):
+        print(f"Error: File not found: {xml_path}", file=sys.stderr)
+        sys.exit(1)
+
+    # Parse and save the files
     files = parse_multifile_xml(xml_path)
     save_files(files, interactive=interactive)
+
 
 if __name__ == "__main__":
     main()
