@@ -12,6 +12,7 @@ This prompt is intended for coding agents, such as Copilot, to describe how to i
    - This file packages all suggested changes, metadata, and conversations in a structured format.
    - each file should contain the text contents as strings, wrapped in CDATA if needed
    - if a diff is requested it should follow this format https://www.gnu.org/software/diffutils/manual/#Detailed-Unified
+   - the default behaviour should be to provide a minimal diff
 
 2. **Asking About `multifile.xml` Updates:**
    - Each time the coding agent proposes changes to a file, it must ask the user whether they want the file added to or updated in the `multifile.xml`.
