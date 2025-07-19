@@ -1,46 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
-    <xs:element name="multifile">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="meta" minOccurs="0">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="commit" minOccurs="0">
-                                <xs:complexType mixed="true">
-                                    <xs:annotation>
-                                        <xs:documentation>
-                                            An optional commit message summarizing proposed changes. 
-                                            Applications should prompt users to use this message during commits.
-                                        </xs:documentation>
-                                    </xs:annotation>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="conversation" minOccurs="0" maxOccurs="unbounded">
-                                <xs:complexType mixed="true">
-                                    <xs:attribute name="id" type="xs:string" use="optional"/>
-                                    <xs:attribute name="model" type="xs:string" use="optional"/>
-                                    <xs:attribute name="timestamp" type="xs:dateTime" use="optional"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
-                <xs:element name="file" maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:attribute name="path" type="xs:string" use="required"/>
-                        <xs:attribute name="diff" type="xs:string" use="optional"/>
-                        <xs:annotation>
-                            <xs:documentation>
-                                Content of <file/> must be plain text only.
-                            </xs:documentation>
-                        </xs:annotation>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-            <xs:attribute name="repo" type="xs:string" use="required"/>
-            <xs:attribute name="branch" type="xs:string" use="optional" default="main"/>
-            <xs:attribute name="issue" type="xs:string" use="optional"/>
-        </xs:complexType>
-    </xs:element>
+<xs:schema 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified">
+
+  <xs:element name="files">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="file" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType mixed="true">
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required"/>
+                <xs:attribute name="mime-type" type="xs:string" use="optional"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
 </xs:schema>
