@@ -66,7 +66,7 @@ The table below provides an overview of the decision-support tables and algorith
         # a merged cell
         dt_src = dt_data['source']
       dt_desc = dt_data['description']
-      dt_desc += f"<br/>S(<a href="#{dt_id}">View</a>,<a href="{dt_id}.dmn">DMN</a>)
+      dt_desc += f"<br/>(<a href="#{dt_id}">View</a>,<a href="{dt_id}.dmn">DMN</a>)
       page_content += "      <tr><td>{dt_id}</td><td>{dt_desc}</td><td>{dt_src}</td></tr>\n"
 
     page_content += """
