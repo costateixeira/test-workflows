@@ -94,7 +94,7 @@
       <xsl:variable name="actorQuestionnaire"
 		  select="$actorProcesses//bpmn:userTask[@name != '' and @id = $questionnaireId]"/>
       <xsl:if test="$actorQuestionnaire">
-	<xsl:text>* extension[actor] = Reference(DD-</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
+	<xsl:text>* extension[actor].valueReference = Reference(DD-</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
 	<xsl:value-of select="$newline"/>
       </xsl:if>
     </xsl:for-each>
