@@ -183,7 +183,7 @@ Usage: #definition
 * status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false
-* extension[task][+] = $SGTasks#<xsl:value-of select="$requirementCode"/>
+* extension[task][+].valueCoding = $SGTasks#<xsl:value-of select="$requirementCode"/>
 * contact[+]
   * telecom[+]
     * system = #url
@@ -424,7 +424,7 @@ Title: "<xsl:value-of select="$ruleName"/>"
 <!-- 		  </xsl:choose> -->
 <!-- 		</meta> -->
 <!-- 		<type><xsl:attribute name="value"><xsl:value-of select="$actorType"/></xsl:attribute></type> -->
-<!-- 		<extension url="http://smart.who.int/base/StructureDefinition/Sgcode"> -->
+<!-- 		<extension url="http://smart.who.int/base/StructureDefinition/SGcode"> -->
 <!-- 		  <valueCoding> -->
 <!-- 		    <system><xsl:attribute name="value"><xsl:value-of select="$actors-CS-url"/></xsl:attribute></system> -->
 <!-- 		    <code><xsl:attribute name="value"><xsl:value-of select="$actorCode"/></xsl:attribute></code> -->
@@ -645,7 +645,7 @@ Title: "<xsl:value-of select="$ruleName"/>"
 <!-- 			      <sourceId><xsl:value-of select="$actorSrcCode"/></sourceId> -->
 <!-- 			      <targetId><xsl:value-of select="$actorTgtCode"/></targetId> -->
 
-<!-- 			      <extension url="http://smart.who.int/base/StructureDefinition/Sgcode"> -->
+<!-- 			      <extension url="http://smart.who.int/base/StructureDefinition/SGcode"> -->
 <!-- 				<valueCoding> -->
 <!-- 				  <system><xsl:attribute name="value"><xsl:value-of select="$trans-CS-url"/></xsl:attribute></system> -->
 <!-- 				  <code><xsl:attribute name="value"><xsl:value-of select="$linkCode"/></xsl:attribute></code> -->

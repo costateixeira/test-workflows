@@ -7,7 +7,7 @@ RuleSet: SGDecisionTable( library, version )
   * url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"
   * valueCode = #computable
 * version = "{version}"
-* name = "{library}"
+//* name = "{library}"
 * status = #draft
 * experimental = false
 * publisher = "World Health Organization (WHO)"
