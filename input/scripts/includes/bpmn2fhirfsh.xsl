@@ -178,7 +178,7 @@
 	<xsl:variable name="requirementCode" select="local-name()"/> <!-- use the element name as a code -->
         <file name="input/fsh/requirements/Requirement-DD.{@id}.fsh" mime-type="text/fsh">
 Instance: DD.<xsl:value-of select="@id"/>
-InstanceOf: Requirement
+InstanceOf: $SGRequirement
 Title: "<xsl:value-of select="@name"/>"
 Description: """<xsl:call-template name="requirementDescription"/>
 """

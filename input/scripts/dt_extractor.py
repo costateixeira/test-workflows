@@ -520,6 +520,7 @@ The table below provides an overview of the decision-support tables and algorith
     fsh = {'plan':"",'citations':"",'rules':""}
     rule = {'inputs':[],'output':None,'guidance':None,'annotation':None,'reference':None}
     
+    profile_id = stringer.name_to_id(self.installer.dd_prefix +"." + dt_id)
     full_dt_id = stringer.name_to_id(self.installer.dt_prefix +"." + dt_id)
     full_tab_id = stringer.name_to_id(self.installer.dt_prefix +"s." + tab_id)
     full_lib_id = self.get_library_id(tab_id)
@@ -528,7 +529,7 @@ The table below provides an overview of the decision-support tables and algorith
       dmn['input'].extend(self.get_contra_dmns(full_dt_id,table_type))
     elif is_regular_table:
       dmn['output'] += self.get_regular_dmns(full_dt_id)
-      fsh['plan'] = self.get_fsh_plan(full_tab_id,full_dt_id,full_lib_id,name)
+      fsh['plan'] = self.get_fsh_plan(profile_id,full_tab_id,full_dt_id,full_lib_id,name)
     
     while in_table:
       row_offset += 1      
@@ -779,12 +780,12 @@ The table below provides an overview of the decision-support tables and algorith
         sys.exit(99)
     return fsh_conditions
 
-  def get_fsh_plan(self,tab_id,dt_id,lib_id,name):
+  def get_fsh_plan(self,profile_id,tab_id,dt_id,lib_id,name):
     version = self.installer.get_ig_version()
     publisher = stringer.escape(self.installer.get_ig_publisher())
     e_name = stringer.escape(name)
     fsh_plan =  f"Instance: {dt_id}\n"
-    fsh_plan += f"InstanceOf: {dt_id}\n"
+    fsh_plan += f"InstanceOf: {profile_id}\n"
     fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
     fsh_plan += 'Description: """' + stringer.markdown_escape(name) + ' """\n'
     fsh_plan += "Usage: #definition\n"

@@ -5,6 +5,7 @@ Alias: $SGActivityDefinition = http://smart.who.int/base/StructureDefinition/SGA
 Alias: $SGPlanDefinition = http://smart.who.int/base/StructureDefinition/SGPlanDefinition
 Alias: $SGDecisionTable = http://smart.who.int/base/StructureDefinition/SGDecisionTable
 Alias: $SGQuestionnaire = http://smart.who.int/base/StructureDefinition/SGQuestionnaire
+Alias: $SGRequirement = http://smart.who.int/base/StructureDefinition/SGRequirement
 Alias: $SGDecisionTableGuidance = http://smart.who.int/base/CommunicationRequest-SGDecisionTableGuidance
 Alias: $SGActorExt = http://smart.who.int/base/StructureDefinition/SGActorExt
 Alias: $SGTasks = http://smart.who.int/base/CodeSystem/SGTasks
