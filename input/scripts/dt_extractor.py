@@ -800,7 +800,7 @@ The table below provides an overview of the decision-support tables and algorith
     fsh_plan += "* extension[+]\n"
     fsh_plan += '  * url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"\n'
     fsh_plan += '  * valueCode = #computable\n'
-    fsh_plan += '* version = "{version}"\n'
+    fsh_plan += f'* version = "{version}"\n'
     fsh_plan += f"* name = \"{dt_id}\"\n"
     fsh_plan += '* status = #draft\n'
     fsh_plan += '* experimental = false\n'
