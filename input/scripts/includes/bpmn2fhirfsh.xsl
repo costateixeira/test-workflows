@@ -202,7 +202,7 @@ Description: """<xsl:call-template name="actorDescription"/>
 """
 Usage: #definition
 * name = "<xsl:value-of select="@name"/>"
-//* type = #non-system
+* type = #non-system
 * status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false

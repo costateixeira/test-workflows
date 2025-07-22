@@ -559,7 +559,7 @@ The table below provides an overview of the decision-support tables and algorith
       #maybe the DT was not in a bpmn, check to see if there is a definition already loaded
       if not self.installer.has_resource('profiles',profile_id):
         logging.getLogger(self.__class__.__name__).info("WARNING - Decision Table present without representation in BPMN")
-        profile_fsh  = f"Profile: DT.{profile_id}\n"
+        profile_fsh  = f"Profile: {profile_id}\n"
         profile_fsh += "Parent: $SGDecisionTable\n"
         profile_fsh += f"Title: \"{name}\"\n"
         profile_fsh += f"* name = \"Decision Table profile: {name}\"\n"
@@ -778,10 +778,10 @@ The table below provides an overview of the decision-support tables and algorith
       condition = stringer.escape(input_id)
       fsh_conditions +=  '  * condition[+]\n'
       fsh_conditions +=  '    * kind = #applicability\n'
-      fsh_conditions +=  '  * expression\n'
-      fsh_conditions += f"    * description = \"\"\"{condition}\"\"\"\n"
-      fsh_conditions +=  '    * language = #text/cql-identifier\n'
-      fsh_conditions += f"    * expression = \"\"\"{condition}\"\"\"\n"
+      fsh_conditions +=  '    * expression\n'
+      fsh_conditions += f"      * description = \"\"\"{condition}\"\"\"\n"
+      fsh_conditions +=  '      * language = #text/cql-identifier\n'
+      fsh_conditions += f"      * expression = \"\"\"{condition}\"\"\"\n"
     return fsh_conditions
 
   def get_fsh_plan(self,profile_id,tab_id,dt_id,lib_id,name):
@@ -801,7 +801,7 @@ The table below provides an overview of the decision-support tables and algorith
     fsh_plan += '  * url = "http://hl7.org/fhir/uv/cpg/StructureDefinition/cpg-knowledgeCapability"\n'
     fsh_plan += '  * valueCode = #computable\n'
     fsh_plan += f'* version = "{version}"\n'
-    fsh_plan += f"* name = \"{dt_id}\"\n"
+    #fsh_plan += f"* name = \"{dt_id}\"\n"
     fsh_plan += '* status = #draft\n'
     fsh_plan += '* experimental = false\n'
     fsh_plan += f"* publisher = \"{publisher}\"\n"
