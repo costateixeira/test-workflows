@@ -20,7 +20,7 @@ class installer(object):
   dd_prefix = "DD"
 
   resources = { 'requirements' : {} ,'codesystems' : {} , 'valuesets' : {} , 'rulesets' : {},
-                'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {},
+                'actors' : {} , 'instances': {}, 'rulesets' : {}, 'libraries' : {}, 'profiles' : {},
                 'plandefinitions':{}, 'activitydefinitions':{}}  
   cqls = {}
   pages = {}
@@ -286,7 +286,7 @@ class installer(object):
 
 
       # Validate XML against schema
-      if not self.multifile_schema.validate(xml_doc):
+      if not self.multifile_schema.validate(multifile_xml):
         logging.getLogger(self.__class__.__name__).info("XML failed XSD validation!")
         for error in self.multifile_schema.error_log:
           logging.getLogger(self.__class__.__name__).info(f"XSD validation error: {error}")
@@ -341,6 +341,7 @@ class installer(object):
     else:
       logging.getLogger(self.__class__.__name__).info("invalid xml sent to transformer=" + str(xml))
       return False
+
     
     try:
       out = self.xslts[prefix](xml_tree)
@@ -351,8 +352,6 @@ class installer(object):
         out_file.write(out)
         out_file.close()
       elif process_multiline:
-        self.process_multifile_xml(out)
-        sys.exit(12312312)
         return self.process_multifile_xml(out)
       else:
         return out

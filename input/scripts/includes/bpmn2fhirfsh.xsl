@@ -59,7 +59,7 @@
 
   
   
-  <xsl:output method="text" encoding="UTF-8"/>
+  <xsl:output method="xml" encoding="UTF-8"/>
 
 
   
@@ -159,7 +159,7 @@
 	  <xsl:for-each select="$actorDecisions">
 	    <xsl:variable name="actorDecision" select="."/>
 	    <!-- markdown link to plan defintiion -->
-	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](PlanDefinition-DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](StructureDefinition-DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
 	    <xsl:text>    (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
 	  </xsl:for-each>
 	</xsl:if>
@@ -180,7 +180,7 @@
 Instance: DD.<xsl:value-of select="@id"/>
 InstanceOf: Requirement
 Title: "<xsl:value-of select="@name"/>"
-Description """<xsl:call-template name="requirementDescription"/>
+Description: """<xsl:call-template name="requirementDescription"/>
 """
 Usage: #definition
 * id = "DD.<xsl:value-of select="@id"/>"
@@ -204,10 +204,9 @@ Usage: #definition
 Instance: DD.<xsl:value-of select="@id"/>
 InstanceOf: ActorDefinition
 Title: "<xsl:value-of select="@name"/>"
-Description """<xsl:call-template name="actorDescription"/>
+Description: """<xsl:call-template name="actorDescription"/>
 """
 Usage: #definition
-* id = "DD.<xsl:value-of select="@id"/>"
 * name = "<xsl:value-of select="@name"/>"
 * type = #non-system
 * status = #draft
@@ -229,7 +228,6 @@ Usage: #definition
 Profile: DD.<xsl:value-of select="$questionnaireId"/>
 Parent: $SGQuestionnaire
 Title: "<xsl:value-of select="$questionnaireName"/>"
-* id = DD."<xsl:value-of select="$questionnaireId"/>"
 * name = "Questionnaire profile: <xsl:value-of select="$questionnaireName"/>"
 <xsl:call-template name="questionnaireActor"/>
         </file>
@@ -244,12 +242,7 @@ Title: "<xsl:value-of select="$questionnaireName"/>"
 Profile: DT.<xsl:value-of select="$ruleId"/>
 Parent: $SGDecisionTable
 Title: "<xsl:value-of select="$ruleName"/>"
-* id = "DT.<xsl:value-of select="$ruleId"/>"
 * name = "Decision Table profile: <xsl:value-of select="$ruleName"/>"
-* contact[+]
-  * telecom[+]
-    * system = #url
-    * value = "https://who.int"
         </file>
       </xsl:for-each>
 
