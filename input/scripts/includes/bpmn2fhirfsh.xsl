@@ -178,18 +178,18 @@
 	<xsl:variable name="requirementCode" select="local-name()"/> <!-- use the element name as a code -->
         <file name="input/fsh/requirements/Requirement-DD.{@id}.fsh" mime-type="text/fsh">
 Instance: DD.<xsl:value-of select="@id"/>
-InstanceOf: $SGRequirement
+InstanceOf: $SGRequirements
 Title: "<xsl:value-of select="@name"/>"
 Description: """<xsl:call-template name="requirementDescription"/>
 """
 Usage: #definition
 * id = "DD.<xsl:value-of select="@id"/>"
 * name = "<xsl:value-of select="@name"/>"
-* type = #non-system
+// * type = #non-system
 * status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false
-* extension[coding][+] = $SGTasks#<xsl:value-of select="$requirementCode"/>
+* extension[task][+] = $SGTasks#<xsl:value-of select="$requirementCode"/>
 * contact[+]
   * telecom[+]
     * system = #url
