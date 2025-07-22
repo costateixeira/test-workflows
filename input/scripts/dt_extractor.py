@@ -550,7 +550,7 @@ The table below provides an overview of the decision-support tables and algorith
           fsh['rules'] += self.get_fsh_rule(rule)
           fsh['citations'] += self.get_fsh_citations(rule)
       elif is_contra_table:        
-        dmn['rule'].extend(self.get_dmn_contra_indication_rule(full_tab_id,full_dt_id,row_offset,rule))
+        dmn['rule'].extend(self.get_dmn_contraindication_rule(full_tab_id,full_dt_id,row_offset,rule))
       else:
         logging.getLogger(self.__class__.__name__).info("WARNING - UNKNOWN table type")
         return False      
@@ -679,7 +679,7 @@ The table below provides an overview of the decision-support tables and algorith
     return outputs
 
       
-  def get_dmn_contra_indication_rule(self,tab_id:str,dt_id:str,row_offset,rule:dict):
+  def get_dmn_contraindication_rule(self,tab_id:str,dt_id:str,row_offset,rule:dict):
     if stringer.is_blank(rule['output']):
       return []
     rule_name = "contra." + dt_id + "." + str(row_offset)        
@@ -762,23 +762,26 @@ The table below provides an overview of the decision-support tables and algorith
 
   def get_fsh_conditions(self,inputs):
     fsh_conditions = ""
+    logging.getLogger(self.__class__.__name__).info("adding fsh conditions from inputs")
     for input in inputs:
+      logging.getLogger(self.__class__.__name__).info(f"\t{input}")
       if stringer.is_blank(input) or stringer.is_dash(input):
+        logging.getLogger(self.__class__.__name__).info(f"\t\tSkipping blank input")
         continue
       input_name = str(input).strip()
       parts = input_name.split("\n",1)
-      if (len(parts) == 2):
-        input_name = parts[0].strip()
-        input_id = stringer.name_to_id(input_name)
-        condition = stringer.escape(input_id)
-        fsh_conditions += '  * condition[+]\n'
-        fsh_conditions += '    * kind = #applicability\n'
-        fsh_conditions += '  * expression\n'
-        fsh_conditions += f"    * description = \"\"\"{condition}\"\"\"\n"
-        fsh_conditions += '    * language = #text/cql-identifier\n'
-        fsh_conditions += f"    * expression = \"\"\"{condition}\"\"\"\n"
-        print(fsh_conditions)
-        sys.exit(99)
+      if not len(parts) == 2:
+        logging.getLogger(self.__class__.__name__).info(f"\t\tSkipping bad parts")
+        continue
+      input_name = parts[0].strip()
+      input_id = stringer.name_to_id(input_name)
+      condition = stringer.escape(input_id)
+      fsh_conditions +=  '  * condition[+]\n'
+      fsh_conditions +=  '    * kind = #applicability\n'
+      fsh_conditions +=  '  * expression\n'
+      fsh_conditions += f"    * description = \"\"\"{condition}\"\"\"\n"
+      fsh_conditions +=  '    * language = #text/cql-identifier\n'
+      fsh_conditions += f"    * expression = \"\"\"{condition}\"\"\"\n"
     return fsh_conditions
 
   def get_fsh_plan(self,profile_id,tab_id,dt_id,lib_id,name):
@@ -813,7 +816,7 @@ The table below provides an overview of the decision-support tables and algorith
   
   def get_fsh_rule(self,rule:dict):
     fsh_rules = ""
-    fsh_conditions = self.get_fsh_conditions(rule)
+    fsh_conditions = self.get_fsh_conditions(rule['inputs'])
 
     if stringer.is_blank(rule['output']):
       logging.getLogger(self.__class__.__name__).info("ERROR: misformed decision table near rule=" + str(rule))
