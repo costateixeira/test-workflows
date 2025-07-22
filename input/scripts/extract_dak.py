@@ -7,7 +7,8 @@ from installer import installer
 from dd_extractor import dd_extractor
 from req_extractor import req_extractor 
 from bpmn_extractor import bpmn_extractor
-from dt_extractor import dt_extractor 
+from dt_extractor import dt_extractor
+from svg_extractor import svg_extractor
 import getopt
 import sys
 
@@ -24,7 +25,7 @@ class extract_dak:
     def extract(self):
         try:
             ins = installer()
-            extractors = [dd_extractor,bpmn_extractor,req_extractor,dt_extractor]
+            extractors = [dd_extractor,bpmn_extractor,svg_extractor,req_extractor,dt_extractor]
             for extractor in extractors:
                 logging.getLogger(self.__class__.__name__).info("Initializing extractor " + extractor.__name__)
                 ext = extractor(ins)

@@ -1,10 +1,6 @@
 import logging
 import sys
-import pprint
-import os
 import glob as glob
-import re
-import pandas as pd
 from extractor import extractor 
 from installer import installer
 

@@ -94,7 +94,7 @@
       <xsl:variable name="actorQuestionnaire"
 		  select="$actorProcesses//bpmn:userTask[@name != '' and @id = $questionnaireId]"/>
       <xsl:if test="$actorQuestionnaire">
-	<xsl:text>* extension[actor][+] = Reference(DD-</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
+	<xsl:text>* extension[actor] = Reference(DD-</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
 	<xsl:value-of select="$newline"/>
       </xsl:if>
     </xsl:for-each>
@@ -105,30 +105,24 @@
   <xsl:template name="actorDescription">
     <!-- fsh rendering of an actor -->
     <xsl:variable name="actorId" select="@id"/>
+    <xsl:variable name="actorName" select="@id"/>
     <xsl:variable name="actorProcesses"
 		  select="$processes[.//bpmn:lane[@id = $actorId]]" />
     <xsl:variable name="actorTaskRefs"
 		  select="$actorProcesses//bpmn:lane[@id = $actorId]/bpmn:flowNodeRef/text()"/>    
-    <xsl:for-each select="$actorTaskRefs">
-      <xsl:text># TaskRef=</xsl:text><xsl:value-of select="."/>
-    </xsl:for-each>
-    <xsl:variable name="actorTasks"
-		  select="($actorProcesses//*[self::bpmn:businessRuleTask or self::bpmn:manualTask or self::bpmn:receiveTask or self::bpmn:scriptTask or self::bpmn:sendTask or self::bpmn:serviceTask or self::bpmn:task or self::bpmn:userTask ])[@name != '' and @id = $actorTaskRefs]"/>
-
-    <xsl:for-each select="$actorTasks">
-      <xsl:text># Task=</xsl:text>
-    </xsl:for-each>
 
     
     <xsl:text>This is the definition of the actor </xsl:text><xsl:value-of select="@name"/><xsl:text> as extracted from the Digital Adaptation Kit (DAK).</xsl:text><xsl:value-of select="$newline"/><xsl:value-of select="$newline"/>
 
+    <xsl:variable name="actorTasks"
+		  select="($actorProcesses//*[self::bpmn:businessRuleTask or self::bpmn:manualTask or self::bpmn:receiveTask or self::bpmn:scriptTask or self::bpmn:sendTask or self::bpmn:serviceTask or self::bpmn:task or self::bpmn:userTask ])[@name != '' and @id = $actorTaskRefs]"/>
 
-    <xsl:variable name="actorRequirements"
-		  select="($actorProcesses//*[self::bpmn:businessRuleTask or self::bpmn:manualTask or self::bpmn:receiveTask or self::bpmn:scriptTask or self::bpmn:sendTask or self::bpmn:serviceTask or self::bpmn:task or self::bpmn:userTask ])[@name != '' and @id != '']"/>    
-    <xsl:if test="$actorRequirements">
+
+    
+    <xsl:if test="$actorTasks">
       <xsl:text>The actor participates in the following requirements:</xsl:text>
       <xsl:value-of select="$newline"/>
-      <xsl:for-each select="$actorRequirements">
+      <xsl:for-each select="$actorTasks">
 	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](Requirement-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
 	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
       </xsl:for-each>
@@ -159,7 +153,7 @@
 	  <xsl:for-each select="$actorDecisions">
 	    <xsl:variable name="actorDecision" select="."/>
 	    <!-- markdown link to plan defintiion -->
-	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](StructureDefinition-DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](StrucutreDefinition-DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
 	    <xsl:text>    (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
 	  </xsl:for-each>
 	</xsl:if>
@@ -199,16 +193,16 @@ Usage: #definition
       
       <!-- Generate ActorDefinition resources in FSH -->
       <xsl:for-each select="$uniqueActors"> <!-- a bpmn:lane -->
-        <file name="input/fsh/ActorDefinition-DD.{@id}.fsh" mime-type="text/fsh">
+        <file name="input/fsh/actors/ActorDefinition-DD.{@id}.fsh" mime-type="text/fsh">
 
 Instance: DD.<xsl:value-of select="@id"/>
-InstanceOf: ActorDefinition
+InstanceOf: $SGActor
 Title: "<xsl:value-of select="@name"/>"
 Description: """<xsl:call-template name="actorDescription"/>
 """
 Usage: #definition
 * name = "<xsl:value-of select="@name"/>"
-* type = #non-system
+//* type = #non-system
 * status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false

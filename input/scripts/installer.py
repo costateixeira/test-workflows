@@ -24,18 +24,19 @@ class installer(object):
                 'plandefinitions':{}, 'activitydefinitions':{}}  
   cqls = {}
   pages = {}
-  logfile = None
   sushi_config = {}
   multifile_xsd = "includes/multifile.xsd" #relative to the dir containing this file
   sushi_file = "sushi-config.yaml"
   multifile_schema = None  
   codesystem_manager = None
   xslts = {}
-  logfile_path = "temp/DAKExtract.log.txt"
+  temp_path = "temp"
   
   def __init__(self):
-    Path("temp").mkdir(exist_ok = True)
-    log_handlers = [logging.StreamHandler(), logging.FileHandler(self.logfile_path,mode = 'w')]
+
+    Path(self.temp_path).mkdir(exist_ok = True)
+    logfile_path = self.temp_path  + "/" + os.path.basename(sys.argv[0]) + ".log"
+    log_handlers = [logging.StreamHandler(), logging.FileHandler(logfile_path,mode = 'w')]
     logging.basicConfig(level=logging.INFO, handlers = log_handlers, format='%(levelname)s (%(name)s): %(message)s')
     if not self.read_sushi_config():
       raise Exception('Could not load sushi-config')
@@ -418,6 +419,14 @@ class installer(object):
     self.resources[dir][id]=resource
     return True
 
+
+  def get_resource(self,dir,id):
+    if self.has_resource(dir,id):
+      return self.resources[dir][id]
+    return None
+
+  def has_resource(self,dir,id):
+    return  dir in self.resources and id in self.resources[dir]
 
   def add_cql(self,id,cql:str):
     self.cqls[id]=cql

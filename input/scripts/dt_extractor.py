@@ -539,7 +539,6 @@ The table below provides an overview of the decision-support tables and algorith
       if not rule:        #end of table
         logging.getLogger(self.__class__.__name__).info("End of table for " + dt_id)
         break
-
       if is_regular_table:
         logging.getLogger(self.__class__.__name__).info("Got input column")
         if len(prev_rule['inputs']) == 0:
@@ -550,22 +549,24 @@ The table below provides an overview of the decision-support tables and algorith
           dmn['rule'].extend(self.get_dmn_input_rule(full_tab_id,full_dt_id,row_offset,rule))
           fsh['rules'] += self.get_fsh_rule(rule)
           fsh['citations'] += self.get_fsh_citations(rule)
-      elif is_contra_table:
-        
+      elif is_contra_table:        
         dmn['rule'].extend(self.get_dmn_contra_indication_rule(full_tab_id,full_dt_id,row_offset,rule))
       else:
         logging.getLogger(self.__class__.__name__).info("WARNING - UNKNOWN table type")
-        return False
-      
-
+        return False      
     if is_regular_table:
       fsh['plan'] +=  "\n"+ fsh['citations'] + "\n" + fsh['rules']
-      self.installer.add_resource('plandefinitions',full_dt_id, fsh['plan'])
-      
+      #maybe the DT was not in a bpmn, check to see if there is a definition already loaded
+      if not self.installer.has_resource('profiles',profile_id):
+        logging.getLogger(self.__class__.__name__).info("WARNING - Decision Table present without representation in BPMN")
+        profile_fsh  = f"Profile: DT.{profile_id}\n"
+        profile_fsh += "Parent: $SGDecisionTable\n"
+        profile_fsh += f"Title: \"{name}\"\n"
+        profile_fsh += f"* name = \"Decision Table profile: {name}\"\n"
+        self.installer.add_resource('profiles',profile_id,profile_fsh)        
+      self.installer.add_resource('plandefinitions',full_dt_id, fsh['plan'])      
     dmn_tab = self.get_dmn(full_dt_id,business_rule,trigger,dmn)
-
-    self.installer.add_dmn_table(full_dt_id,dmn_tab)
-    
+    self.installer.add_dmn_table(full_dt_id,dmn_tab)    
     self.tab_data[tab_id]['tables'][dt_id]['used'] = True
     return True
 
