@@ -784,7 +784,7 @@ The table below provides an overview of the decision-support tables and algorith
     publisher = stringer.escape(self.installer.get_ig_publisher())
     e_name = stringer.escape(name)
     fsh_plan =  f"Instance: {dt_id}\n"
-    fsh_plan += "InstanceOf: DD-{dt_id}\n"
+    fsh_plan += f"InstanceOf: DD-{dt_id}\n"
     fsh_plan += f"Title: \"Decision Table {e_name}\"\n"
     fsh_plan += 'Description: """' + stringer.markdown_escape(name) + ' """\n'
     fsh_plan += "Usage: #definition\n"

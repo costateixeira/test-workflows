@@ -95,7 +95,7 @@
           <xhtml:td class="output"  style="vertical-align: top;">
 	    <xsl:variable name="outputDef" select="." />
 	    <strong>
-	      <xsl:variable name="csURL">CodeSystem-DT.html#:~:text=<xsl:value-of select="$putputDef/@label"/></xsl:variable>
+	      <xsl:variable name="csURL">CodeSystem-DT.html#:~:text=<xsl:value-of select="$outputDef/@label"/></xsl:variable>
 	      <xsl:element name="a">
 		<xsl:attribute name="href">
 		  <xsl:value-of select="$csURL"/>

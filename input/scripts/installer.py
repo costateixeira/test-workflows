@@ -143,6 +143,7 @@ class installer(object):
     self.install_dmns()
     self.install_pages()
     self.install_cqls()
+    return True
 
   def install_cqls(self):
     for id,cql in self.cqls.items():
@@ -350,6 +351,8 @@ class installer(object):
         out_file.write(out)
         out_file.close()
       elif process_multiline:
+        self.process_multifile_xml(out)
+        sys.exit(12312312)
         return self.process_multifile_xml(out)
       else:
         return out

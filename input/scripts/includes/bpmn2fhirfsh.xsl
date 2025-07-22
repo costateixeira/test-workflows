@@ -224,7 +224,7 @@ Usage: #definition
       <xsl:for-each select="$questionnaires">
         <xsl:variable name="questionnaireId" select="@id"/>
         <xsl:variable name="questionnaireName" select="@name"/>
-        <file name="input/fsh/questionnaires/{$questionnaireId}.fsh" mime-type="text/fsh">
+        <file name="input/fsh/profiles/{$questionnaireId}.fsh" mime-type="text/fsh">
 
 Profile: DD.<xsl:value-of select="$questionnaireId"/>
 Parent: $SGQuestionnaire
@@ -239,7 +239,7 @@ Title: "<xsl:value-of select="$questionnaireName"/>"
       <xsl:for-each select="$rules">
         <xsl:variable name="ruleId" select="@id"/>
         <xsl:variable name="ruleName" select="@name"/>
-        <file name="input/fsh/plandefinitions/{$ruleId}.fsh" mime-type="text/fsh">
+        <file name="input/fsh/profiles/{$ruleId}.fsh" mime-type="text/fsh">
 
 Profile: DT.<xsl:value-of select="$ruleId"/>
 Parent: $SGDecisionTable
