@@ -8,5 +8,5 @@ Description: "Defines the minimum expectations for Questionnaire resources used 
 * name 1..1
 * publisher 1..1
 * extension contains SGActorExt named actor 1..*
-* extension contains SGCode named task 1..*
+* extension contains SGcode named task 1..*
 
