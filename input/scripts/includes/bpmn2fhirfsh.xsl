@@ -8,13 +8,19 @@
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		exclude-result-prefixes="bpmn">
 
+  <xsl:variable name='prefix'><xsl:text>DT</xsl:text></xsl:variable>
+  <xsl:variable name='newline'><xsl:text>&#xa;</xsl:text></xsl:variable>
       
   <xsl:variable name="collab" select="/bpmn:definitions/bpmn:collaboration[1]"/>
 
   <xsl:variable name="processes"
-		select="( /bpmn:definitions//bpmn:process | /bpmn:definitions//bpmn:subProcess)[@name != '' and @id != '']"
-      />
+		select="( /bpmn:definitions//bpmn:process | /bpmn:definitions//bpmn:subProcess)[@name != '' and @id != '']" />
 
+
+  <xsl:variable name="requirements"
+		select="($processes//*[self::bpmn:businessRuleTask or self::bpmn:manualTask or self::bpmn:receiveTask or self::bpmn:scriptTask or self::bpmn:sendTask or self::bpmn:serviceTask or self::bpmn:task or self::bpmn:userTask ])[@name != '' and @id != '']"/>    
+
+  
   <xsl:variable name="rules" select="$processes/bpmn:businessRuleTask[@id != '' and @name != '']"/> 
 
   
@@ -25,7 +31,7 @@
   <xsl:variable
       name="innerActors"
       select="$actors[not(child::bpmn:childLaneSet)]"/>  
-
+  
   <xsl:key
       name="indexActorId"
       match="bpmn:lane[not(child::bpmn:childLaneSet)]"
@@ -41,7 +47,7 @@
   <xsl:variable
       name="questionnaires"
       select="$processes//bpmn:userTask[@name != '' and @id != '']"/>
-  
+
   <xsl:key
       name="indexQuestionnaireId"
       match="bpmn:userTask"
@@ -51,23 +57,158 @@
       select="$questionnaires[ count(. | key('indexQuestionnaireId',@id)[1]) = 1]"/>  
 
 
-  <xsl:output method="xml" indent="yes" encoding="UTF-8"/>
+  
+  
+  <xsl:output method="text" encoding="UTF-8"/>
+
+
+  
+  <!-- define some templates to use later -->
+
+
+  <xsl:template name="requirementDescription">
+    <xsl:variable name="requirementId" select="@id"/>
+    <xsl:text>This is the requirement "</xsl:text><xsl:value-of select="@name"/><xsl:text>" as extracted from the Digital Adaptation Kit (DAK).</xsl:text><xsl:value-of select="$newline"/><xsl:value-of select="$newline"/>
+    <!-- need to get element name as a code for the requirement-->
+    
+    <xsl:variable name="requirementActors"
+		  select="$uniqueActors[ancestor::*[@id = $requirementId]]" />
+    <xsl:if test="$requirementActors">
+      <xsl:text>This requirement is fulfilled by the following actors:</xsl:text><xsl:value-of select="$newline"/>
+      <xsl:for-each select="$requirementActors">
+	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](ActorDefinition-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+      </xsl:for-each>
+    </xsl:if>
+  </xsl:template>
+  
+
+
+
+  <xsl:template name="questionnaireActor">
+    <xsl:variable name="questionnaireId" select="@id"/>
+    <xsl:for-each select="$uniqueActors">
+      <xsl:variable name="actorId" select="@id"/>
+      <xsl:variable name="actorProcesses"
+		  select="$processes[.//bpmn:lane[@id = $actorId]]" />
+      <xsl:variable name="actorQuestionnaire"
+		  select="$actorProcesses//bpmn:userTask[@name != '' and @id = $questionnaireId]"/>
+      <xsl:if test="$actorQuestionnaire">
+	<xsl:text>* extension[actor][+] = Reference(DD-</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
+	<xsl:value-of select="$newline"/>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+  
+
+  
+  <xsl:template name="actorDescription">
+    <!-- fsh rendering of an actor -->
+    <xsl:variable name="actorId" select="@id"/>
+    <xsl:variable name="actorProcesses"
+		  select="$processes[.//bpmn:lane[@id = $actorId]]" />
+    <xsl:variable name="actorTaskRefs"
+		  select="$actorProcesses//bpmn:lane[@id = $actorId]/bpmn:flowNodeRef/text()"/>    
+    <xsl:for-each select="$actorTaskRefs">
+      <xsl:text># TaskRef=</xsl:text><xsl:value-of select="."/>
+    </xsl:for-each>
+    <xsl:variable name="actorTasks"
+		  select="($actorProcesses//*[self::bpmn:businessRuleTask or self::bpmn:manualTask or self::bpmn:receiveTask or self::bpmn:scriptTask or self::bpmn:sendTask or self::bpmn:serviceTask or self::bpmn:task or self::bpmn:userTask ])[@name != '' and @id = $actorTaskRefs]"/>
+
+    <xsl:for-each select="$actorTasks">
+      <xsl:text># Task=</xsl:text>
+    </xsl:for-each>
+
+    
+    <xsl:text>This is the definition of the actor </xsl:text><xsl:value-of select="@name"/><xsl:text> as extracted from the Digital Adaptation Kit (DAK).</xsl:text><xsl:value-of select="$newline"/><xsl:value-of select="$newline"/>
+
+
+    <xsl:variable name="actorRequirements"
+		  select="($actorProcesses//*[self::bpmn:businessRuleTask or self::bpmn:manualTask or self::bpmn:receiveTask or self::bpmn:scriptTask or self::bpmn:sendTask or self::bpmn:serviceTask or self::bpmn:task or self::bpmn:userTask ])[@name != '' and @id != '']"/>    
+    <xsl:if test="$actorRequirements">
+      <xsl:text>The actor participates in the following requirements:</xsl:text>
+      <xsl:value-of select="$newline"/>
+      <xsl:for-each select="$actorRequirements">
+	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](Requirement-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+      </xsl:for-each>
+    </xsl:if>
+    
+    <xsl:if test="$actorProcesses">
+      <xsl:text>The actor participates in the following processes:</xsl:text>
+      <xsl:value-of select="$newline"/>
+      <xsl:for-each select="$actorProcesses">
+	<xsl:text>* </xsl:text><xsl:value-of select="@name"/><xsl:text>(</xsl:text><xsl:value-of select="@name"/><xsl:text>)</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:variable name="actorQuestionnaires" select=".//bpmn:userTask"/>
+	<xsl:if test="$actorQuestionnaires"> 
+	  <xsl:text>  Under this process, the actor utilizes the following Questionnaires:</xsl:text>
+	  <xsl:value-of select="$newline"/>
+	  <xsl:for-each select="$actorQuestionnaires">
+	    <!-- markdown link to questionnaire -->
+	    <xsl:text>  * [</xsl:text><xsl:value-of select="@name"/><xsl:text>](StructureDefinition-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>    (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	  </xsl:for-each>
+	</xsl:if>
+
+
+	<xsl:variable name="actorDecisions" select=".//bpmn:businessRuleTask"/>	  	
+	<xsl:if test="$actorDecisions">
+	  <xsl:text>  Under this process, the actor utilizes the following Decisions Support Tables:</xsl:text>
+	  <xsl:value-of select="$newline"/>
+	  <xsl:for-each select="$actorDecisions">
+	    <xsl:variable name="actorDecision" select="."/>
+	    <!-- markdown link to plan defintiion -->
+	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](PlanDefinition-DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>    (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	  </xsl:for-each>
+	</xsl:if>
+      </xsl:for-each>
+    </xsl:if>
+    
+  </xsl:template>
+
+
 
   <!-- Root template: Produce a <files> bundle -->
   <xsl:template match="/bpmn:definitions">
     <files>
-      <!-- Generate ActorDefinition resources in FSH -->
-      <xsl:for-each select="$uniqueActors">
-        <xsl:variable name="actorId" select="@id"/>
-        <xsl:variable name="actorName" select="@name"/>
-        <file name="input/fsh/ActorDefinition-{$actorId}.fsh" mime-type="text/fsh">
-
-Instance: ActorDefinition-<xsl:value-of select="$actorId"/>
-InstanceOf: ActorDefinition
-Title: "<xsl:value-of select="$actorName"/>"
+      <!-- Generate requirements from Tasks in bpmn -->
+      <xsl:for-each select="$requirements"> <!-- a bpmn:lane -->
+	<xsl:variable name="requirementCode" select="local-name()"/> <!-- use the element name as a code -->
+        <file name="input/fsh/requirements/Requirement-DD.{@id}.fsh" mime-type="text/fsh">
+Instance: DD.<xsl:value-of select="@id"/>
+InstanceOf: Requirement
+Title: "<xsl:value-of select="@name"/>"
+Description """<xsl:call-template name="requirementDescription"/>
+"""
 Usage: #definition
-* id = "<xsl:value-of select="$actorId"/>"
-* name = "<xsl:value-of select="$actorName"/>"
+* id = "DD.<xsl:value-of select="@id"/>"
+* name = "<xsl:value-of select="@name"/>"
+* type = #non-system
+* status = #draft
+* publisher = "World Health Organization (WHO)"
+* experimental = false
+* extension[coding][+] = $SGTasks#<xsl:value-of select="$requirementCode"/>
+* contact[+]
+  * telecom[+]
+    * system = #url
+    * value = "https://who.int"
+        </file>
+      </xsl:for-each>
+      
+      <!-- Generate ActorDefinition resources in FSH -->
+      <xsl:for-each select="$uniqueActors"> <!-- a bpmn:lane -->
+        <file name="input/fsh/ActorDefinition-DD.{@id}.fsh" mime-type="text/fsh">
+
+Instance: DD.<xsl:value-of select="@id"/>
+InstanceOf: ActorDefinition
+Title: "<xsl:value-of select="@name"/>"
+Description """<xsl:call-template name="actorDescription"/>
+"""
+Usage: #definition
+* id = "DD.<xsl:value-of select="@id"/>"
+* name = "<xsl:value-of select="@name"/>"
 * type = #non-system
 * status = #draft
 * publisher = "World Health Organization (WHO)"
@@ -79,25 +220,18 @@ Usage: #definition
         </file>
       </xsl:for-each>
 
-      <!-- Generate Questionnaire resources in FSH -->
+      <!-- Generate Questionnaire profile in FSH -->
       <xsl:for-each select="$questionnaires">
         <xsl:variable name="questionnaireId" select="@id"/>
         <xsl:variable name="questionnaireName" select="@name"/>
         <file name="input/fsh/questionnaires/{$questionnaireId}.fsh" mime-type="text/fsh">
 
-Instance: <xsl:value-of select="$questionnaireId"/>
-InstanceOf: Questionnaire
+Profile: DD.<xsl:value-of select="$questionnaireId"/>
+Parent: $SGQuestionnaire
 Title: "<xsl:value-of select="$questionnaireName"/>"
-Usage: #definition
-* id = "<xsl:value-of select="$questionnaireId"/>"
-* name = "Questionnaire: <xsl:value-of select="$questionnaireName"/>"
-* status = #draft
-* publisher = "World Health Organization (WHO)"
-* experimental = false
-* contact[+]
-  * telecom[+]
-    * system = #url
-    * value = "https://who.int"
+* id = DD."<xsl:value-of select="$questionnaireId"/>"
+* name = "Questionnaire profile: <xsl:value-of select="$questionnaireName"/>"
+<xsl:call-template name="questionnaireActor"/>
         </file>
       </xsl:for-each>
 
@@ -107,21 +241,15 @@ Usage: #definition
         <xsl:variable name="ruleName" select="@name"/>
         <file name="input/fsh/plandefinitions/{$ruleId}.fsh" mime-type="text/fsh">
 
-Instance: <xsl:value-of select="$ruleId"/>
-InstanceOf: PlanDefinition
+Profile: DT.<xsl:value-of select="$ruleId"/>
+Parent: $SGDecisionTable
 Title: "<xsl:value-of select="$ruleName"/>"
-Usage: #definition
-* id = "<xsl:value-of select="$ruleId"/>"
-* name = "Rule: <xsl:value-of select="$ruleName"/>"
-* status = #draft
-* publisher = "World Health Organization (WHO)"
-* experimental = false
+* id = "DT.<xsl:value-of select="$ruleId"/>"
+* name = "Decision Table profile: <xsl:value-of select="$ruleName"/>"
 * contact[+]
   * telecom[+]
     * system = #url
     * value = "https://who.int"
-
-
         </file>
       </xsl:for-each>
 

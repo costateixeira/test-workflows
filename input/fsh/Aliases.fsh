@@ -6,6 +6,7 @@ Alias: $SGPlanDefinition = http://smart.who.int/base/StructureDefinition/SGPlanD
 Alias: $SGDecisionTable = http://smart.who.int/base/StructureDefinition/SGDecisionTable
 Alias: $SGDecisionTableGuidance = http://smart.who.int/base/CommunicationRequest-SGDecisionTableGuidance
 Alias: $SGActorExt = http://smart.who.int/base/StructureDefinition/SGActorExt
+Alias: $SGTasks = http://smart.who.int/base/CodeSystem/SGTasks
 Alias: $SGcode = http://smart.who.int/base/StructureDefinition/SGcode
 Alias: $SatisfiesExt = http://smart.who.int/trust-phw/StructureDefinition/Satisfies
 Alias: $pubStatus = http://hl7.org/fhir/publication-status

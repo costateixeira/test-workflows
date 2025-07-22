@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import xml.etree.ElementTree as ET
+import logging
 
 class MultifileProcessor:
     def __init__(self, xml_path):
@@ -40,7 +41,7 @@ class MultifileProcessor:
         """Switch to the branch specified in the XML or create it if it doesn't exist."""
         current_branch = self.get_current_branch()
         if self.branch != current_branch:
-            print(f"Current branch is '{current_branch}', but XML specifies branch '{self.branch}'.")
+            logging.getLogger(self.__class__.__name__).info(f"Current branch is '{current_branch}', but XML specifies branch '{self.branch}'.")
             confirm = input(f"Do you want to switch to branch '{self.branch}'? (yes/no): ").strip().lower()
             if confirm in ["yes", "y"]:
                 branches = subprocess.run(
@@ -51,7 +52,7 @@ class MultifileProcessor:
                     subprocess.run(["git", "checkout", "-b", self.branch], check=True)
                 else:
                     subprocess.run(["git", "checkout", self.branch], check=True)
-                print(f"Switched to branch '{self.branch}'.")
+                logging.getLogger(self.__class__.__name__).info(f"Switched to branch '{self.branch}'.")
 
     def parse_multifile_xml(self):
         """Parse multifile.xml and extract metadata and file contents."""
@@ -72,7 +73,7 @@ class MultifileProcessor:
                 content = file_elem.text.strip() if file_elem.text else ""
                 self.files.append({"path": path, "content": content, "diff": diff_format})
         except ET.ParseError as e:
-            print(f"Error parsing XML: {e}", file=sys.stderr)
+            logging.getLogger(self.__class__.__name__).info(f"Error parsing XML: {e}", file=sys.stderr)
             sys.exit(1)
 
     def apply_changes(self):
@@ -87,9 +88,9 @@ class MultifileProcessor:
                         temp_diff.write(content)
                     subprocess.run(["git", "apply", "temp.diff"], check=True)
                     os.remove("temp.diff")
-                    print(f"Applied diff to: {path}")
+                    logging.getLogger(self.__class__.__name__).info(f"Applied diff to: {path}")
                 except Exception as e:
-                    print(f"Error applying diff to {path}: {e}", file=sys.stderr)
+                    logging.getLogger(self.__class__.__name__).info(f"Error applying diff to {path}: {e}", file=sys.stderr)
                     sys.exit(1)
             else:
                 directory = os.path.dirname(path)
@@ -97,16 +98,16 @@ class MultifileProcessor:
                     os.makedirs(directory, exist_ok=True)
                 with open(path, "w") as f:
                     f.write(content)
-                print(f"Updated file: {path}")
+                logging.getLogger(self.__class__.__name__).info(f"Updated file: {path}")
 
     def run(self):
         """Main execution method."""
         if not self.is_git_repo():
-            print("Error: This script must be run inside a Git repository.", file=sys.stderr)
+            logging.getLogger(self.__class__.__name__).info("Error: This script must be run inside a Git repository.", file=sys.stderr)
             sys.exit(1)
 
         if not os.path.exists(self.xml_path):
-            print(f"Error: File not found: {self.xml_path}", file=sys.stderr)
+            logging.getLogger(self.__class__.__name__).info(f"Error: File not found: {self.xml_path}", file=sys.stderr)
             sys.exit(1)
 
         self.parse_multifile_xml()
@@ -137,12 +138,12 @@ class MultifileProcessor:
             try:
                 subprocess.run(["git", "push", "--set-upstream", "origin", self.branch], check=True)
             except subprocess.CalledProcessError as e:
-                print(f"Error pushing changes: {e}", file=sys.stderr)
+                logging.getLogger(self.__class__.__name__).info(f"Error pushing changes: {e}", file=sys.stderr)
                 sys.exit(1)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python multifile_processor.py <path_to_multifile.xml>")
+        logging.getLogger(self.__class__.__name__).info("Usage: python multifile_processor.py <path_to_multifile.xml>")
         sys.exit(1)
     xml_path = sys.argv[1]
     processor = MultifileProcessor(xml_path)

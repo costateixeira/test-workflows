@@ -1,33 +1,36 @@
+import stringer
 import re
 import os
 import pandas as pd
 from installer import installer
+import logging
+
 
 class extractor(object):
 
   inputfile_name = ""
   class_cs = "http://smart.who.int/base/CodeSystem/CDHIv1"
-
-
+  
+  
   def find_files(self):
     return []
-
+  
   def extract(self):
     for inputfile_name in self.find_files():
-      self.log('IF=' + inputfile_name)
+      logging.getLogger(self.__class__.__name__).info('IF=' + inputfile_name)
       self.inputfile_name = inputfile_name
       self.extract_file()
     return True
-
+    
   def get_aliases(self):
-      return []
+    return []
 
   
   def __init__(self,installer:installer):
     self.installer = installer
     aliases = self.installer.get_base_aliases()
     aliases.extend(self.get_aliases())
-    self.log("Aliases",aliases)
+    logging.getLogger(self.__class__.__name__).info("Aliases" + str(aliases))
     self.installer.add_aliases(aliases)
 
 
@@ -39,13 +42,13 @@ class extractor(object):
   # see https://www.youtube.com/watch?v=EnSu9hHGq5o&t=1184s&ab_channel=NextDayVideo
   def generate_pairs_from_lists(self,lista,listb):
     for a in lista:
-        for b in listb:
-            yield a,b
+      for b in listb:
+        yield a,b
 
-  def generate_pairs_from_column_maps(self,column_maps):
+  def generate_pairs_from_column_maps(self,column_maps:dict):
     for desired_column_name,possible_column_names in column_maps.items():
-        for possible_column_name in possible_column_names:
-            yield desired_column_name,possible_column_name
+      for possible_column_name in possible_column_names:
+        yield str(desired_column_name),str(possible_column_name)
 
   def retrieve_data_frame_by_headers(self,column_maps,sheet_names,header_offsets = [0,1,2]):
     # sheet_names is an array of potential excel sheet names to look for data on
@@ -59,52 +62,44 @@ class extractor(object):
     #     'i-want': ["I want","I want to"],
     #     'so-that':["So that"]
     #     }
-
-    self.log("Seeking the following input data columns ", column_maps, header_offsets)
+    logging.getLogger(self.__class__.__name__).info("Looking at sheets:" +  " ".join(sheet_names))
     for sheet_name, header_row in self.generate_pairs_from_lists(sheet_names,header_offsets):
-        self.log("Checking sheetname/header row #: " + sheet_name +  "/"+ str(header_row))
-        try:
-            data_frame = pd.read_excel(self.inputfile_name, sheet_name=sheet_name, header=header_row)
-        except Exception as e:
-            self.log("Could not open sheet " + sheet_name + " on header row ", header_row)
-            self.log(e)
-            continue
-        
-#        self.log("Opened sheet " + sheet_name +  " on header_row " , header_row, "\nReading columns: ",list(data_frame))    
+      logging.getLogger(self.__class__.__name__).info("Checking sheetname/header row #: " + sheet_name +  "/"+ str(header_row))
+      try:
+        data_frame = pd.read_excel(self.inputfile_name, sheet_name=sheet_name, header=header_row)
+      except Exception as e:
+        logging.getLogger(self.__class__.__name__).info("Could not open sheet " + sheet_name + " on header row " + str( header_row))
+        logging.getLogger(self.__class__.__name__).info(e)
+        continue
 
-        true_column_map = {} #this is where we will map current column names to canonicalized/normalied column names        
-        for column in list(data_frame):
-            self.log("Looking at data frame column: ",column)                    
-            column_id = self.name_to_lower_id(column)
-#            self.log("Looking at data frame column id: ",column_id)                                
-            #loop through potential names and try to match desired column
-            for desired_column_name,possible_column_name in self.generate_pairs_from_column_maps(column_maps):
-                possible_column_id = self.name_to_lower_id(possible_column_name)
-                if (possible_column_id == column_id):
-                    #we found what we needed
-                    self.log("Matched input sheet column " + column + " with desired column " + desired_column_name)
-                    self.log("Matched input sheet p_column_i " + str(possible_column_id) + " with  column_i " + str(column_id))
-                    true_column_map[column] =  desired_column_name
+      true_column_map = {} #this is where we will map current column names to canonicalized/normalied column names
+      for column_name in list(data_frame):
+        if stringer.is_blank(column_name):
+          continue
+        column_id = stringer.name_to_lower_id(column_name)
+
+        for desired_column_name,possible_column_name in self.generate_pairs_from_column_maps(column_maps):          
+          possible_column_id = stringer.name_to_lower_id(possible_column_name)
+          if (possible_column_id == column_id):
+            #we found what we needed
+            logging.getLogger(self.__class__.__name__).info("Matched input sheet column " + column_name + " with desired column " + desired_column_name)
+            true_column_map[column_name] =  desired_column_name
                                   
-            if not column in true_column_map:
-                #we dont need this input/source data frame column
-                #we get rid of it to help normalize for downstream processing
-                data_frame.drop(column,axis='columns', inplace=True)
-#                self.log("Dropped: ",column)
-                continue
-                                  
-#        self.log("Mapping the following columns: ",true_column_map)
-        #normalize column names
-        data_frame = data_frame.rename(columns=true_column_map)
- #       self.log("Normalized Data frame Columns:" , list(data_frame))
-        if ( list(data_frame) != list(column_maps.keys()) ):
-#            self.log("Incorrect headers at ", header_row, " for data frame at " + sheet_name  + "." )
-#            self.log("Received: ", list(data_frame))
-            continue
+        if not column_name in true_column_map:
+          #we dont need this input/source data frame column
+          #we get rid of it to help normalize for downstream processing
+          data_frame.drop(column_name,axis='columns', inplace=True)
+          logging.getLogger(self.__class__.__name__).info("Dropped: " + str(column_name))
+          continue
+                                          
+      logging.getLogger(self.__class__.__name__).info("Mapping columns: " + str(true_column_map))
+      data_frame = data_frame.rename(columns=true_column_map)
+      if ( list(data_frame) != list(column_maps.keys()) ):
+        continue
                                        
-        self.log("Found desired column headers at sheet name / header row: " + sheet_name + "/" + str(header_row))
-        #we are happy, return the data frame with normalized column names
-        return data_frame
+      logging.getLogger(self.__class__.__name__).info("Found desired column headers at sheet name / header row: " + sheet_name + "/" + str(header_row))
+      #we are happy, return the data frame with normalized column names
+      return data_frame
 
     #we tried all combinations and failed.
     return None
@@ -117,48 +112,7 @@ class extractor(object):
       self.installer.log( prefix + statement )
       prefix = "\t"
 
-  def markdown_escape(self,input):
-    if not isinstance(input,str):
-      return " "
-    input = input.replace('"""','\\"\\"\\"')
-    return input
-
-  def ruleset_escape(self,input):
-    # strings in rulesets are handled poorly
-    input = input.replace(",","\\,")
-    input = input.replace("'","")
-    input = input.replace("(","")
-    input = input.replace(")","")
-    input = input.replace("\n","\\n")
-    return input
-    
-  def is_nan(self,v):
-    return (isinstance(v, float) and v != v)
-      
-  def is_blank(self,v):
-    return v == None or self.is_nan(v) \
-      or (isinstance(v, str) and len(v.strip()) == 0)
-
-  def is_dash(self,v):
-    if not  isinstance(v,str):
-      return False
-    v = v.strip()
-    return (v == '-' or v == '–')
-      
-  def name_to_lower_id(self,name):    
-    return self.installer.name_to_lower_id(name)
-    
-  def escape_code(self,input):
-    return self.installer.escape_code(input)
-    
-  def name_to_id(self,name):
-    return self.installer.name_to_id(name)
-      
-  def escape(self,input):
-    return self.installer.escape(input)
-
-  def xml_escape(self,input):
-    return self.installer.xml_escape(input)
-
+  def qa(self,msg):
+    self.installer.qa(msg)
 
 
