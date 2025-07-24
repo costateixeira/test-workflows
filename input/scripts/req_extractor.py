@@ -1,3 +1,16 @@
+"""
+Requirements Extractor for SMART Guidelines
+
+This module provides functionality to extract and process functional requirements
+from structured documents for the SMART guidelines system. It handles requirements
+specifications and converts them into FHIR-compatible resources for implementation
+and traceability.
+
+The extractor processes requirements documents to ensure proper integration
+with the broader SMART guidelines clinical decision support framework.
+
+Author: SMART Guidelines Team
+"""
 import os
 import glob
 import re
@@ -7,6 +20,13 @@ from extractor import extractor
 from installer import installer
 
 class req_extractor(extractor):
+    """
+    Extractor for functional requirements processing.
+    
+    This extractor processes requirements documents and specifications,
+    converting them into appropriate FHIR resources for use in clinical
+    decision support implementations.
+    """
 
   def __init__(self,installer:installer):
     super().__init__(installer)

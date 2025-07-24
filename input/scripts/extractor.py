@@ -1,3 +1,22 @@
+"""
+Base Extractor Class for SMART Guidelines Data Processing
+
+This module provides the foundational extractor class that serves as the base
+for all specific data extractors in the SMART guidelines system. It defines
+common functionality for file processing, data frame manipulation, and
+integration with the installer system.
+
+The extractor class handles:
+- File discovery and processing workflows
+- Excel/CSV data frame operations with flexible column mapping
+- Logging and quality assurance integration
+- Alias management for FHIR resources
+
+All specific extractors (DHI, BPMN, SVG, etc.) inherit from this base class
+to leverage common data processing patterns.
+
+Author: SMART Guidelines Team
+"""
 import stringer
 import re
 import os
@@ -7,15 +26,50 @@ import logging
 
 
 class extractor(object):
+  """
+  Base class for all data extractors in the SMART guidelines system.
+  
+  This abstract base class provides common functionality for processing
+  various types of input files and converting them into FHIR resources.
+  Subclasses implement specific extraction logic for different file types
+  and data formats.
+  
+  The extractor provides flexible data frame processing with intelligent
+  column mapping, allowing for variations in input file structures while
+  maintaining consistent output.
+  
+  Attributes:
+      inputfile_name (str): Path to the currently processed input file
+      class_cs (str): Default CodeSystem URL for generated resources
+      installer: Instance of the installer for resource management
+  """
 
   inputfile_name = ""
   class_cs = "http://smart.who.int/base/CodeSystem/CDHIv1"
   
   
   def find_files(self):
+    """
+    Discover files to be processed by this extractor.
+    
+    Abstract method to be implemented by subclasses to return
+    a list of file paths that should be processed.
+    
+    Returns:
+        List of file paths to process
+    """
     return []
   
   def extract(self):
+    """
+    Main extraction workflow that processes all discovered files.
+    
+    Iterates through all files returned by find_files() and
+    processes each one using the extract_file() method.
+    
+    Returns:
+        True if extraction completed successfully
+    """
     for inputfile_name in self.find_files():
       logging.getLogger(self.__class__.__name__).info('IF=' + inputfile_name)
       self.inputfile_name = inputfile_name
@@ -23,10 +77,28 @@ class extractor(object):
     return True
     
   def get_aliases(self):
+    """
+    Provide additional aliases for FHIR resource generation.
+    
+    Subclasses can override this method to contribute specific
+    aliases needed for their resource generation.
+    
+    Returns:
+        List of alias definitions
+    """
     return []
 
   
   def __init__(self,installer:installer):
+    """
+    Initialize the extractor with an installer instance.
+    
+    Sets up the extractor with access to the installer for resource
+    management and configures any necessary aliases.
+    
+    Args:
+        installer: The installer instance for managing FHIR resources
+    """
     self.installer = installer
     aliases = self.installer.get_base_aliases()
     aliases.extend(self.get_aliases())
@@ -35,22 +107,82 @@ class extractor(object):
 
 
   def extract_file(self):
+    """
+    Process a single input file.
+    
+    Abstract method to be implemented by subclasses to define
+    the specific extraction logic for their file type.
+    """
     pass
 
     
 
   # see https://www.youtube.com/watch?v=EnSu9hHGq5o&t=1184s&ab_channel=NextDayVideo
   def generate_pairs_from_lists(self,lista,listb):
+    """
+    Generate all possible pairs from two lists.
+    
+    Utility method for creating cartesian product of two lists,
+    commonly used for trying different combinations of parameters.
+    
+    Args:
+        lista: First list of items
+        listb: Second list of items
+        
+    Yields:
+        Tuples containing one item from each list
+    """
     for a in lista:
       for b in listb:
         yield a,b
 
   def generate_pairs_from_column_maps(self,column_maps:dict):
+    """
+    Generate column name pairs from mapping configuration.
+    
+    Creates pairs of desired column names and possible source column
+    names for flexible data frame column matching.
+    
+    Args:
+        column_maps: Dictionary mapping desired names to lists of possible names
+        
+    Yields:
+        Tuples of (desired_name, possible_name)
+    """
     for desired_column_name,possible_column_names in column_maps.items():
       for possible_column_name in possible_column_names:
         yield str(desired_column_name),str(possible_column_name)
 
   def retrieve_data_frame_by_headers(self,column_maps,sheet_names,header_offsets = [0,1,2]):
+    """
+    Intelligently load Excel data with flexible column and sheet matching.
+    
+    This method attempts to find the correct sheet and header row configuration
+    in an Excel file by trying different combinations of sheet names and
+    header row positions. It performs fuzzy matching of column names to
+    handle variations in input file structure.
+    
+    Args:
+        column_maps: Dictionary mapping desired column names to lists of
+                    possible source column names for matching
+        sheet_names: List of possible sheet names to try
+        header_offsets: List of row indices to try as header rows
+        
+    Returns:
+        Pandas DataFrame with standardized column names, or None if no
+        suitable configuration is found
+        
+    Example:
+        column_maps = {
+            'reqid': ["Requirement ID", "Req ID"],
+            'description': ["Description", "Desc"]
+        }
+        df = self.retrieve_data_frame_by_headers(
+            column_maps, 
+            ["Requirements", "Reqs"], 
+            [0, 1]
+        )
+    """
     # sheet_names is an array of potential excel sheet names to look for data on
     #
     # example column_maps which has key the desired column name, value is an array of potential matching names
@@ -106,6 +238,15 @@ class extractor(object):
 
 
   def log(self,*statements):
+    """
+    Enhanced logging with file context information.
+    
+    Provides structured logging that includes the extractor class name
+    and current file being processed for better debugging and monitoring.
+    
+    Args:
+        *statements: Variable number of statements to log
+    """
     prefix = self.__class__.__name__ + "(" + os.path.basename(self.inputfile_name) + "):"
     for statement in statements:
       statement = str(statement).replace("\n","\n\t")
@@ -113,6 +254,15 @@ class extractor(object):
       prefix = "\t"
 
   def qa(self,msg):
+    """
+    Report quality assurance issues.
+    
+    Forwards QA messages to the installer's quality assurance system
+    for centralized issue tracking and reporting.
+    
+    Args:
+        msg: Quality assurance message to report
+    """
     self.installer.qa(msg)
 
 

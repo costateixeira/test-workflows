@@ -1,3 +1,19 @@
+"""
+FHIR CodeSystem Management
+
+This module provides comprehensive management functionality for FHIR CodeSystems
+and ValueSets within the SMART guidelines system. It handles the creation,
+validation, and organization of clinical terminologies and code classifications
+used throughout the implementation.
+
+The codesystem_manager maintains centralized control over:
+- CodeSystem creation and population
+- ValueSet generation from CodeSystems
+- Code validation and hierarchy management
+- Resource naming and identifier assignment
+
+Author: SMART Guidelines Team
+"""
 import re
 import pprint
 import sys
@@ -5,6 +21,19 @@ import stringer
 import logging
 
 class codesystem_manager(object):
+    """
+    Central manager for FHIR CodeSystem and ValueSet resources.
+    
+    This class provides comprehensive functionality for creating, managing,
+    and validating FHIR CodeSystems and their associated ValueSets. It
+    ensures consistent resource generation and proper code organization
+    across the SMART guidelines implementation.
+    
+    Attributes:
+        codesystems (dict): Collection of managed CodeSystem resources
+        codesystem_titles (dict): Mapping of CodeSystem IDs to display titles
+        codesystem_properties (dict): Properties and metadata for CodeSystems
+    """
     codesystems = {}
     codesystem_titles = {}
     codesystem_properties = {}

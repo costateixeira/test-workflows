@@ -1,3 +1,16 @@
+"""
+Decision Table Extractor for SMART Guidelines
+
+This module provides functionality to extract and process decision tables
+for the SMART guidelines system. It handles clinical decision logic
+definitions and converts them into FHIR resources for implementation
+in clinical decision support systems.
+
+The extractor processes decision table files to ensure proper integration
+of clinical logic with the broader SMART guidelines framework.
+
+Author: SMART Guidelines Team
+"""
 import stringer
 import logging
 import sys

@@ -1,3 +1,16 @@
+"""
+Data Dictionary Extractor for SMART Guidelines
+
+This module provides functionality to extract and process data dictionary
+definitions for the SMART guidelines system. It handles structured data
+definitions and converts them into FHIR resources for clinical data
+standardization and interoperability.
+
+The extractor processes data dictionary files to ensure consistent data
+element definitions across the SMART guidelines implementation.
+
+Author: SMART Guidelines Team
+"""
 import stringer
 import sys
 import glob as glob
@@ -8,6 +21,13 @@ from extractor import extractor
 from installer import installer
 
 class dd_extractor(extractor):
+    """
+    Extractor for data dictionary processing.
+    
+    This extractor processes data dictionary files containing structured
+    definitions of clinical data elements, converting them into appropriate
+    FHIR resources for standardized data exchange.
+    """
     xslt_file  = "includes/bpmn2fhirfsh.xsl"
     dictionaries = {}
     

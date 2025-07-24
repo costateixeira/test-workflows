@@ -1,3 +1,16 @@
+"""
+Multi-file Processing with Git Integration
+
+This module provides functionality for processing multiple files with
+Git repository integration for the SMART guidelines system. It handles
+batch operations on files while maintaining version control awareness
+and tracking changes across multiple file transformations.
+
+The processor coordinates file operations with Git workflow integration,
+enabling change tracking and collaborative development processes.
+
+Author: SMART Guidelines Team
+"""
 import os
 import sys
 import subprocess
@@ -5,7 +18,24 @@ import xml.etree.ElementTree as ET
 import logging
 
 class MultifileProcessor:
+    """
+    Processor for handling multiple files with Git integration.
+    
+    This class provides functionality for batch processing multiple files
+    while maintaining Git repository awareness for version control and
+    change tracking purposes.
+    
+    Attributes:
+        xml_path (str): Path to the XML configuration file
+        repo: Git repository instance for version control operations
+    """
     def __init__(self, xml_path):
+        """
+        Initialize the multi-file processor.
+        
+        Args:
+            xml_path: Path to the XML configuration file
+        """
         self.xml_path = xml_path
         self.repo = None
         self.branch = None
