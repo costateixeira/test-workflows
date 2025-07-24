@@ -82,7 +82,7 @@ class codesystem_manager(object):
             return self.codesystems[codesystem_id][code]
 
         
-    def add_code(self,codesystem_id,code:str,display:str,definition=None,designation=[],propertyString=[]):
+    def merge_code_with_params(self,codesystem_id,code:str,display:str,definition=None,designation=[],propertyString=[]):
         code_defn = {'display':display,
                     'definition':definition,
                     'designation':designation,
