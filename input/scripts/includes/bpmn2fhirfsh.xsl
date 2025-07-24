@@ -94,7 +94,7 @@
       <xsl:variable name="actorQuestionnaire"
 		  select="$actorProcesses//bpmn:userTask[@name != '' and @id = $questionnaireId]"/>
       <xsl:if test="$actorQuestionnaire">
-	<xsl:text>* extension[actor].valueReference = Reference(DD-</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
+	<xsl:text>* extension[actor].valueReference = Reference(DD.</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
 	<xsl:value-of select="$newline"/>
       </xsl:if>
     </xsl:for-each>
@@ -123,7 +123,7 @@
       <xsl:text>The actor participates in the following requirements:</xsl:text>
       <xsl:value-of select="$newline"/>
       <xsl:for-each select="$actorTasks">
-	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](Requirement-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](Requirements-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
 	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
       </xsl:for-each>
     </xsl:if>
@@ -132,10 +132,19 @@
       <xsl:text>The actor participates in the following processes:</xsl:text>
       <xsl:value-of select="$newline"/>
       <xsl:for-each select="$actorProcesses">
+	<xsl:variable name="url" select="concat(@name,'.svg')"/>
 	<xsl:text>* </xsl:text><xsl:value-of select="@name"/><xsl:text>(</xsl:text><xsl:value-of select="@name"/><xsl:text>)</xsl:text><xsl:value-of select="$newline"/>
-	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/><xsl:value-of select="$newline"/>
+	<!-- <xsl:text >  </xsl:text><div style="width:90%; display:block" class='businessprocess'><object width="90%"  type="image/svg+xml"><xsl:attribute name="data"><xsl:value-of select="@name"/></xsl:attribute></object></div><xsl:value-of select="$newline"/>-->
+	<!-- <xsl:text >  &lt;div style="width:90%; display:block" class='businessprocess'&gt;&lt;object width="90%"  type="image/svg+xml" data="</xsl:text><xsl:value-of select="@name"/><xsl:text>"&gt;&lt;/object&gt;&lt;/div&gt;></xsl:text><xsl:value-of select="$newline"/> -->
+	<xsl:text disable-output-escaping="yes">&lt;div style="width:90%; display:block" class='businessprocess'&gt;
+	&lt;object type="image/svg+xml"&gt;&lt;xsl:attribute name="data"&gt;&lt;xsl:value-of select="$url"/&gt;&lt;/xsl:attribute&gt;&lt;/object&gt;
+	&lt;/div&gt;
+	</xsl:text>
 	<xsl:variable name="actorQuestionnaires" select=".//bpmn:userTask"/>
-	<xsl:if test="$actorQuestionnaires"> 
+	<xsl:if test="$actorQuestionnaires">
+	  <xsl:value-of select="$newline"/>
+	  
 	  <xsl:text>  Under this process, the actor utilizes the following Questionnaires:</xsl:text>
 	  <xsl:value-of select="$newline"/>
 	  <xsl:for-each select="$actorQuestionnaires">
@@ -148,6 +157,7 @@
 
 	<xsl:variable name="actorDecisions" select=".//bpmn:businessRuleTask"/>	  	
 	<xsl:if test="$actorDecisions">
+	  <xsl:value-of select="$newline"/>
 	  <xsl:text>  Under this process, the actor utilizes the following Decisions Support Tables:</xsl:text>
 	  <xsl:value-of select="$newline"/>
 	  <xsl:for-each select="$actorDecisions">
@@ -190,6 +200,18 @@ Usage: #definition
     * value = "https://who.int"
         </file>
       </xsl:for-each>
+
+
+      <!-- Generate ActorDefinition resources in FSH -->      
+      <xsl:for-each select="$uniqueActors"> <!-- a bpmn:lane -->
+	<file name="input/pagecontent/personas-list.md">
+	  <xsl:text>#### </xsl:text><xsl:value-of select="@name"/><xsl:value-of select="$newline"/>
+	  <xsl:value-of select="$newline"/>
+	  <xsl:call-template name="actorDescription"/>
+	  <xsl:value-of select="$newline"/>
+	</file>
+      </xsl:for-each>
+
       
       <!-- Generate ActorDefinition resources in FSH -->
       <xsl:for-each select="$uniqueActors"> <!-- a bpmn:lane -->
@@ -202,7 +224,7 @@ Description: """<xsl:call-template name="actorDescription"/>
 """
 Usage: #definition
 * name = "<xsl:value-of select="@name"/>"
-* type = #non-system
+* type = #person
 * status = #draft
 * publisher = "World Health Organization (WHO)"
 * experimental = false
@@ -233,7 +255,7 @@ Title: "<xsl:value-of select="$questionnaireName"/>"
         <xsl:variable name="ruleName" select="@name"/>
         <file name="input/fsh/profiles/{$ruleId}.fsh" mime-type="text/fsh">
 
-Profile: DT.<xsl:value-of select="$ruleId"/>
+Profile: DD.<xsl:value-of select="$ruleId"/>
 Parent: $SGDecisionTable
 Title: "<xsl:value-of select="$ruleName"/>"
 * name = "Decision Table profile: <xsl:value-of select="$ruleName"/>"

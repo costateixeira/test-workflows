@@ -89,7 +89,6 @@ The table below provides an overview of the decision-support tables and algorith
   </tbody>
 </table>
 """
-
         page_content += "\n\n## Decision logic support tables\n\n"
 
         for dt_id, dt_data in self.dt_data.items():
@@ -138,12 +137,16 @@ The table below provides an overview of the decision-support tables and algorith
             self.logger.info("Could not load cover sheet")
             return False
 
+
         for index, row in cover_sheet.iterrows():
             has_non_empty = \
                 (isinstance(row["tab"], str) and bool(row["tab"]) and row["tab"] != "-")  \
                 or (isinstance(row["id_name"], str) and bool(row["id_name"]) and row["id_name"] != "-")  \
                 or (isinstance(row["dt_id"], str) and bool(row["dt_id"]) and row["dt_id"] != "-")  \
                 or (isinstance(row["description"], str) and bool(row["description"]) and row["description"] != "-")
+
+
+
 
             if not has_non_empty:
                 self.logger.info("Reached end of cover index table")
@@ -162,7 +165,6 @@ The table below provides an overview of the decision-support tables and algorith
                 self.logger.info(
                     "Skipping bad activity id.name: " + id_name, parts)
                 continue
-
             id = parts[0].strip()
             name = parts[1].strip()
 
@@ -309,7 +311,6 @@ The table below provides an overview of the decision-support tables and algorith
                 self.logger.info("Could not generate VS from list")
                 return False
             self.installer.add_resource('valuesets', tab_vs_id, tab_vs)
-
             properties = {'decisionTables': ", ".join(dt_codes)}
 
         # normalize content for codesystem
