@@ -28,90 +28,90 @@ class req_extractor(extractor):
     decision support implementations.
     """
 
-  def __init__(self,installer:installer):
-    super().__init__(installer)
+    def __init__(self,installer:installer):
+        super().__init__(installer)
 
-  def find_files(self):
-      return glob.glob("input/system-requirements/*xlsx")
+    def find_files(self):
+        return glob.glob("input/system-requirements/*xlsx")
 
 
-  # def usage():
-  #   print("Usage: scans input/system-requirements for excel sheets ")
-  #   print("where the referenced excel contains a sheet entitled 'Non-functional'")
-  #   print("and one entitled 'Functional' which contain the requirements.")
-  #   print("The header row of the 'Non-functional' sheet should contain: ")
-  #   print("   " , ', '.join(nonfunctional_headers))
-  #   print("The header row of the 'Functional' sheet should contain: ")
-  #   print("   " , ', '.join(nonfunctional_headers))
-  #   print("OPTIONS:")
-  #   print(" none")
-  #   print("--help|h : print this information")
-  #   sys.exit(2)
+        # def usage():
+        #   print("Usage: scans input/system-requirements for excel sheets ")
+        #   print("where the referenced excel contains a sheet entitled 'Non-functional'")
+        #   print("and one entitled 'Functional' which contain the requirements.")
+        #   print("The header row of the 'Non-functional' sheet should contain: ")
+        #   print("   " , ', '.join(nonfunctional_headers))
+        #   print("The header row of the 'Functional' sheet should contain: ")
+        #   print("   " , ', '.join(nonfunctional_headers))
+        #   print("OPTIONS:")
+        #   print(" none")
+        #   print("--help|h : print this information")
+        #   sys.exit(2)
 
-  def get_aliases(self):
-      return ['Alias: $pubStatus = http://hl7.org/fhir/publication-status',
+    def get_aliases(self):
+        return ['Alias: $pubStatus = http://hl7.org/fhir/publication-status',
                'Alias: $actorType = http://hl7.org/fhir/examplescenario-actor-type',
                'Alias: $SGActor = http://smart.who.int/base/StructureDefinition/SGActor',
                'Alias: $DHIClassificationv1 = http://smart.who.int/base/CodeSystem/DHIv1',
                'Alias: $DHIClassificationv2 = http://smart.who.int/base/CodeSystem/DHIv2'
                ]
 
-  def extract_file(self):
-    try: 
-      self.extract_resources()
-    except ValueError as e:
-      self.logger.info("Could not process: " +  self.inputfile_name + "\n" )
-      self.logger.info(f"\tError: {e}")
+    def extract_file(self):
+        try: 
+            self.extract_resources()
+        except ValueError as e:
+            self.logger.info("Could not process: " +  self.inputfile_name + "\n" )
+            self.logger.info(f"\tError: {e}")
     
-  
-  def extract_resources(self):
-    functional_column_maps = {
+    
+    def extract_resources(self):
+        functional_column_maps = {
         'reqid':["Requirement ID","Requirement"],
         'activityid-and-name':["Activity ID and name", "Activity ID and description"],
         'as-a': ["As a"],
         'i-want': ["I want","I want to"],
         'so-that':["So that"]
         }
-    sheet_names = ['Functional']
-    functional = self.retrieve_data_frame_by_headers(functional_column_maps,sheet_names)
+        sheet_names = ['Functional']
+        functional = self.retrieve_data_frame_by_headers(functional_column_maps,sheet_names)
             
-    if (not  self.extract_functional_requirements(functional)):
-      self.logger.info("Could not extract functional requirements from: " + self.inputfile_name)
-      return False        
-    else:
-        self.logger.info("Could not find functional requirements in:" + self.inputfile_name) 
+        if (not  self.extract_functional_requirements(functional)):
+            self.logger.info("Could not extract functional requirements from: " + self.inputfile_name)
+            return False        
+        else:
+            self.logger.info("Could not find functional requirements in:" + self.inputfile_name) 
 
 
 
-    nonfunctional_column_maps ={
+        nonfunctional_column_maps ={
         'reqid':["Requirement","Requirement ID"],
         'category':["Category","Category ID"],
         'requirement':["Non-functional requirement","Non-functional requirements", "Nonfunctional requirements", "nonfunctional requirement"]
-    }
-    sheet_names = ['Non-Functional','Non-functional']
-    nonfunctional = self.retrieve_data_frame_by_headers(nonfunctional_column_maps,sheet_names)
+        }
+        sheet_names = ['Non-Functional','Non-functional']
+        nonfunctional = self.retrieve_data_frame_by_headers(nonfunctional_column_maps,sheet_names)
         
-    if (not  self.extract_nonfunctional_requirements_to_resources(nonfunctional)):
-      self.logger.info("Could not extract non-functional requirements from: " + self.inputfile_name)
-      return False        
-    else:
-      self.logger.info("Could not find non-functional requirements in:" + self.inputfile_name)
+        if (not  self.extract_nonfunctional_requirements_to_resources(nonfunctional)):
+        self.logger.info("Could not extract non-functional requirements from: " + self.inputfile_name)
+        return False        
+        else:
+        self.logger.info("Could not find non-functional requirements in:" + self.inputfile_name)
 
-    return True
+        return True
 
 
         
 
-  def extract_nonfunctional_requirements_to_resources(nonfunctional:pd.DataFrame ):
-    self.logger.info("Reading non-functional requirements")
-    nonfunctional.drop(index=0)
+    def extract_nonfunctional_requirements_to_resources(nonfunctional:pd.DataFrame ):
+        self.logger.info("Reading non-functional requirements")
+        nonfunctional.drop(index=0)
 
-    categories={}
-    cat_cs = 'FXREQCategories'
-    classification = ""
-    classification_codes = []
+        categories={}
+        cat_cs = 'FXREQCategories'
+        classification = ""
+        classification_codes = []
 
-    for index, row in nonfunctional.iterrows():
+        for index, row in nonfunctional.iterrows():
         if not "reqid" in row or not isinstance(row["reqid"], str):
             self.logger.info("// skipping row "+str(index+1)+": no reqid")
             continue
@@ -177,26 +177,26 @@ class req_extractor(extractor):
         self.installer.add_resource('instances',lm_id,lm)
         self.installer.add_resource('requirements',reqid, instance)
 
-    self.logger.info("Extracted " + str(index) + " functional requirement(s)")
+        self.logger.info("Extracted " + str(index) + " functional requirement(s)")
 
-    self.installer.generate_cs_and_vs_from_dict(cat_cs,'Functional Requirement Categories',categories)
-    return True
+        self.installer.generate_cs_and_vs_from_dict(cat_cs,'Functional Requirement Categories',categories)
+        return True
 
 
         
 
-  def extract_functional_requirements_to_resources(functional: pd.DataFrame):
-    self.logger.info("Reading functional requirements")
-    businessprocess_code = ""
-    businessprocess_name = ""
-    businessprocess_codes = {}
-    classification = ""
-    classification_codes = []
-    bpid = "FXREQBusinessProcesses"
+    def extract_functional_requirements_to_resources(functional: pd.DataFrame):
+        self.logger.info("Reading functional requirements")
+        businessprocess_code = ""
+        businessprocess_name = ""
+        businessprocess_codes = {}
+        classification = ""
+        classification_codes = []
+        bpid = "FXREQBusinessProcesses"
     
-    functional.drop(index=0)
+        functional.drop(index=0)
 
-    for index, row in functional.iterrows():
+        for index, row in functional.iterrows():
         if not "reqid" in row or not isinstance(row["reqid"], str):
             self.logger.info("// skipping row "+str(index+1)+": no reqid")
             continue
@@ -310,7 +310,7 @@ class req_extractor(extractor):
         instance += description + "\n"
         self.installer.add_resource('requirements',reqid,instance)
         
-    self.logger.info("Extracted " + str(index) + " functional requirement(s)")
-    self.logger.info("Business Process Codes:\n\t" , businessprocess_codes)
-    self.installer.generate_cs_and_vs_from_dict(bpid,'Functional Requirements Business Processes',businessprocess_codes)
-    return True
+        self.logger.info("Extracted " + str(index) + " functional requirement(s)")
+        self.logger.info("Business Process Codes:\n\t" , businessprocess_codes)
+        self.installer.generate_cs_and_vs_from_dict(bpid,'Functional Requirements Business Processes',businessprocess_codes)
+        return True
