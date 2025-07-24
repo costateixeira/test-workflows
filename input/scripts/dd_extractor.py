@@ -11,6 +11,7 @@ element definitions across the SMART guidelines implementation.
 
 Author: SMART Guidelines Team
 """
+from typing import List, Dict, Optional
 import stringer
 import sys
 import glob as glob
@@ -28,25 +29,25 @@ class dd_extractor(extractor):
     definitions of clinical data elements, converting them into appropriate
     FHIR resources for standardized data exchange.
     """
-    xslt_file  = "includes/bpmn2fhirfsh.xsl"
-    dictionaries = {}
+    xslt_file: str = "includes/bpmn2fhirfsh.xsl"
+    dictionaries: Dict = {}
 
-    def __init__(self,installer:installer):
+    def __init__(self, installer: installer) -> None:
         super().__init__(installer)        
 
 
 
-    def find_files(self):
+    def find_files(self) -> List[str]:
         return glob.glob("input/dictionary/*xlsx")
 
 
-    def extract_file(self):
-        cover_column_maps = {
+    def extract_file(self) -> Optional[bool]:
+        cover_column_maps: Dict[str, List[str]] = {
             'tab':["Tabs"],
             'description': ["Description"],
         }
-        sheet_names = ['COVER']
-        cover_sheet = self.retrieve_data_frame_by_headers(cover_column_maps,sheet_names,range(0,20))
+        sheet_names: List[str] = ['COVER']
+        cover_sheet: Optional[pd.DataFrame] = self.retrieve_data_frame_by_headers(cover_column_maps,sheet_names,range(0,20))
 
         if (not  self.extract_dictionaries(cover_sheet)):
 

@@ -14,12 +14,13 @@ The module handles various escaping scenarios required for:
 
 Author: SMART Guidelines Team
 """
+from typing import Optional, Union
 import hashlib
 import logging
 import re
 
 
-def to_hash(input: str, len: int):
+def to_hash(input: str, len: int) -> str:
     """
     Generate a truncated string with hash suffix for long identifiers.
 
@@ -38,7 +39,7 @@ def to_hash(input: str, len: int):
         str(hashlib.shake_256(input.encode()).hexdigest(5))
 
 
-def xml_escape(input):
+def xml_escape(input: str) -> str:
     """
     Escape special characters for XML/HTML content.
 
@@ -68,7 +69,7 @@ def xml_escape(input):
         "&apos;")
 
 
-def escape(input):
+def escape(input: str) -> Optional[str]:
     """
     Escape double quotes in strings for code generation.
 
@@ -86,7 +87,7 @@ def escape(input):
     return input.replace('"', r'\"')
 
 
-def escape_code(input):
+def escape_code(input: str) -> Optional[str]:
     """
     Generate safe file and code identifiers from strings.
 
@@ -123,7 +124,7 @@ def escape_code(input):
     return input
 
 
-def markdown_escape(input):
+def markdown_escape(input: str) -> str:
     """
     Escape strings for safe inclusion in markdown content.
 
@@ -142,7 +143,7 @@ def markdown_escape(input):
     return input
 
 
-def ruleset_escape(input):
+def ruleset_escape(input: str) -> str:
     """
     Escape strings for use in ruleset definitions.
 
@@ -164,7 +165,7 @@ def ruleset_escape(input):
     return input
 
 
-def is_nan(v):
+def is_nan(v: Union[float, str, None]) -> bool:
     """
     Check if a value is NaN (Not a Number).
 
@@ -177,7 +178,7 @@ def is_nan(v):
     return (isinstance(v, float) and v != v)
 
 
-def is_blank(v):
+def is_blank(v: Union[str, float, None]) -> bool:
     """
     Check if a value is blank, empty, or None.
 
@@ -194,7 +195,7 @@ def is_blank(v):
         or (isinstance(v, str) and len(v.strip()) == 0)
 
 
-def is_dash(v):
+def is_dash(v: Union[str, None]) -> bool:
     """
     Check if a string represents a dash character.
 
@@ -213,7 +214,7 @@ def is_dash(v):
     return (v == '-' or v == '–')
 
 
-def name_to_lower_id(name):
+def name_to_lower_id(name: str) -> Optional[str]:
     """
     Convert a name to a lowercase identifier.
 
@@ -231,7 +232,7 @@ def name_to_lower_id(name):
     return name_to_id(name.lower())
 
 
-def name_to_id(name):
+def name_to_id(name: str) -> Optional[str]:
     """
     Convert a name to a valid identifier.
 

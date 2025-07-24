@@ -12,6 +12,7 @@ FHIR implementation guide.
 
 Author: SMART Guidelines Team
 """
+from typing import List
 import logging
 import glob as glob
 import os
@@ -33,10 +34,10 @@ class svg_extractor(extractor):
         xslt_file (str): Path to the XSLT transformation file for SVG processing
         namespaces (dict): XML namespaces used in SVG files
     """
-    xslt_file  = "includes/svg2svg.xsl"
-    namespaces = {'svg':'http://www.w3.org/2000/svg'}
+    xslt_file: str = "includes/svg2svg.xsl"
+    namespaces: dict = {'svg':'http://www.w3.org/2000/svg'}
     
-    def __init__(self,installer:installer):
+    def __init__(self, installer: installer) -> None:
         """
         Initialize the SVG extractor with transformer registration.
         
@@ -51,7 +52,7 @@ class svg_extractor(extractor):
 
 
 
-    def find_files(self):
+    def find_files(self) -> List[str]:
         """
         Find all SVG files in the business processes directory.
         
@@ -64,7 +65,7 @@ class svg_extractor(extractor):
         return glob.glob("input/business-processes/*svg")
         
 
-    def extract_file(self):
+    def extract_file(self) -> bool:
         """
         Process a single SVG file through transformation and copy to images directory.
         

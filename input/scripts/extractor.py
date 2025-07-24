@@ -17,6 +17,7 @@ to leverage common data processing patterns.
 
 Author: SMART Guidelines Team
 """
+from typing import List, Dict, Iterator, Tuple, Optional, Union, Any
 import stringer
 import re
 import os
@@ -44,15 +45,15 @@ class extractor(object):
         installer: Instance of the installer for resource management
     """
 
-    inputfile_name = ""
-    class_cs = "http://smart.who.int/base/CodeSystem/CDHIv1"
+    inputfile_name: str = ""
+    class_cs: str = "http://smart.who.int/base/CodeSystem/CDHIv1"
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """Get logger instance for this class."""
         return logging.getLogger(self.__class__.__name__)
 
-    def find_files(self):
+    def find_files(self) -> List[str]:
         """
         Discover files to be processed by this extractor.
 
@@ -64,7 +65,7 @@ class extractor(object):
         """
         return []
 
-    def extract(self):
+    def extract(self) -> bool:
         """
         Main extraction workflow that processes all discovered files.
 
@@ -80,7 +81,7 @@ class extractor(object):
             self.extract_file()
             return True
 
-    def get_aliases(self):
+    def get_aliases(self) -> List[str]:
         """
         Provide additional aliases for FHIR resource generation.
 
@@ -92,7 +93,7 @@ class extractor(object):
         """
         return []
 
-    def __init__(self, installer: installer):
+    def __init__(self, installer: installer) -> None:
         """
         Initialize the extractor with an installer instance.
 
@@ -108,7 +109,7 @@ class extractor(object):
         self.logger.info("Aliases" + str(aliases))
         self.installer.add_aliases(aliases)
 
-    def extract_file(self):
+    def extract_file(self) -> None:
         """
         Process a single input file.
 
@@ -119,7 +120,7 @@ class extractor(object):
 
         # see
         # https://www.youtube.com/watch?v=EnSu9hHGq5o&t=1184s&ab_channel=NextDayVideo
-    def generate_pairs_from_lists(self, lista, listb):
+    def generate_pairs_from_lists(self, lista: List[Any], listb: List[Any]) -> Iterator[Tuple[Any, Any]]:
         """
         Generate all possible pairs from two lists.
 
@@ -137,7 +138,7 @@ class extractor(object):
             for b in listb:
                 yield a, b
 
-    def generate_pairs_from_column_maps(self, column_maps: dict):
+    def generate_pairs_from_column_maps(self, column_maps: Dict[str, List[str]]) -> Iterator[Tuple[str, str]]:
         """
         Generate column name pairs from mapping configuration.
 
@@ -156,12 +157,12 @@ class extractor(object):
 
     def retrieve_data_frame_by_headers(
         self,
-        column_maps,
-        sheet_names,
-        header_offsets=[
+        column_maps: Dict[str, List[str]],
+        sheet_names: List[str],
+        header_offsets: List[int] = [
             0,
             1,
-            2]):
+            2]) -> Optional[pd.DataFrame]:
         """
         Intelligently load Excel data with flexible column and sheet matching.
 
@@ -268,7 +269,7 @@ class extractor(object):
         # we tried all combinations and failed.
         return None
 
-    def log(self, *statements):
+    def log(self, *statements: Any) -> None:
         """
         Enhanced logging with file context information.
 
@@ -285,7 +286,7 @@ class extractor(object):
             self.installer.log(prefix + statement)
             prefix = "\t"
 
-    def qa(self, msg):
+    def qa(self, msg: str) -> None:
         """
         Report quality assurance issues.
 

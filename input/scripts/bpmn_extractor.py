@@ -11,6 +11,7 @@ implementation in clinical decision support systems.
 
 Author: SMART Guidelines Team
 """
+from typing import List
 import logging
 import sys
 import glob as glob
@@ -31,10 +32,10 @@ class bpmn_extractor(extractor):
         xslt_file (str): Path to the XSLT transformation file for BPMN to FSH conversion
         namespaces (dict): XML namespaces used in BPMN files
     """
-    xslt_file  = "includes/bpmn2fhirfsh.xsl"
-    namespaces = {'bpmn':"http://www.omg.org/spec/BPMN/20100524/MODEL"}
+    xslt_file: str = "includes/bpmn2fhirfsh.xsl"
+    namespaces: dict = {'bpmn':"http://www.omg.org/spec/BPMN/20100524/MODEL"}
     
-    def __init__(self,installer:installer):
+    def __init__(self, installer: installer) -> None:
         """
         Initialize the BPMN extractor with transformer registration.
         
@@ -49,7 +50,7 @@ class bpmn_extractor(extractor):
 
 
 
-    def find_files(self):
+    def find_files(self) -> List[str]:
         """
         Find all BPMN files in the business processes directory.
         
@@ -62,7 +63,7 @@ class bpmn_extractor(extractor):
         return glob.glob("input/business-processes/*bpmn")
         
 
-    def extract_file(self):
+    def extract_file(self) -> bool:
         """
         Process a single BPMN file through XML transformation.
         
