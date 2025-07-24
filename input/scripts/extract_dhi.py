@@ -35,7 +35,7 @@ class extract_dhi:
     @property
     def logger(self):
         """Get logger instance for this class."""
-        return logging.getLogger(self.__class__.__name__)
+        return self.logger
 
     def usage(self):
         """
@@ -64,11 +64,11 @@ class extract_dhi:
         try: 
             ins = installer()
             if not DHIExtractor(ins).extract():
-                logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not extract: {e}")
+                self.logger.info(f"ERROR: Could not extract: {e}")
                 return False
             return ins.install()
         except Exception as e:
-            logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not extract: {e}")
+            self.logger.info(f"ERROR: Could not extract: {e}")
             return False
 
     def main(self):

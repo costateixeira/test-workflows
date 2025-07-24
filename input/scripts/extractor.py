@@ -50,7 +50,7 @@ class extractor(object):
   @property
   def logger(self):
     """Get logger instance for this class."""
-    return logging.getLogger(self.__class__.__name__)
+    return self.logger
 
   def find_files(self):
     """
@@ -75,7 +75,7 @@ class extractor(object):
         True if extraction completed successfully
     """
     for inputfile_name in self.find_files():
-      logging.getLogger(self.__class__.__name__).info('IF=' + inputfile_name)
+      self.logger.info('IF=' + inputfile_name)
       self.inputfile_name = inputfile_name
       self.extract_file()
     return True
@@ -106,7 +106,7 @@ class extractor(object):
     self.installer = installer
     aliases = self.installer.get_base_aliases()
     aliases.extend(self.get_aliases())
-    logging.getLogger(self.__class__.__name__).info("Aliases" + str(aliases))
+    self.logger.info("Aliases" + str(aliases))
     self.installer.add_aliases(aliases)
 
 
@@ -198,14 +198,14 @@ class extractor(object):
     #     'i-want': ["I want","I want to"],
     #     'so-that':["So that"]
     #     }
-    logging.getLogger(self.__class__.__name__).info("Looking at sheets:" +  " ".join(sheet_names))
+    self.logger.info("Looking at sheets:" +  " ".join(sheet_names))
     for sheet_name, header_row in self.generate_pairs_from_lists(sheet_names,header_offsets):
-      logging.getLogger(self.__class__.__name__).info("Checking sheetname/header row #: " + sheet_name +  "/"+ str(header_row))
+      self.logger.info("Checking sheetname/header row #: " + sheet_name +  "/"+ str(header_row))
       try:
         data_frame = pd.read_excel(self.inputfile_name, sheet_name=sheet_name, header=header_row)
       except Exception as e:
-        logging.getLogger(self.__class__.__name__).info("Could not open sheet " + sheet_name + " on header row " + str( header_row))
-        logging.getLogger(self.__class__.__name__).info(e)
+        self.logger.info("Could not open sheet " + sheet_name + " on header row " + str( header_row))
+        self.logger.info(e)
         continue
 
       true_column_map = {} #this is where we will map current column names to canonicalized/normalied column names
@@ -218,22 +218,22 @@ class extractor(object):
           possible_column_id = stringer.name_to_lower_id(possible_column_name)
           if (possible_column_id == column_id):
             #we found what we needed
-            logging.getLogger(self.__class__.__name__).info("Matched input sheet column " + column_name + " with desired column " + desired_column_name)
+            self.logger.info("Matched input sheet column " + column_name + " with desired column " + desired_column_name)
             true_column_map[column_name] =  desired_column_name
                                   
         if not column_name in true_column_map:
           #we dont need this input/source data frame column
           #we get rid of it to help normalize for downstream processing
           data_frame.drop(column_name,axis='columns', inplace=True)
-          logging.getLogger(self.__class__.__name__).info("Dropped: " + str(column_name))
+          self.logger.info("Dropped: " + str(column_name))
           continue
                                           
-      logging.getLogger(self.__class__.__name__).info("Mapping columns: " + str(true_column_map))
+      self.logger.info("Mapping columns: " + str(true_column_map))
       data_frame = data_frame.rename(columns=true_column_map)
       if ( list(data_frame) != list(column_maps.keys()) ):
         continue
                                        
-      logging.getLogger(self.__class__.__name__).info("Found desired column headers at sheet name / header row: " + sheet_name + "/" + str(header_row))
+      self.logger.info("Found desired column headers at sheet name / header row: " + sheet_name + "/" + str(header_row))
       #we are happy, return the data frame with normalized column names
       return data_frame
 

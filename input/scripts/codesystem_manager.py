@@ -44,7 +44,7 @@ class codesystem_manager(object):
     @property
     def logger(self):
         """Get logger instance for this class."""
-        return logging.getLogger(self.__class__.__name__)
+        return self.logger
     
     def __init__(self,publisher = "Self Pubished",version = "0.1.0"):
         self.publisher = publisher
@@ -53,7 +53,7 @@ class codesystem_manager(object):
 
     def register(self,codesystem_id:str,title:str):
         if self.has_codesystem(codesystem_id):
-            logging.getLogger(self.__class__.__name__).info("WARNING: reinitializing codesystem " + codesystem_id)
+            self.logger.info("WARNING: reinitializing codesystem " + codesystem_id)
         self.codesystems[codesystem_id] = {}
         self.codesystem_titles[codesystem_id] = title
         self.codesystem_properties[codesystem_id] = {}
@@ -96,10 +96,10 @@ class codesystem_manager(object):
         
     def merge_code(self,codesystem_id,code:str,new_code:dict):
         if not self.has_codesystem(codesystem_id):
-            logging.getLogger(self.__class__.__name__).info("tyring to create code on non-registered code-system:" + codesystem_id)
+            self.logger.info("tyring to create code on non-registered code-system:" + codesystem_id)
             return False
         if not 'display' in new_code:
-            logging.getLogger(self.__class__.__name__).info("trying to create code with out display:" + code)
+            self.logger.info("trying to create code with out display:" + code)
             return False
         if not 'definition' in new_code:
             new_code['defintion'] = None
@@ -114,13 +114,13 @@ class codesystem_manager(object):
 
         existing_code = self.get_code(codesystem_id,code)
         if existing_code:
-            logging.getLogger(self.__class__.__name__).info("Trying to create a code '" + code + "'when it already exists in " + codesystem_id)
+            self.logger.info("Trying to create a code '" + code + "'when it already exists in " + codesystem_id)
             if not existing_code['display'] == display:
-                logging.getLogger(self.__class__.__name__).info("Mismatched display of code '" + code + "': '" + existing_code['display'] \
+                self.logger.info("Mismatched display of code '" + code + "': '" + existing_code['display'] \
                         + "' !=  '" + new_code['display'] + "'")
             if not self.is_blank(existing_code['defintion']) and not self.is_blank(new_code['defintion']) \
                and not existing_code['definition'] == new_code['definition']:
-                logging.getLogger(self.__class__.__name__).info("Mismatched definitions of code '" + code + "': '" + existing_code['definition'] \
+                self.logger.info("Mismatched definitions of code '" + code + "': '" + existing_code['definition'] \
                         + "' !=  '" + new_code['definition'] + "'")
             new_code['designation'] += existing_code['designation']
             new_code['propertyString'] += existing_code['propertyString']
@@ -160,9 +160,9 @@ class codesystem_manager(object):
         input = re.sub(r"\s+"," ",input)
         if len(input) > 245:
             # max filename size is 255, leave space for extensions such as .fsh
-            logging.getLogger(self.__class__.__name__).info("ERROR: name of id is too long.hashing: " + input)        
+            self.logger.info("ERROR: name of id is too long.hashing: " + input)        
             input = stringer.to_hash(input,245)
-            logging.getLogger(self.__class__.__name__).info("Escaping code " + original + " to " + input )
+            self.logger.info("Escaping code " + original + " to " + input )
         return input
 
     def render_valueset_allcodes(self,vs_id,title,cs_id):
@@ -192,12 +192,12 @@ class codesystem_manager(object):
         return valueset
 
     def render_vs_from_dict(self,id:str, title:str, codelist:dict , properties:dict = {}):
-        logging.getLogger(self.__class__.__name__).info("trying to register codesystem " + id )
+        self.logger.info("trying to register codesystem " + id )
         if not self.register(id,title):
-            logging.getLogger(self.__class__.__name__).info("Skipping CS and VS for " + id + " could not register")
+            self.logger.info("Skipping CS and VS for " + id + " could not register")
             return False
         if not self.add_dict(id,codelist):
-            logging.getLogger(self.__class__.__name__).info("Skipping CS and VS for " + id + " could not add dictionary")
+            self.logger.info("Skipping CS and VS for " + id + " could not add dictionary")
             return False
         self.add_properties(id,properties)
         return self.render_valueset_allcodes(id,title,id)
@@ -210,7 +210,7 @@ class codesystem_manager(object):
     
     def render_codesystem(self,id:str):
         if not self.has_codesystem(id):
-            logging.getLogger(self.__class__.__name__).info("Trying to render absent codesystem " + id)
+            self.logger.info("Trying to render absent codesystem " + id)
             return False
         title = self.get_title(id)
         codesystem = 'CodeSystem: ' + stringer.escape(id) + '\n'
@@ -271,7 +271,7 @@ class codesystem_manager(object):
                             else:
                                 codesystem +=  '"' + stringer.escape(coding_value) +  '\n'
             else:
-                logging.getLogger(self.__class__.__name__).info("  failed to add code (expected string or dict with 'display' property)" + str(code))
-                logging.getLogger(self.__class__.__name__).info(val)
+                self.logger.info("  failed to add code (expected string or dict with 'display' property)" + str(code))
+                self.logger.info(val)
         return codesystem
 

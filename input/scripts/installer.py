@@ -52,7 +52,7 @@ class installer(object):
   @property
   def logger(self):
     """Get logger instance for this class."""
-    return logging.getLogger(self.__class__.__name__)
+    return self.logger
   
   def __init__(self):
 
@@ -90,9 +90,9 @@ class installer(object):
       with open(xsd_path, "rb") as xsd_file:
         schema_doc = ET.parse(xsd_file)
         self.multifile_schema = ET.XMLSchema(schema_doc)
-        logging.getLogger(self.__class__.__name__).info(f"Loaded multifile.xsd schema from {xsd_path}")
+        self.logger.info(f"Loaded multifile.xsd schema from {xsd_path}")
     except Exception as e:
-      logging.getLogger(self.__class__.__name__).info(f"FATAL: Could not load multifile.xsd from {xsd_path}: {e}")
+      self.logger.info(f"FATAL: Could not load multifile.xsd from {xsd_path}: {e}")
       self.multifile_schema = None
       return False
     return True
@@ -105,15 +105,15 @@ class installer(object):
     try:
       script_directory = self.get_base_dir() + "/input/scripts" 
       xsl_file = script_directory + "/" +  xsl_file
-      logging.getLogger(self.__class__.__name__).info("initializing xslt at " + xsl_file)
+      self.logger.info("initializing xslt at " + xsl_file)
       for prefix,namespace in namespaces.items():
         ET.register_namespace(prefix , namespace)
       with open(Path(xsl_file), "rb") as f:
         self.xslts[key] = ET.XSLT(ET.parse(f))
 
     except BaseException as e:
-      logging.getLogger(self.__class__.__name__).info("WARNING: Could not find XSLT at " + xsl_file)
-      logging.getLogger(self.__class__.__name__).info(f"\tError: {e}")
+      self.logger.info("WARNING: Could not find XSLT at " + xsl_file)
+      self.logger.info(f"\tError: {e}")
       sys.exit(88)
 
 
@@ -123,15 +123,15 @@ class installer(object):
         with open(self.sushi_file, 'r') as file:
             self.sushi_config = yaml.safe_load(file)
             if not self.sushi_config:
-              logging.getLogger(self.__class__.__name__).info("Could not load sushi config")
+              self.logger.info("Could not load sushi config")
               return False          
-            logging.getLogger(self.__class__.__name__).info("Got sushi config:\n\t" + pprint.pformat(self.sushi_config).replace("\n","\n\t"))
+            self.logger.info("Got sushi config:\n\t" + pprint.pformat(self.sushi_config).replace("\n","\n\t"))
             return True
     except FileNotFoundError:
-        logging.getLogger(self.__class__.__name__).info("Could not find sushi config")
+        self.logger.info("Could not find sushi config")
         return False
     except yaml.YAMLError as e:
-       logging.getLogger(self.__class__.__name__).info("Could not parse sushi config")
+       self.logger.info("Could not parse sushi config")
        return False
     return True
 
@@ -180,8 +180,8 @@ class installer(object):
   dmn_tables = {}
   def add_dmn_table(self,dt_id:str,dt_dmn:str):
     if dt_id in self.dmn_tables:
-      logging.getLogger(self.__class__.__name__).info("**Warning** found duplicated decitiosn table with id=" + dt_id)
-    logging.getLogger(self.__class__.__name__).info("Added " + dt_id + " with content\n" + str(dt_dmn))
+      self.logger.info("**Warning** found duplicated decitiosn table with id=" + dt_id)
+    self.logger.info("Added " + dt_id + " with content\n" + str(dt_dmn))
     self.dmn_tables[dt_id] = dt_dmn
 
 
@@ -204,7 +204,7 @@ class installer(object):
     for ruleset_file in glob.glob(self.get_base_dir() + "/input/fsh/rulesets/*fsh"):      
       ruleset_id =  str(os.path.splitext(os.path.basename(ruleset_file))[0])
       with open(ruleset_file, 'r') as file:
-        logging.getLogger(self.__class__.__name__).info("Opned " + ruleset_file)
+        self.logger.info("Opned " + ruleset_file)
         ruleset = str(file.read())
         self.add_resource("rulesets",ruleset_id,ruleset)
 
@@ -230,21 +230,21 @@ class installer(object):
         if not os.path.exists(self.alias_file):
             with open(filename, 'w') as file:
                 for alias in set(self.aliases):
-                    logging.getLogger(self.__class__.__name__).info("Adding alias:" + alias)
+                    self.logger.info("Adding alias:" + alias)
                     file.write(alias + "\n")
                 file.close()
         else:
             with open(self.alias_file, 'r+') as file:
                 content = file.read()
                 for alias in set(self.aliases):
-#                    logging.getLogger(self.__class__.__name__).info("Checking alias:" + alias)
+#                    self.logger.info("Checking alias:" + alias)
                     if alias not in content:
-                        logging.getLogger(self.__class__.__name__).info("Adding alias:" + alias)
+                        self.logger.info("Adding alias:" + alias)
                         file.write('\n' + alias + '\n')
                 file.close()
     except IOError as e:
-        logging.getLogger(self.__class__.__name__).info("Could not insert aliases")
-        logging.getLogger(self.__class__.__name__).info(f"\tError: {e}")
+        self.logger.info("Could not insert aliases")
+        self.logger.info(f"\tError: {e}")
 
 
 
@@ -254,10 +254,10 @@ class installer(object):
       file = open(file_path,"w")
       print (page,file=file)
       file.close()
-      logging.getLogger(self.__class__.__name__).info("Installed " + file_path)
+      self.logger.info("Installed " + file_path)
     except IOError as e:
-      logging.getLogger(self.__class__.__name__).info("Could not save page with id: " + id + "\n")
-      logging.getLogger(self.__class__.__name__).info(f"\tError: {e}")
+      self.logger.info("Could not save page with id: " + id + "\n")
+      self.logger.info(f"\tError: {e}")
     return True
     
 
@@ -268,10 +268,10 @@ class installer(object):
       file = open(file_path,"w")
       print (cql,file=file)
       file.close()
-      logging.getLogger(self.__class__.__name__).info("Installed " + file_path)
+      self.logger.info("Installed " + file_path)
     except IOError as e:
-      logging.getLogger(self.__class__.__name__).info("Could not save CQL with id: " + id + "\n")
-      logging.getLogger(self.__class__.__name__).info(f"\tError: {e}")
+      self.logger.info("Could not save CQL with id: " + id + "\n")
+      self.logger.info(f"\tError: {e}")
     return True
 
 
@@ -296,60 +296,60 @@ class installer(object):
         try:
           root = ET.fromstring(multifile_xml)
         except Exception as e:
-          logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not parse multifile_xml string: {e}")
+          self.logger.info(f"ERROR: Could not parse multifile_xml string: {e}")
           return False
       elif isinstance(multifile_xml, (ET._Element, ET.ElementBase)):
         root = multifile_xml
       elif hasattr(multifile_xml, "getroot"):  # ElementTree
         root = multifile_xml.getroot()
       else:
-        logging.getLogger(self.__class__.__name__).info(f"ERROR: multifile_xml is not a recognized XML type: {type(multifile_xml)}")
+        self.logger.info(f"ERROR: multifile_xml is not a recognized XML type: {type(multifile_xml)}")
         return False
-      logging.getLogger(self.__class__.__name__).info(f"Multifile={ET.tostring(multifile_xml)}")
+      self.logger.info(f"Multifile={ET.tostring(multifile_xml)}")
 
 
       # Validate XML against schema
       if not self.multifile_schema.validate(multifile_xml):
-        logging.getLogger(self.__class__.__name__).info("XML failed XSD validation!")
+        self.logger.info("XML failed XSD validation!")
         for error in self.multifile_schema.error_log:
-          logging.getLogger(self.__class__.__name__).info(f"XSD validation error: {error}")
+          self.logger.info(f"XSD validation error: {error}")
         return False
       
       if root.tag != "files":
-        logging.getLogger(self.__class__.__name__).info(f"ERROR: Expected root element <files>, got <{root.tag}> instead.")
+        self.logger.info(f"ERROR: Expected root element <files>, got <{root.tag}> instead.")
         return False
       file_elements = root.findall("file")
       if not file_elements:
-        logging.getLogger(self.__class__.__name__).info("WARNING: No <file> elements found in multifile XML.")
+        self.logger.info("WARNING: No <file> elements found in multifile XML.")
         return False
       for file_elem in file_elements:
         file_path = file_elem.get("name")
-        logging.getLogger(self.__class__.__name__).info("Extracting "  + file_path)
+        self.logger.info("Extracting "  + file_path)
         mime_type = file_elem.get("mime-type", "text/plain")
         #content = etree.XML(file_elem.text) or ""
         content = file_elem.text
         if not file_path:
-          logging.getLogger(self.__class__.__name__).info("ERROR: <file> element missing 'name' attribute, skipping.")
+          self.logger.info("ERROR: <file> element missing 'name' attribute, skipping.")
           continue
         
         try:
           os.makedirs(os.path.dirname(file_path), exist_ok = True)
           with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
-            logging.getLogger(self.__class__.__name__).info(f"Created file: {file_path} (mime-type: {mime_type}, {len(content)} bytes) with content:" + str(content))
+            self.logger.info(f"Created file: {file_path} (mime-type: {mime_type}, {len(content)} bytes) with content:" + str(content))
         except Exception as fe:
-          logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not write to file '{file_path}': {fe}")
+          self.logger.info(f"ERROR: Could not write to file '{file_path}': {fe}")
           return False          
 
     except Exception as ex:
-      logging.getLogger(self.__class__.__name__).info(f"FATAL ERROR in process_multifile_xml: {ex}")
+      self.logger.info(f"FATAL ERROR in process_multifile_xml: {ex}")
       return False
 
     return True
   
   def transform_xml(self,prefix:str,xml:Union[str,ET.ElementTree],out_path:Union[str,Path,bool] = False , process_multiline = False):
     if not prefix in self.xslts:
-      logging.getLogger(self.__class__.__name__).info("trying to transform unregistered thing "  + prefix)
+      self.logger.info("trying to transform unregistered thing "  + prefix)
       return False
     if isinstance(xml,ET._ElementTree) or isinstance(xml,ET._Element):
       xml_tree = xml
@@ -359,17 +359,17 @@ class installer(object):
         xml_tree = ET.XML(xml)
         ET.indent(xml_tree)
       except BaseException as e:
-        logging.getLogger(self.__class__.__name__).info("ERROR: Generated invalid XML for " + prefix + "\n" +  f"\tError: {e}\n" )
+        self.logger.info("ERROR: Generated invalid XML for " + prefix + "\n" +  f"\tError: {e}\n" )
         return False
     else:
-      logging.getLogger(self.__class__.__name__).info("invalid xml sent to transformer=" + str(xml))
+      self.logger.info("invalid xml sent to transformer=" + str(xml))
       return False
 
     
     try:
       out = self.xslts[prefix](xml_tree)
       if out_path:
-        logging.getLogger(self.__class__.__name__).info("Transforming " + prefix + " to " + str(out_path))
+        self.logger.info("Transforming " + prefix + " to " + str(out_path))
         out = str(ET.tostring(out.getroot() , encoding="unicode",pretty_print = True, doctype=None))
         out_file = open(out_path, "w")
         out_file.write(out)
@@ -379,8 +379,8 @@ class installer(object):
       else:
         return out
     except BaseException as e:
-      logging.getLogger(self.__class__.__name__).info("Could not process " + prefix + " in " + str(xml_tree))
-      logging.getLogger(self.__class__.__name__).info(f"\tError: {e}")
+      self.logger.info("Could not process " + prefix + " in " + str(xml_tree))
+      self.logger.info(f"\tError: {e}")
       return False
     
     return True
@@ -392,19 +392,19 @@ class installer(object):
       dmn_tree = ET.XML(dmn)
       ET.indent(dmn_tree)
     except BaseException as e:
-      logging.getLogger(self.__class__.__name__).info("ERROR: Generated invalid XML for DMN id " + id +"\n" +  f"\tError: {e}\n" )
+      self.logger.info("ERROR: Generated invalid XML for DMN id " + id +"\n" +  f"\tError: {e}\n" )
       return False
     
     try:
       dmn_path = Path("input/dmn/") /  f"{id}.dmn"
       dmn_file = open(dmn_path,"w")
-      #logging.getLogger(self.__class__.__name__).info(ET.tostring(dmn_tree,encoding="unicode"))
+      #self.logger.info(ET.tostring(dmn_tree,encoding="unicode"))
       dmn_file.write(ET.tostring(dmn_tree,encoding="unicode"))
       #print(ET.tostring(dmn_tree,encoding="unicode"),file=dmn_file)
       dmn_file.close()
-      logging.getLogger(self.__class__.__name__).info("Installed " + str(dmn_path))
+      self.logger.info("Installed " + str(dmn_path))
     except IOError as e:
-      logging.getLogger(self.__class__.__name__).info("Could not save DMN with id: " + id + "\n")
+      self.logger.info("Could not save DMN with id: " + id + "\n")
       log(f"\tERROR: {e}")
       return False
 
@@ -423,11 +423,11 @@ class installer(object):
           file = open(file_path,"w")
           print(resource,file=file)
           file.close()
-          logging.getLogger(self.__class__.__name__).info("Installed " + file_path)
+          self.logger.info("Installed " + file_path)
         except IOError as e:
           result = False
-          logging.getLogger(self.__class__.__name__).info("Could not save resource of type: " + directory + "  with id: " + id + "\n")
-          logging.getLogger(self.__class__.__name__).info(f"\tError: {e}")
+          self.logger.info("Could not save resource of type: " + directory + "  with id: " + id + "\n")
+          self.logger.info(f"\tError: {e}")
     return result
 
 
@@ -473,7 +473,7 @@ class installer(object):
     cql += "\ncontext Patient\n"
 
     if not isinstance(cql_codes,dict):
-      logging.getLogger(self.__class__.__name__).info("Invalid CQL code definitions for " + lib_name)
+      self.logger.info("Invalid CQL code definitions for " + lib_name)
       sys.exit()
       return False
     
