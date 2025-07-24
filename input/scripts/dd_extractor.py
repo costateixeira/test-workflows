@@ -1,23 +1,74 @@
-import stringer
-import sys
-import glob as glob
-import re
-import pandas as pd
+"""
+Data Dictionary Extractor for FHIR Profiles and Logical Models
+
+This module extracts data dictionary definitions from Excel spreadsheets
+and converts them into FHIR Profiles, Logical Models, and related resources.
+The extractor processes structured data dictionaries that define clinical
+data elements, their properties, and relationships.
+
+Data dictionaries typically contain:
+- Data element definitions with names, types, and descriptions
+- Value sets and code systems for coded elements
+- Validation rules and constraints
+- Mapping information to international standards
+
+Author: WHO SMART Guidelines Team
+"""
+
+import glob
 import logging
-from extractor import extractor 
+import re
+import sys
+from typing import Dict, List
+
+import pandas as pd
+
+import stringer
+from extractor import extractor
 from installer import installer
 
+
 class dd_extractor(extractor):
-    xslt_file  = "includes/bpmn2fhirfsh.xsl"
-    dictionaries = {}
+    """
+    Extractor for data dictionary definitions from Excel spreadsheets.
     
-    def __init__(self,installer:installer):
-        super().__init__(installer)        
+    This extractor processes Excel files containing data dictionary definitions
+    and converts them into FHIR Profiles, Logical Models, and supporting
+    resources like ValueSets and CodeSystems.
+    
+    The extractor handles:
+    - Data element definitions and properties
+    - Type mappings and constraints
+    - Value set and code system generation
+    - Profile and logical model creation
+    
+    Attributes:
+        xslt_file (str): XSLT transformation file for processing
+        dictionaries (dict): Storage for processed dictionary data
+    """
+    
+    xslt_file: str = "includes/bpmn2fhirfsh.xsl"
+    
+    def __init__(self, installer: installer):
+        """
+        Initialize the data dictionary extractor.
+        
+        Args:
+            installer: The installer instance for resource management
+        """
+        super().__init__(installer)
+        self.dictionaries: Dict[str, Dict] = {}
 
-
-
-    def find_files(self):
-        return glob.glob("input/dictionary/*xlsx")
+    def find_files(self) -> List[str]:
+        """
+        Find all Excel files containing data dictionaries.
+        
+        Searches for .xlsx files in the input/dictionary/ directory.
+        
+        Returns:
+            List of Excel file paths to process
+        """
+        return glob.glob("input/dictionary/*.xlsx")
         
 
     def extract_file(self):

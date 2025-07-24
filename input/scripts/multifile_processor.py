@@ -1,18 +1,59 @@
-import os
-import sys
-import subprocess
-import xml.etree.ElementTree as ET
+"""
+Multifile XML Processor for Git Operations
+
+This module provides functionality to process multifile XML configurations
+that define operations on multiple files within a Git repository. It handles
+parsing XML configurations, validating Git repository status, and coordinating
+file operations across the repository.
+
+The processor is designed to work with XML files that specify:
+- Repository information and branch details
+- Lists of files to process
+- Commit messages and metadata
+- Processing instructions for batch operations
+
+Author: WHO SMART Guidelines Team
+"""
+
 import logging
+import os
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from typing import List, Optional
+
 
 class MultifileProcessor:
-    def __init__(self, xml_path):
+    """
+    Processes multifile XML configurations for batch Git operations.
+    
+    This class handles XML files that define operations to be performed
+    on multiple files within a Git repository. It provides functionality
+    for parsing XML configurations, validating repository state, and
+    coordinating file processing operations.
+    
+    Attributes:
+        xml_path (str): Path to the multifile XML configuration
+        repo (str): Repository information from XML
+        branch (str): Target branch for operations
+        commit_message (str): Commit message for batch operations
+        files (List[str]): List of files to process
+    """
+    
+    def __init__(self, xml_path: str):
+        """
+        Initialize the multifile processor.
+        
+        Args:
+            xml_path: Path to the XML configuration file
+        """
         self.xml_path = xml_path
-        self.repo = None
-        self.branch = None
-        self.commit_message = None
-        self.files = []
+        self.repo: Optional[str] = None
+        self.branch: Optional[str] = None
+        self.commit_message: Optional[str] = None
+        self.files: List[str] = []
 
-    def is_git_repo(self):
+    def is_git_repo(self) -> bool:
         """Check if the current directory is part of a Git repository."""
         try:
             subprocess.run(

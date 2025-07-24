@@ -1,3 +1,21 @@
+"""
+Decision Table (DT) Extractor for Clinical Decision Support
+
+This module extracts decision table definitions from Excel spreadsheets
+and converts them into FHIR-compatible Clinical Decision Support resources.
+Decision tables define clinical logic, rules, and algorithms used in
+healthcare decision-making processes.
+
+The extractor processes:
+- Decision table structures with conditions and actions
+- CQL (Clinical Quality Language) definitions
+- Input/output parameters and data types
+- DMN (Decision Model and Notation) transformations
+- Annotations and documentation
+
+Author: WHO SMART Guidelines Team
+"""
+
 import stringer
 import logging
 import sys

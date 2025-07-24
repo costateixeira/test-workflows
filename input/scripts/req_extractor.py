@@ -1,3 +1,19 @@
+"""
+Requirements Extractor for FHIR Implementation Guides
+
+This module extracts requirements from Excel spreadsheets and converts them
+into FHIR-compatible formats for inclusion in implementation guides.
+The extractor processes both functional and non-functional requirements
+from structured Excel files.
+
+Requirements are typically organized in sheets containing:
+- Functional requirements with user stories and acceptance criteria
+- Non-functional requirements with performance and quality attributes
+- Traceability information linking requirements to design elements
+
+Author: WHO SMART Guidelines Team
+"""
+
 import os
 import glob
 import re
