@@ -29,6 +29,11 @@ class MultifileProcessor:
         xml_path (str): Path to the XML configuration file
         repo: Git repository instance for version control operations
     """
+    @property
+    def logger(self):
+        """Get logger instance for this class."""
+        return logging.getLogger(self.__class__.__name__)
+    
     def __init__(self, xml_path):
         """
         Initialize the multi-file processor.

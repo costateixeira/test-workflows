@@ -47,7 +47,11 @@ class extractor(object):
   inputfile_name = ""
   class_cs = "http://smart.who.int/base/CodeSystem/CDHIv1"
   
-  
+  @property
+  def logger(self):
+    """Get logger instance for this class."""
+    return logging.getLogger(self.__class__.__name__)
+
   def find_files(self):
     """
     Discover files to be processed by this extractor.

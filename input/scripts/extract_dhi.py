@@ -20,6 +20,8 @@ Author: SMART Guidelines Team
 import installer
 import DHIExtractor
 import logging
+import getopt
+import sys
 
 class extract_dhi:
     """
@@ -30,10 +32,12 @@ class extract_dhi:
     into FHIR resources through the installer system.
     """
 
+    @property
+    def logger(self):
+        """Get logger instance for this class."""
+        return logging.getLogger(self.__class__.__name__)
 
-    
-
-    def usage():
+    def usage(self):
         """
         Display usage information for the DHI extraction script.
         
@@ -47,7 +51,7 @@ class extract_dhi:
         sys.exit(2)
 
 
-    def extract():
+    def extract(self):
         """
         Execute the DHI extraction process.
         
@@ -67,7 +71,7 @@ class extract_dhi:
             logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not extract: {e}")
             return False
 
-    def main():
+    def main(self):
         """
         Main entry point for the DHI extraction script.
         
@@ -80,7 +84,7 @@ class extract_dhi:
         try:
             opts,args = getopt.getopt(sys.argv[1:], "h", ["help"])
         except getopt.GetoptError:
-            usage()
+            self.usage()
 
         if not self.extract():
             sys.exit(1)

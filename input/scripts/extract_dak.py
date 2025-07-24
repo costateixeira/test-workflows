@@ -46,6 +46,11 @@ class extract_dak:
     between different content types.
     """
     
+    @property
+    def logger(self):
+        """Get logger instance for this class."""
+        return logging.getLogger(self.__class__.__name__)
+    
     def usage():
         print("Usage: scans for source DAK L2 content for extraction ")
         print("OPTIONS:")

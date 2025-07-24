@@ -41,6 +41,11 @@ class codesystem_manager(object):
     publisher:str 
     version:str
     
+    @property
+    def logger(self):
+        """Get logger instance for this class."""
+        return logging.getLogger(self.__class__.__name__)
+    
     def __init__(self,publisher = "Self Pubished",version = "0.1.0"):
         self.publisher = publisher
         self.version = version

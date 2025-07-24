@@ -49,6 +49,11 @@ class installer(object):
   xslts = {}
   temp_path = "temp"
   
+  @property
+  def logger(self):
+    """Get logger instance for this class."""
+    return logging.getLogger(self.__class__.__name__)
+  
   def __init__(self):
 
     Path(self.temp_path).mkdir(exist_ok = True)
