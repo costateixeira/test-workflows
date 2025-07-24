@@ -133,7 +133,7 @@ class dd_extractor(extractor):
             else:
                 # this is not the business process overview data dictionary
                 self.process_code_regular(code,row,code_definition)
-            csm.add_code(self.installer.dd_prefix,code, code_definition)
+            csm.merge_code_with_params(self.installer.dd_prefix,code, code_definition)
             
         valueset = csm.render_vs_from_list(vs_id,self.installer.dd_prefix,code,vs_description,vs_codes)
         if not valueset:
