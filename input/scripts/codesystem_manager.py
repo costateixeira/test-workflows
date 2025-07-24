@@ -82,7 +82,7 @@ class codesystem_manager(object):
             return self.codesystems[codesystem_id][code]
 
         
-    def merge_code(self,codesystem_id,code:str,display:str,definition=None,designation=[],propertyString=[]):
+    def add_code(self,codesystem_id,code:str,display:str,definition=None,designation=[],propertyString=[]):
         code_defn = {'display':display,
                     'definition':definition,
                     'designation':designation,
@@ -97,7 +97,7 @@ class codesystem_manager(object):
             logging.getLogger(self.__class__.__name__).info("trying to create code with out display:" + code)
             return False
         if not 'definition' in new_code:
-            new_code['defintion'] = None
+            new_code['definition'] = None
         if not 'designation' in new_code:
             new_code['designation'] = []
         if not 'propertyString' in new_code:
@@ -110,10 +110,10 @@ class codesystem_manager(object):
         existing_code = self.get_code(codesystem_id,code)
         if existing_code:
             logging.getLogger(self.__class__.__name__).info("Trying to create a code '" + code + "'when it already exists in " + codesystem_id)
-            if not existing_code['display'] == display:
+            if not existing_code['display'] == new_code['display']:
                 logging.getLogger(self.__class__.__name__).info("Mismatched display of code '" + code + "': '" + existing_code['display'] \
                         + "' !=  '" + new_code['display'] + "'")
-            if not self.is_blank(existing_code['defintion']) and not self.is_blank(new_code['defintion']) \
+            if not stringer.is_blank(existing_code['definition']) and not stringer.is_blank(new_code['definition']) \
                and not existing_code['definition'] == new_code['definition']:
                 logging.getLogger(self.__class__.__name__).info("Mismatched definitions of code '" + code + "': '" + existing_code['definition'] \
                         + "' !=  '" + new_code['definition'] + "'")
@@ -226,7 +226,7 @@ class codesystem_manager(object):
                 codesystem += '* #"' + stringer.escape_code(code) +  '" "' + stringer.escape(name) + '"\n'
             elif isinstance(val,dict)  and 'display' in val:
                 codesystem += '* #"' + stringer.escape_code(code) +  '" "' + stringer.escape(val['display']) + '"\n'
-                if 'definition' in val and not stringer.is_blank(val):
+                if 'definition' in val and not stringer.is_blank(val['definition']):
                     codesystem += '  * ^definition = """' + val['definition'] + '\n"""\n'
                 if 'designation' in val and isinstance(val['designation'],list):
                     for d_val in val['designation']:
@@ -252,19 +252,19 @@ class codesystem_manager(object):
                         codesystem += '  * ^property[=].valueCode = "' + stringer.escape_code(p['value']) +  '"\n'
 
                 if 'propertyCoding' in val and isinstance(val['propertyCoding'],list):
-                    for p in val['propertyCode']:
+                    for p in val['propertyCoding']:
                         if not isinstance(p,dict) or not 'code' in p or not 'value' in p \
                            or not isinstance(p['value'],dict):
                             continue
                         codesystem += '  * ^property[+].code = #"' + stringer.escape_code(p['code']) +  '"\n'
                         for coding_k,coding_v in p['value'].items():
-                            codesystem += '  * ^property[=].valueCoding.' + coding_key + ' = '
-                            if coding_key == 'code':
-                                codesystem +=  '#' + stringer.escape_code(coding_value) +  '\n'
-                            elif coding_key =='userSelected':
-                                codesystem +=  coding_value +  '\n'
+                            codesystem += '  * ^property[=].valueCoding.' + coding_k + ' = '
+                            if coding_k == 'code':
+                                codesystem +=  '#' + stringer.escape_code(coding_v) +  '\n'
+                            elif coding_k =='userSelected':
+                                codesystem +=  coding_v +  '\n'
                             else:
-                                codesystem +=  '"' + stringer.escape(coding_value) +  '\n'
+                                codesystem +=  '"' + stringer.escape(coding_v) +  '"\n'
             else:
                 logging.getLogger(self.__class__.__name__).info("  failed to add code (expected string or dict with 'display' property)" + str(code))
                 logging.getLogger(self.__class__.__name__).info(val)
