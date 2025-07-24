@@ -1,74 +1,43 @@
 """
-Data Dictionary Extractor for FHIR Profiles and Logical Models
+Data Dictionary Extractor for SMART Guidelines
 
-This module extracts data dictionary definitions from Excel spreadsheets
-and converts them into FHIR Profiles, Logical Models, and related resources.
-The extractor processes structured data dictionaries that define clinical
-data elements, their properties, and relationships.
+This module provides functionality to extract and process data dictionary
+definitions for the SMART guidelines system. It handles structured data
+definitions and converts them into FHIR resources for clinical data
+standardization and interoperability.
 
-Data dictionaries typically contain:
-- Data element definitions with names, types, and descriptions
-- Value sets and code systems for coded elements
-- Validation rules and constraints
-- Mapping information to international standards
+The extractor processes data dictionary files to ensure consistent data
+element definitions across the SMART guidelines implementation.
 
-Author: WHO SMART Guidelines Team
+Author: SMART Guidelines Team
 """
-
-import glob
-import logging
-import re
-import sys
-from typing import Dict, List
-
-import pandas as pd
-
 import stringer
-from extractor import extractor
+import sys
+import glob as glob
+import re
+import pandas as pd
+import logging
+from extractor import extractor 
 from installer import installer
-
 
 class dd_extractor(extractor):
     """
-    Extractor for data dictionary definitions from Excel spreadsheets.
+    Extractor for data dictionary processing.
     
-    This extractor processes Excel files containing data dictionary definitions
-    and converts them into FHIR Profiles, Logical Models, and supporting
-    resources like ValueSets and CodeSystems.
-    
-    The extractor handles:
-    - Data element definitions and properties
-    - Type mappings and constraints
-    - Value set and code system generation
-    - Profile and logical model creation
-    
-    Attributes:
-        xslt_file (str): XSLT transformation file for processing
-        dictionaries (dict): Storage for processed dictionary data
+    This extractor processes data dictionary files containing structured
+    definitions of clinical data elements, converting them into appropriate
+    FHIR resources for standardized data exchange.
     """
+    xslt_file  = "includes/bpmn2fhirfsh.xsl"
+    dictionaries = {}
     
-    xslt_file: str = "includes/bpmn2fhirfsh.xsl"
-    
-    def __init__(self, installer: installer):
-        """
-        Initialize the data dictionary extractor.
-        
-        Args:
-            installer: The installer instance for resource management
-        """
-        super().__init__(installer)
-        self.dictionaries: Dict[str, Dict] = {}
+    def __init__(self,installer:installer):
+        super().__init__(installer)        
 
-    def find_files(self) -> List[str]:
-        """
-        Find all Excel files containing data dictionaries.
-        
-        Searches for .xlsx files in the input/dictionary/ directory.
-        
-        Returns:
-            List of Excel file paths to process
-        """
-        return glob.glob("input/dictionary/*.xlsx")
+
+
+    def find_files(self):
+        return glob.glob("input/dictionary/*xlsx")
         
 
     def extract_file(self):

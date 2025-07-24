@@ -1,99 +1,92 @@
 #!/usr/bin/env python3
 """
-Digital Health Interventions (DHI) Extraction Script
+Digital Health Intervention (DHI) Extraction CLI Script
 
-This script serves as the main entry point for extracting Digital Health
-Interventions data from source files and generating FHIR resources.
-It coordinates the DHI extraction process and manages the installation
-of generated resources.
+This command-line script orchestrates the extraction of Digital Health
+Intervention classifications from source data files. It serves as the
+main entry point for processing DHI classification data and converting
+it into FHIR resources for the SMART guidelines system.
+
+The script integrates with the DHIExtractor to process system categories
+and intervention hierarchies, generating appropriate CodeSystems and
+ConceptMaps for use in clinical decision support implementations.
 
 Usage:
     python extract_dhi.py
 
-Author: WHO SMART Guidelines Team
+Author: SMART Guidelines Team
 """
 
-import getopt
+import installer
+import DHIExtractor
 import logging
-import sys
-from typing import List
-
-from installer import installer
-from DHIExtractor import DHIExtractor
-
 
 class extract_dhi:
     """
-    Main extraction coordinator for Digital Health Interventions.
+    Command-line interface for DHI data extraction.
     
-    This class manages the end-to-end process of extracting DHI data
-    from source files and installing the generated FHIR resources.
+    This class provides the main interface for extracting Digital Health
+    Intervention classifications from source files and converting them
+    into FHIR resources through the installer system.
     """
 
-    @staticmethod
+
+    
+
     def usage():
         """
-        Print usage information and exit.
+        Display usage information for the DHI extraction script.
         
-        Displays command-line usage instructions for the extraction script.
+        Prints command-line usage instructions and available options
+        before exiting the program.
         """
-        print("Usage: scans for source DAK L2 content for extraction")
+        print("Usage: scans for source DAK L2 content for extraction ")
         print("OPTIONS:")
         print(" none")
         print("--help|h : print this information")
         sys.exit(2)
 
-    def extract(self) -> bool:
+
+    def extract():
         """
         Execute the DHI extraction process.
         
         Creates an installer instance, runs the DHI extractor, and
-        installs the generated FHIR resources.
+        processes the results through the installation system.
         
         Returns:
-            True if extraction and installation succeeded, False otherwise
+            True if extraction and installation successful, False otherwise
         """
-        try:
-            # Initialize installer and extractor
+        try: 
             ins = installer()
-            dhi_extractor = DHIExtractor(ins)
-            
-            # Execute extraction
-            if not dhi_extractor.extract():
-                logging.getLogger(self.__class__.__name__).error("Could not extract DHI data")
+            if not DHIExtractor(ins).extract():
+                logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not extract: {e}")
                 return False
-            
-            # Install generated resources
             return ins.install()
-            
         except Exception as e:
-            logging.getLogger(self.__class__.__name__).error(f"ERROR: Could not extract: {e}")
+            logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not extract: {e}")
             return False
 
-    def main(self) -> bool:
+    def main():
         """
-        Main entry point for the extraction script.
+        Main entry point for the DHI extraction script.
         
-        Parses command-line arguments and executes the extraction process.
+        Handles command-line argument processing and orchestrates
+        the extraction workflow.
         
         Returns:
-            True if successful, exits with code 1 on failure
+            True if successful, calls sys.exit(1) on failure
         """
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
+            opts,args = getopt.getopt(sys.argv[1:], "h", ["help"])
         except getopt.GetoptError:
-            self.usage()
+            usage()
 
-        # Process command-line options
-        for opt, arg in opts:
-            if opt in ("-h", "--help"):
-                self.usage()
-
-        # Execute extraction
         if not self.extract():
             sys.exit(1)
         return True
-
+    
 
 if __name__ == "__main__":
     extract_dhi().main()
+

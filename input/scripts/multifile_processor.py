@@ -1,59 +1,48 @@
 """
-Multifile XML Processor for Git Operations
+Multi-file Processing with Git Integration
 
-This module provides functionality to process multifile XML configurations
-that define operations on multiple files within a Git repository. It handles
-parsing XML configurations, validating Git repository status, and coordinating
-file operations across the repository.
+This module provides functionality for processing multiple files with
+Git repository integration for the SMART guidelines system. It handles
+batch operations on files while maintaining version control awareness
+and tracking changes across multiple file transformations.
 
-The processor is designed to work with XML files that specify:
-- Repository information and branch details
-- Lists of files to process
-- Commit messages and metadata
-- Processing instructions for batch operations
+The processor coordinates file operations with Git workflow integration,
+enabling change tracking and collaborative development processes.
 
-Author: WHO SMART Guidelines Team
+Author: SMART Guidelines Team
 """
-
-import logging
 import os
-import subprocess
 import sys
+import subprocess
 import xml.etree.ElementTree as ET
-from typing import List, Optional
-
+import logging
 
 class MultifileProcessor:
     """
-    Processes multifile XML configurations for batch Git operations.
+    Processor for handling multiple files with Git integration.
     
-    This class handles XML files that define operations to be performed
-    on multiple files within a Git repository. It provides functionality
-    for parsing XML configurations, validating repository state, and
-    coordinating file processing operations.
+    This class provides functionality for batch processing multiple files
+    while maintaining Git repository awareness for version control and
+    change tracking purposes.
     
     Attributes:
-        xml_path (str): Path to the multifile XML configuration
-        repo (str): Repository information from XML
-        branch (str): Target branch for operations
-        commit_message (str): Commit message for batch operations
-        files (List[str]): List of files to process
+        xml_path (str): Path to the XML configuration file
+        repo: Git repository instance for version control operations
     """
-    
-    def __init__(self, xml_path: str):
+    def __init__(self, xml_path):
         """
-        Initialize the multifile processor.
+        Initialize the multi-file processor.
         
         Args:
             xml_path: Path to the XML configuration file
         """
         self.xml_path = xml_path
-        self.repo: Optional[str] = None
-        self.branch: Optional[str] = None
-        self.commit_message: Optional[str] = None
-        self.files: List[str] = []
+        self.repo = None
+        self.branch = None
+        self.commit_message = None
+        self.files = []
 
-    def is_git_repo(self) -> bool:
+    def is_git_repo(self):
         """Check if the current directory is part of a Git repository."""
         try:
             subprocess.run(
