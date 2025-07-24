@@ -1,56 +1,152 @@
-import re
-import pprint
-import sys
-import stringer
+"""
+FHIR CodeSystem and ValueSet Management
+
+This module provides comprehensive management of FHIR CodeSystems and ValueSets,
+including creation, modification, validation, and FSH (FHIR Shorthand) generation.
+It handles code definitions, properties, designations, and relationships between codes.
+
+The manager supports:
+- Creating and registering CodeSystems
+- Adding codes with display names, definitions, and properties
+- Generating FSH representations of CodeSystems and ValueSets
+- Managing code relationships and hierarchies
+- Validation and conflict resolution
+
+Author: WHO SMART Guidelines Team
+"""
+
 import logging
+import re
+from typing import Dict, List, Optional, Union, Any
+
+import stringer
+
 
 class codesystem_manager(object):
-    codesystems = {}
-    codesystem_titles = {}
-    codesystem_properties = {}
-
-    publisher:str 
-    version:str
+    """
+    Manages FHIR CodeSystems and ValueSets with comprehensive functionality.
     
-    def __init__(self,publisher = "Self Pubished",version = "0.1.0"):
+    This class provides a centralized way to manage FHIR terminology resources,
+    including CodeSystems, ValueSets, and their associated codes. It handles
+    code registration, property management, and FSH generation.
+    
+    Attributes:
+        codesystems (dict): Storage for CodeSystem definitions and their codes
+        codesystem_titles (dict): Mapping of CodeSystem IDs to human-readable titles
+        codesystem_properties (dict): Properties associated with each CodeSystem
+        publisher (str): Publisher information for generated resources
+        version (str): Version information for generated resources
+    """
+    
+    def __init__(self, publisher: str = "Self Published", version: str = "0.1.0"):
+        """
+        Initialize the CodeSystem manager.
+        
+        Args:
+            publisher: Publisher name for generated FHIR resources
+            version: Version string for generated FHIR resources
+        """
+        self.codesystems: Dict[str, Dict[str, Dict]] = {}
+        self.codesystem_titles: Dict[str, str] = {}
+        self.codesystem_properties: Dict[str, Dict] = {}
         self.publisher = publisher
         self.version = version
 
 
-    def register(self,codesystem_id:str,title:str):
+    def register(self, codesystem_id: str, title: str) -> bool:
+        """
+        Register a new CodeSystem with the manager.
+        
+        Creates a new CodeSystem entry with the specified ID and title.
+        If a CodeSystem with the same ID already exists, it will be
+        reinitialized with a warning logged.
+        
+        Args:
+            codesystem_id: Unique identifier for the CodeSystem
+            title: Human-readable title for the CodeSystem
+            
+        Returns:
+            True if registration was successful
+        """
         if self.has_codesystem(codesystem_id):
-            logging.getLogger(self.__class__.__name__).info("WARNING: reinitializing codesystem " + codesystem_id)
+            logging.getLogger(self.__class__.__name__).warning(
+                f"Reinitializing existing CodeSystem: {codesystem_id}"
+            )
+        
         self.codesystems[codesystem_id] = {}
         self.codesystem_titles[codesystem_id] = title
         self.codesystem_properties[codesystem_id] = {}
-            # need to replace this type of logic with exception handling probably
+        
         return True
     
-    def has_codesystem(self,id:str):
+    def has_codesystem(self, id: str) -> bool:
+        """
+        Check if a CodeSystem is registered with the manager.
+        
+        Args:
+            id: CodeSystem ID to check
+            
+        Returns:
+            True if the CodeSystem exists, False otherwise
+        """
         return id in self.codesystems and id in self.codesystem_titles
 
-    def get_title(self,id:str):
+    def get_title(self, id: str) -> Optional[str]:
+        """
+        Get the title of a registered CodeSystem.
+        
+        Args:
+            id: CodeSystem ID
+            
+        Returns:
+            CodeSystem title if it exists, None otherwise
+        """
         if not self.has_codesystem(id):
             return None
         return self.codesystem_titles[id]
     
-    
-    def get_properties(self,id:str):
+    def get_properties(self, id: str) -> Dict[str, Any]:
+        """
+        Get the properties of a registered CodeSystem.
+        
+        Args:
+            id: CodeSystem ID
+            
+        Returns:
+            Dictionary of properties if CodeSystem exists, empty dict otherwise
+        """
         if not self.has_codesystem(id):
             return {}
         return self.codesystem_properties[id]
 
-
-    def get_codes(self,id:str):
+    def get_codes(self, id: str) -> Dict[str, Dict]:
+        """
+        Get all codes from a registered CodeSystem.
+        
+        Args:
+            id: CodeSystem ID
+            
+        Returns:
+            Dictionary of codes if CodeSystem exists, empty dict otherwise
+        """
         if not self.has_codesystem(id):
             return {}
         return self.codesystems[id]
     
-    def get_code(self,codesystem_id:str,code:str):
-        if not self.has_code(codesystem_id,code):
+    def get_code(self, codesystem_id: str, code: str) -> Optional[Dict]:
+        """
+        Get a specific code definition from a CodeSystem.
+        
+        Args:
+            codesystem_id: CodeSystem ID
+            code: Code value to retrieve
+            
+        Returns:
+            Code definition dictionary if it exists, None otherwise
+        """
+        if not self.has_code(codesystem_id, code):
             return None
-        else:
-            return self.codesystems[codesystem_id][code]
+        return self.codesystems[codesystem_id][code]
 
         
     def merge_code(self,codesystem_id,code:str,display:str,definition=None,designation=[],propertyString=[]):

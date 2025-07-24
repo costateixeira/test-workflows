@@ -1,3 +1,21 @@
+"""
+FHIR Resource Installation and Management System
+
+This module provides the core installer functionality for managing FHIR resources,
+transformations, and code generation for SMART guidelines. It handles resource
+registration, FSH generation, XSLT transformations, and integration with the
+SUSHI tool for FHIR implementation guide generation.
+
+The installer acts as the central orchestrator for:
+- Managing FHIR resources (CodeSystems, ValueSets, Profiles, etc.)
+- Handling XSLT transformations for various input formats
+- Coordinating code system management
+- Generating FSH (FHIR Shorthand) files
+- Managing project configuration and directory structure
+
+Author: WHO SMART Guidelines Team
+"""
+
 import lxml.etree as ET
 from typing import Union
 import glob
