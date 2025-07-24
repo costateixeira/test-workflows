@@ -23,14 +23,14 @@ from installer import installer
 class dd_extractor(extractor):
     """
     Extractor for data dictionary processing.
-    
+
     This extractor processes data dictionary files containing structured
     definitions of clinical data elements, converting them into appropriate
     FHIR resources for standardized data exchange.
     """
     xslt_file  = "includes/bpmn2fhirfsh.xsl"
     dictionaries = {}
-    
+
     def __init__(self,installer:installer):
         super().__init__(installer)        
 
@@ -38,7 +38,7 @@ class dd_extractor(extractor):
 
     def find_files(self):
         return glob.glob("input/dictionary/*xlsx")
-        
+
 
     def extract_file(self):
         cover_column_maps = {
@@ -47,13 +47,13 @@ class dd_extractor(extractor):
         }
         sheet_names = ['COVER']
         cover_sheet = self.retrieve_data_frame_by_headers(cover_column_maps,sheet_names,range(0,20))
-    
+
         if (not  self.extract_dictionaries(cover_sheet)):
-                    
+
             self.logger.info("Could not extract data dicionaries in: " + self.inputfile_name)
             return False        
         return True
-            
+
 
 
     def extract_dictionaries(self,cover_sheet:pd.DataFrame):
@@ -75,7 +75,7 @@ class dd_extractor(extractor):
 
 
 
-    
+
     def extract_dictionary(self,tab:str,definition:str):        
         parts = tab.split(" ",1)
         if (len(parts) != 2):
@@ -84,19 +84,19 @@ class dd_extractor(extractor):
         process_id = parts[0].strip()
         process_name = parts[1].strip()
         process_code = process_id.split(".")[-1]
-        
+
         dd_column_maps = {
             'code': ["Data element ID"],
             'display': ["Data element label"],
             'definition': ["Data element description","Description", "Description and definition","Definition"\
-                         ,"Data element definition"],
+                        ,"Data element definition"],
             'dts': ["Linkages to decision-support tables","Linkages to decision tables"],
-	    'indicators': ["Linkages to aggregate indicators","Linkages to indicators"],
+        'indicators': ["Linkages to aggregate indicators","Linkages to indicators"],
             'comment' :['Annotations','Comment','Comments','Annonation']
         }
         if not process_code == 'BP':            
             dd_column_maps['tasks']=["Activity ID"]
-            
+
         try:
             dd_sheet = self.retrieve_data_frame_by_headers(dd_column_maps,[tab],range(0,2))
             if not dd_sheet:
@@ -120,21 +120,21 @@ class dd_extractor(extractor):
             display = row['display']
             definition = row['definition']
             code_definition = {'display':display
-                         ,'definition':definition
-                         ,'propertyString':[]
-                         ,'propertyCode':[]
-                         ,'propertyCoding':[]}
+                        ,'definition':definition
+                        ,'propertyString':[]
+                        ,'propertyCode':[]
+                        ,'propertyCoding':[]}
             code_definition_extra = ""
             if not self.is_blank(row['comment']):
                 code_definition['propertyString']+= [{'code':'comment','value':row['comment'] }]
-            
+
             if process_code == 'BP': #we are in the Businnes Process Overview sheet
                 self.process_code_overview(code,row,code_definition)
             else:
                 # this is not the business process overview data dictionary
                 self.process_code_regular(code,row,code_definition)
             csm.merge_code_with_params(self.installer.dd_prefix,code, code_definition)
-            
+
         valueset = csm.render_vs_from_list(vs_id,self.installer.dd_prefix,code,vs_description,vs_codes)
         if not valueset:
             self.logger.info("Could not generate VS from list")
@@ -163,7 +163,7 @@ class dd_extractor(extractor):
         return True
 
     def process_code_regular(self,code,row,code_definition:dict):
-        
+
         tasks =  row['tasks'].split(",") if not self.is_blank(row['tasks'])  else []
         if len(tasks) > 0:
             task_descriptions = []
@@ -179,12 +179,12 @@ class dd_extractor(extractor):
                 task_name = task_parts[1].strip()
                 task_url = 'ValueSet-' + self.installer.dd_prefix + "." + task_id + '.html'
                 task_descriptions += [f"* Used in task [{task_name}]({task_url})\n"]
-                
+
                 task_coding = {'code':task_id,'system':self.installer.dd_prefix}
                 code_definition['propertyCoding'] += [{'code':'task-code','value':task_coding}]
             if len(task_descriptions) > 0:
                 code_definition['definition'] += "\n\nUsed in the following tasks:\n" + "\n".join(task_descriptions)
-                
+
 
         dts =  row['dts'].split(",") if not self.is_blank(row['dts'])  else []
         if len(dts) > 0:
@@ -222,4 +222,3 @@ class dd_extractor(extractor):
             if len(indicator_descriptions) > 0:
                 code_definition['definition'] += "\n\nUsed in the following indicators:\n" + "\n".join(indicator_descriptions)
         return True
-

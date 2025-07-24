@@ -23,12 +23,12 @@ import logging
 class codesystem_manager(object):
     """
     Central manager for FHIR CodeSystem and ValueSet resources.
-    
+
     This class provides comprehensive functionality for creating, managing,
     and validating FHIR CodeSystems and their associated ValueSets. It
     ensures consistent resource generation and proper code organization
     across the SMART guidelines implementation.
-    
+
     Attributes:
         codesystems (dict): Collection of managed CodeSystem resources
         codesystem_titles (dict): Mapping of CodeSystem IDs to display titles
@@ -40,12 +40,12 @@ class codesystem_manager(object):
 
     publisher:str 
     version:str
-    
+
     @property
     def logger(self):
         """Get logger instance for this class."""
         return logging.getLogger(self.__class__.__name__)
-    
+
     def __init__(self,publisher = "Self Pubished",version = "0.1.0"):
         self.publisher = publisher
         self.version = version
@@ -59,7 +59,7 @@ class codesystem_manager(object):
         self.codesystem_properties[codesystem_id] = {}
             # need to replace this type of logic with exception handling probably
         return True
-    
+
     def has_codesystem(self,id:str):
         return id in self.codesystems and id in self.codesystem_titles
 
@@ -67,8 +67,8 @@ class codesystem_manager(object):
         if not self.has_codesystem(id):
             return None
         return self.codesystem_titles[id]
-    
-    
+
+
     def get_properties(self,id:str):
         if not self.has_codesystem(id):
             return {}
@@ -79,21 +79,21 @@ class codesystem_manager(object):
         if not self.has_codesystem(id):
             return {}
         return self.codesystems[id]
-    
+
     def get_code(self,codesystem_id:str,code:str):
         if not self.has_code(codesystem_id,code):
             return None
         else:
             return self.codesystems[codesystem_id][code]
 
-        
+
     def merge_code_with_params(self,codesystem_id,code:str,display:str,definition=None,designation=[],propertyString=[]):
         code_defn = {'display':display,
                     'definition':definition,
                     'designation':designation,
                     'propertyString': propertyString}
         return self.merge_code(codesystem_id,code,code_defn)
-        
+
     def merge_code(self,codesystem_id,code:str,new_code:dict):
         if not self.has_codesystem(codesystem_id):
             self.logger.info("tyring to create code on non-registered code-system:" + codesystem_id)
@@ -114,12 +114,12 @@ class codesystem_manager(object):
 
         existing_code = self.get_code(codesystem_id,code)
         if existing_code:
-            self.logger.info("Trying to create a code '" + code + "'when it already exists in " + codesystem_id
+            self.logger.info("Trying to create a code '" + code + "' when it already exists in " + codesystem_id)
             if not existing_code['display'] == new_code['display']:
                 self.logger.info("Mismatched display of code '" + code + "': '" + existing_code['display'] \
                         + "' !=  '" + new_code['display'] + "'")
             if not stringer.is_blank(existing_code['definition']) and not stringer.is_blank(new_code['definition']) \
-               and not existing_code['definition'] == new_code['definition']:
+                and not existing_code['definition'] == new_code['definition']:
                 self.logger.info("Mismatched definitions of code '" + code + "': '" + existing_code['definition'] \
                         + "' !=  '" + new_code['definition'] + "'")
             new_code['designation'] += existing_code['designation']
@@ -131,7 +131,7 @@ class codesystem_manager(object):
     def add_properties(self,codesystem_id:str,vals:dict):
         for k,v in vals.items():
             self.add_property(codesystem_id,k,v)
-      
+
     def add_property(self,codesystem_id:str,k:str,v):
         self.codesystem_properties[codesystem_id][k] = v
 
@@ -147,7 +147,7 @@ class codesystem_manager(object):
 
     def escape(input):
         return stringer.escape(input)
-        
+
     def escape_code(self,input):  
         original = input
         if ( not (isinstance(input,str))):
@@ -156,7 +156,7 @@ class codesystem_manager(object):
         input = re.sub(r"['\"]","",input)
         #SUSHI BUG on processing codes with double quote.  sushi fails
         #Example \"Bivalent oral polio vaccine (bOPV)–inactivated polio vaccine (IPV)\" schedule (in countries with high vaccination coverage [e.g. 90–95%] and low importation risk [where neighbouring countries and/or countries that share substantial population movement have a similarly high coverage])" 
-        
+
         input = re.sub(r"\s+"," ",input)
         if len(input) > 245:
             # max filename size is 255, leave space for extensions such as .fsh
@@ -178,7 +178,7 @@ class codesystem_manager(object):
         return valueset
 
     def render_vs_from_list(self,id:str, codesystem_id:str, title:str, codes):
-        
+
         valueset = 'ValueSet: ' + stringer.escape(id) + '\n'
         valueset += 'Title: "' + stringer.escape(title) + '"\n'
         valueset += 'Description:  "Value Set for ' + stringer.escape(title) + '. Autogenerated from DAK artifacts"\n'
@@ -201,13 +201,13 @@ class codesystem_manager(object):
             return False
         self.add_properties(id,properties)
         return self.render_valueset_allcodes(id,title,id)
-    
+
     def render_codesystems(self):
         result = {}
         for id in self.codesystems.keys():
             result[id] =  self.render_codesystem(id)
         return result
-    
+
     def render_codesystem(self,id:str):
         if not self.has_codesystem(id):
             self.logger.info("Trying to render absent codesystem " + id)
@@ -259,7 +259,7 @@ class codesystem_manager(object):
                 if 'propertyCoding' in val and isinstance(val['propertyCoding'],list):
                     for p in val['propertyCoding']:
                         if not isinstance(p,dict) or not 'code' in p or not 'value' in p \
-                           or not isinstance(p['value'],dict):
+                            or not isinstance(p['value'],dict):
                             continue
                         codesystem += '  * ^property[+].code = #"' + stringer.escape_code(p['code']) +  '"\n'
                         for coding_k,coding_v in p['value'].items():
@@ -274,4 +274,3 @@ class codesystem_manager(object):
                 self.logger.info("  failed to add code (expected string or dict with 'display' property)" + str(code))
                 self.logger.info(val)
         return codesystem
-
