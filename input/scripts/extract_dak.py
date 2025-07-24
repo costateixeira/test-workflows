@@ -46,6 +46,11 @@ class extract_dak:
     between different content types.
     """
     
+    @property
+    def logger(self):
+        """Get logger instance for this class."""
+        return logging.getLogger(self.__class__.__name__)
+    
     def usage():
         print("Usage: scans for source DAK L2 content for extraction ")
         print("OPTIONS:")
@@ -58,16 +63,16 @@ class extract_dak:
             ins = installer()
             extractors = [dd_extractor,bpmn_extractor,svg_extractor,req_extractor,dt_extractor]
             for extractor in extractors:
-                logging.getLogger(self.__class__.__name__).info("Initializing extractor " + extractor.__name__)
+                self.logger.info("Initializing extractor " + extractor.__name__)
                 ext = extractor(ins)
                 if not ext.extract():
                     classname = extractor.__name__
-                    logging.getLogger(self.__class__.__name__).info(f"ERROR: Could not extract on {classname}")
+                    self.logger.info(f"ERROR: Could not extract on {classname}")
                     return False
-            logging.getLogger(self.__class__.__name__).info("Installing generated resources and such")
+            self.logger.info("Installing generated resources and such")
             return ins.install()
         except Exception as e:            
-            logging.getLogger(self.__class__.__name__).exception(f"ERROR: Could not extract: {e}")
+            self.logger.exception(f"ERROR: Could not extract: {e}")
             return False
 
     def main(self):

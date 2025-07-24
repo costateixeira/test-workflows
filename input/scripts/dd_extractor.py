@@ -50,7 +50,7 @@ class dd_extractor(extractor):
     
         if (not  self.extract_dictionaries(cover_sheet)):
                     
-            logging.getLogger(self.__class__.__name__).info("Could not extract data dicionaries in: " + self.inputfile_name)
+            self.logger.info("Could not extract data dicionaries in: " + self.inputfile_name)
             return False        
         return True
             
@@ -58,7 +58,7 @@ class dd_extractor(extractor):
 
     def extract_dictionaries(self,cover_sheet:pd.DataFrame):
         if cover_sheet is None:
-            logging.getLogger(self.__class__.__name__).info("Could not load cover sheet")      
+            self.logger.info("Could not load cover sheet")      
             return False
         descriptions = {}
         result = True            
@@ -67,7 +67,7 @@ class dd_extractor(extractor):
                 or (isinstance(row["description"],str) and bool(row["description"])  )
 
             if not has_non_empty:
-                logging.getLogger(self.__class__.__name__).info("Reached end of cover index table")
+                self.logger.info("Reached end of cover index table")
                 break
             result &= self.extract_dictionary(row['tab'],row["description"])
 
@@ -79,7 +79,7 @@ class dd_extractor(extractor):
     def extract_dictionary(self,tab:str,definition:str):        
         parts = tab.split(" ",1)
         if (len(parts) != 2):
-            logging.getLogger(self.__class__.__name__).info("Skipping data dicionary name: " + tab)
+            self.logger.info("Skipping data dicionary name: " + tab)
             return False
         process_id = parts[0].strip()
         process_name = parts[1].strip()
@@ -100,11 +100,11 @@ class dd_extractor(extractor):
         try:
             dd_sheet = self.retrieve_data_frame_by_headers(dd_column_maps,[tab],range(0,2))
             if not dd_sheet:
-                logging.getLogger(self.__class__.__name__).info("Could not retrieve data dictionary by headers: " + str(cover_column_maps))                     
+                self.logger.info("Could not retrieve data dictionary by headers: " + str(cover_column_maps))                     
                 return False            
         except Exception as e:
-            logging.getLogger(self.__class__.__name__).info("Could not open sheet " + tab )
-            logging.getLogger(self.__class__.__name__).info(e)
+            self.logger.info("Could not open sheet " + tab )
+            self.logger.info(e)
             return False
 
         csm = self.installer.get_codesystem_manager()
@@ -137,7 +137,7 @@ class dd_extractor(extractor):
             
         valueset = csm.render_vs_from_list(vs_id,self.installer.dd_prefix,code,vs_description,vs_codes)
         if not valueset:
-            logging.getLogger(self.__class__.__name__).info("Could not generate VS from list")
+            self.logger.info("Could not generate VS from list")
             return False
         self.installer.add_resource('valuesets',vs_id,valueset)
         return True
@@ -147,7 +147,7 @@ class dd_extractor(extractor):
     def process_code_overview(self,code,row,code_definition:dict):
         code_parts = code.strip().split(".")
         if (len(code_parts) != 2):
-            logging.getLogger(self.__class__.__name__).info("Skipping data element as could not get well formed code of form <DAK-PREFIX>.<PROCESS> : " + code)
+            self.logger.info("Skipping data element as could not get well formed code of form <DAK-PREFIX>.<PROCESS> : " + code)
             return False
         prefix = code_parts[0]
         code_process = code_parts[1]
@@ -173,7 +173,7 @@ class dd_extractor(extractor):
                     continue
                 task_parts = task.split(" ",1)
                 if (len(task_parts) != 2):
-                    logging.getLogger(self.__class__.__name__).info("Skipping data element task as could not get task id and name: " + task)
+                    self.logger.info("Skipping data element task as could not get task id and name: " + task)
                     continue
                 task_id = task_parts[0].strip()
                 task_name = task_parts[1].strip()

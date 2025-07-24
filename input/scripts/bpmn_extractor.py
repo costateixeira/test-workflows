@@ -75,7 +75,7 @@ class bpmn_extractor(extractor):
         with open(self.inputfile_name, 'r') as file:
             bpmn = str(file.read())
             if not self.installer.transform_xml("bpmn",bpmn,process_multiline=True):
-                logging.getLogger(self.__class__.__name__).info("Could not transform bpmn on " + self.inputfile_name)
+                self.logger.info("Could not transform bpmn on " + self.inputfile_name)
                 return False
         return True
             

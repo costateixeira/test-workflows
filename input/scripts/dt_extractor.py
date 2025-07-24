@@ -112,9 +112,9 @@ The table below provides an overview of the decision-support tables and algorith
     cover_sheet = self.retrieve_data_frame_by_headers(cover_column_maps,sheet_names,range(0,20))
     
     if (not  self.extract_activities(cover_sheet)):
-      logging.getLogger(self.__class__.__name__).info("Could not extract decision logic in: " + self.inputfile_name)
+      self.logger.info("Could not extract decision logic in: " + self.inputfile_name)
       return False        
-    logging.getLogger(self.__class__.__name__).info("Extracted COVER sheet in decision table: " + self.inputfile_name)
+    self.logger.info("Extracted COVER sheet in decision table: " + self.inputfile_name)
 
     return True
 
@@ -130,7 +130,7 @@ The table below provides an overview of the decision-support tables and algorith
 
 
     if cover_sheet is None:
-      logging.getLogger(self.__class__.__name__).info("Could not load cover sheet")      
+      self.logger.info("Could not load cover sheet")      
       return False
     
     for index, row in cover_sheet.iterrows():
@@ -141,7 +141,7 @@ The table below provides an overview of the decision-support tables and algorith
         or (isinstance(row["description"],str) and bool(row["description"]) and row["description"] != "-" )           
 
       if not has_non_empty:
-        logging.getLogger(self.__class__.__name__).info("Reached end of cover index table")
+        self.logger.info("Reached end of cover index table")
         break
       
       if  "id_name" in row and  isinstance(row["id_name"], str) and row["id_name"]:
@@ -149,19 +149,19 @@ The table below provides an overview of the decision-support tables and algorith
 
         
       if not id_name:
-        logging.getLogger(self.__class__.__name__).info("could not get id_name on row=" + str(row))
+        self.logger.info("could not get id_name on row=" + str(row))
         continue
       
       parts = id_name.split(" ",1)
       if (len(parts) != 2):
-        logging.getLogger(self.__class__.__name__).info("Skipping bad activity id.name: " + id_name ,parts)
+        self.logger.info("Skipping bad activity id.name: " + id_name ,parts)
         continue
       
       id = parts[0].strip()
       name = parts[1].strip()
 
       if not "dt_id" in row  or not isinstance(row["dt_id"], str) or not row["dt_id"]:
-        logging.getLogger(self.__class__.__name__).info("Could not load decision dt_id data", row)
+        self.logger.info("Could not load decision dt_id data", row)
         continue
       dt_id = stringer.name_to_id(row["dt_id"])
       
@@ -176,12 +176,12 @@ The table below provides an overview of the decision-support tables and algorith
       #  continue
 
       if not self.load_tab(tab):      
-        logging.getLogger(self.__class__.__name__).info("Could not load tab data for "  + tab)
+        self.logger.info("Could not load tab data for "  + tab)
         continue
       dt_data = {"tab":tab,"dt_id":dt_id,"description":row["description"],"source":row["sources"]}
       self.dt_data[dt_id] = dt_data
       if not self.extract_activity_table(id,name,tab,dt_id,dt_data):
-        logging.getLogger(self.__class__.__name__).info("Could not extract decision table for id=" + id + " name=" + name + " data=" + str(dt_data))
+        self.logger.info("Could not extract decision table for id=" + id + " name=" + name + " data=" + str(dt_data))
 
 
     cql_files = self.find_cql_files()
@@ -189,7 +189,7 @@ The table below provides an overview of the decision-support tables and algorith
     cql_contents = {}
     for cql_file in cql_files:
       if cql_file.startswith(self.installer.dt_prefix):
-        logging.getLogger(self.__class__.__name__).info("Ignoring " + cql_file)
+        self.logger.info("Ignoring " + cql_file)
         continue      
       cql_contents[cql_file] = Path(cql_file).read_text()
 
@@ -207,15 +207,15 @@ The table below provides an overview of the decision-support tables and algorith
         tab_markdown += dt_include
         #self.installer.add_page( full_dt_id,dt_markdown)
         
-        logging.getLogger(self.__class__.__name__).info("Processing DT ID cql for " + full_dt_id + " on full tab_id " + full_tab_id)
+        self.logger.info("Processing DT ID cql for " + full_dt_id + " on full tab_id " + full_tab_id)
         vs_id = full_dt_id
         dt_codes = []
         for cql_id,val in cql_definitions.items():
           if not cql_id:
-            logging.getLogger(self.__class__.__name__).info("BAD:" + cql_id + " from " + full_dt_id)
+            self.logger.info("BAD:" + cql_id + " from " + full_dt_id)
             sys.exit(2)
           if not cql_id in all_codes:
-            logging.getLogger(self.__class__.__name__).info("  adding new " + cql_id  + " -> " + str(val))
+            self.logger.info("  adding new " + cql_id  + " -> " + str(val))
             if isinstance(val,str):
               cql_prop = { 'value' : val,
                            'pseudocode' : val,
@@ -232,10 +232,10 @@ The table below provides an overview of the decision-support tables and algorith
               all_codes[cql_id]['table'] = [full_dt_id]
               tab_codes[cql_id] = all_codes[cql_id]                            
             else:
-              logging.getLogger(self.__class__.__name__).info("  skipping " + cql_id  )
+              self.logger.info("  skipping " + cql_id  )
               continue
           else:
-            logging.getLogger(self.__class__.__name__).info("  updating" + cql_id  + " -> " + str(val))
+            self.logger.info("  updating" + cql_id  + " -> " + str(val))
             if isinstance(val,str):
               title = val
               tab_codes[cql_id] = {'pseudocode':title}
@@ -243,12 +243,12 @@ The table below provides an overview of the decision-support tables and algorith
               title = val['title']
               tab_codes[cql_id] = val
             else:
-              logging.getLogger(self.__class__.__name__).info("  skipping " + cql_id  )
+              self.logger.info("  skipping " + cql_id  )
               continue
             
             
             if title != all_codes[cql_id]['value']:
-              logging.getLogger(self.__class__.__name__).info("ERROR: cql expression " + cql_id + " has repeated non-matching definition in decision table with id " + full_dt_id + " on tab_id " + full_tab_id )
+              self.logger.info("ERROR: cql expression " + cql_id + " has repeated non-matching definition in decision table with id " + full_dt_id + " on tab_id " + full_tab_id )
 
           dt_codes += [stringer.escape_code(cql_id)]
           
@@ -257,7 +257,7 @@ The table below provides an overview of the decision-support tables and algorith
         dt_vs_title = 'Decision Table for ' + full_dt_id + ". Autogenerated from DAK artifacts"
         dt_vs = csm.render_vs_from_list(dt_vs_id,self.installer.dd_prefix,dt_vs_title,dt_codes)
         if not dt_vs:
-            logging.getLogger(self.__class__.__name__).info("Could not generate VS from list")
+            self.logger.info("Could not generate VS from list")
             return False
         self.installer.add_resource('valuesets',dt_vs_id,dt_vs)
       #self.installer.add_page(full_tab_id,tab_markdown)
@@ -270,7 +270,7 @@ The table below provides an overview of the decision-support tables and algorith
       tab_vs_title = 'Decision Tables For Tab ' + full_tab_id
       tab_vs = csm.render_vs_from_list(tab_vs_id,self.installer.dd_prefix,tab_vs_title,list(tab_codes.keys()))
       if not tab_vs:
-        logging.getLogger(self.__class__.__name__).info("Could not generate VS from list")
+        self.logger.info("Could not generate VS from list")
         return False
       self.installer.add_resource('valuesets',tab_vs_id,tab_vs)
 
@@ -308,7 +308,7 @@ The table below provides an overview of the decision-support tables and algorith
         cql_def = match.group(1)
         if stringer.is_blank(cql_def):
           continue
-        #logging.getLogger(self.__class__.__name__).info("for " + cql_id + " found in " + cql_file + "found:" +  cql_def)
+        #self.logger.info("for " + cql_id + " found in " + cql_file + "found:" +  cql_def)
         cql_defs += "//Found in " + cql_file + "\n\n" + cql_def + "\n\n"
       if not stringer.is_blank(cql_defs):
         cql_prop['designation'] += [{
@@ -331,10 +331,10 @@ The table below provides an overview of the decision-support tables and algorith
     csm = self.installer.get_codesystem_manager()
     vs = csm.render_vs_from_dict(self.installer.dd_prefix,'Decision Table',normalized_codes,cs_properties)
     if not vs:
-      logging.getLogger(self.__class__.__name__).info("Could not generate VS from list")
+      self.logger.info("Could not generate VS from list")
       return False
     self.installer.add_resource('valuesets',self.installer.dd_prefix,vs)
-    logging.getLogger(self.__class__.__name__).info("Extracted codes from decision tables")
+    self.logger.info("Extracted codes from decision tables")
     self.add_activities()
     return True
 
@@ -376,17 +376,17 @@ The table below provides an overview of the decision-support tables and algorith
     if tab_id in self.tab_data:
       return True
     
-    logging.getLogger(self.__class__.__name__).info("Attempting to load decision table metadata for tab=" + tab)
+    self.logger.info("Attempting to load decision table metadata for tab=" + tab)
     try:
       df = pd.read_excel(self.inputfile_name, sheet_name=tab,header=None)
       
     except Exception as e:
-      logging.getLogger(self.__class__.__name__).info("Could not open sheet " + tab )
-      logging.getLogger(self.__class__.__name__).info(e)
+      self.logger.info("Could not open sheet " + tab )
+      self.logger.info(e)
       return False
 
     tab_id = stringer.name_to_id(tab)
-    logging.getLogger(self.__class__.__name__).info("Exracting tab to " + tab_id)
+    self.logger.info("Exracting tab to " + tab_id)
     self.tab_data[tab_id] = {'df' :df,'tables':{}}
     for col in df:
       matching_rows = df[col] == "Decision ID"
@@ -396,41 +396,41 @@ The table below provides an overview of the decision-support tables and algorith
         continue
       
       col_idx = df.columns.get_loc(col) 
-      logging.getLogger(self.__class__.__name__).info("Found decision tables in column index " + str(col_idx) + " on  matched rows=", df[matching_rows])
+      self.logger.info("Found decision tables in column index " + str(col_idx) + " on  matched rows=", df[matching_rows])
       for row in df[matching_rows].iterrows():
         row_idx = row[0]
-        logging.getLogger(self.__class__.__name__).info("Validating decision table on row= # " + str(row_idx) +  \
+        self.logger.info("Validating decision table on row= # " + str(row_idx) +  \
               "\n\t" +  '\t'.join(str(x) for x in row[1].values))
         decision_id = stringer.name_to_id(row[1][col_idx+1])
         if not isinstance(decision_id,str) or not decision_id:
-          logging.getLogger(self.__class__.__name__).info("Could not find decision id to right of r,c:"+ row + "," + col)
+          self.logger.info("Could not find decision id to right of r,c:"+ row + "," + col)
           continue
 
-        logging.getLogger(self.__class__.__name__).info("found decision id=" + decision_id)
+        self.logger.info("found decision id=" + decision_id)
         br_row = row_idx + 1
         if not isinstance(df[col][br_row],str) or not df[col][br_row] == "Business rule":
-          logging.getLogger(self.__class__.__name__).info("Did not find Business Rule row of decision table " + decision_id)
+          self.logger.info("Did not find Business Rule row of decision table " + decision_id)
           continue        
         br = df[col_idx + 1][br_row]
         if not isinstance(br,str) or not br:
-          logging.getLogger(self.__class__.__name__).info("Did not find any Business Rule defined for decision table " + decision_id)
+          self.logger.info("Did not find any Business Rule defined for decision table " + decision_id)
           continue
 
         trigger_row = row_idx + 2
         if not isinstance(df[col][trigger_row],str) or not df[col][trigger_row] == "Trigger":
-          logging.getLogger(self.__class__.__name__).info("Did not find trigger row of decision table " + decision_id)
+          self.logger.info("Did not find trigger row of decision table " + decision_id)
           continue
         trigger = df[col_idx + 1][trigger_row]
         if not isinstance(trigger,str) or not trigger:
-          logging.getLogger(self.__class__.__name__).info("Did not find any trigger defined for decision table " + decision_id)
+          self.logger.info("Did not find any trigger defined for decision table " + decision_id)
           continue
 
         input_row = row_idx + 3
         if not isinstance(df[col][input_row],str) or \
           ( not df[col][input_row] == "Inputs" and not df[col][input_row] == "Potential contraindications"):
-          logging.getLogger(self.__class__.__name__).info("Did not find Inputs row of decision table " + decision_id)
+          self.logger.info("Did not find Inputs row of decision table " + decision_id)
           continue
-        logging.getLogger(self.__class__.__name__).info("Found Inputs/Potential contraindications at " + str(col) + " / " + str(input_row))
+        self.logger.info("Found Inputs/Potential contraindications at " + str(col) + " / " + str(input_row))
 
         output_col = False
         guidance_col = False
@@ -449,14 +449,14 @@ The table below provides an overview of the decision-support tables and algorith
             ref_col = c
             
         if not output_col:
-          logging.getLogger(self.__class__.__name__).info("Did not find Output column of decision table " + decision_id)
+          self.logger.info("Did not find Output column of decision table " + decision_id)
           continue
 
         if not guidance_col:
-          logging.getLogger(self.__class__.__name__).info("Did not find Guidance column of decision table " + decision_id)
+          self.logger.info("Did not find Guidance column of decision table " + decision_id)
           
         if not ref_col:
-          logging.getLogger(self.__class__.__name__).info("Did not find Reference column of decision table " + decision_id)
+          self.logger.info("Did not find Reference column of decision table " + decision_id)
 
 
         tab_data = {"row":row_idx,
@@ -470,7 +470,7 @@ The table below provides an overview of the decision-support tables and algorith
           "reference_col":ref_col,
           'used':False}        
           
-        logging.getLogger(self.__class__.__name__).info("Found decision table " + decision_id + " in " + tab + " at r,c:" + str(row_idx) + "," + str(col_idx) + ".  Saving in tab_id=" + tab_id + " with " + str(tab_data))
+        self.logger.info("Found decision table " + decision_id + " in " + tab + " at r,c:" + str(row_idx) + "," + str(col_idx) + ".  Saving in tab_id=" + tab_id + " with " + str(tab_data))
         self.tab_data[tab_id]['tables'][decision_id] = tab_data
     return True    
 
@@ -487,7 +487,7 @@ The table below provides an overview of the decision-support tables and algorith
       else:
         if stringer.is_nan(val)  and len(inputs) < len(prev_inputs):
           #merged cells end up as NaNs
-          logging.getLogger(self.__class__.__name__).info('  => setting to previous value')
+          self.logger.info('  => setting to previous value')
           inputs += [prev_inputs[i]]
         else:
           inputs += [val]
@@ -495,10 +495,10 @@ The table below provides an overview of the decision-support tables and algorith
   
 
   def extract_activity_table(self,id:str,name:str,tab:str,dt_id:str,row):
-    logging.getLogger(self.__class__.__name__).info("Looking for decision table ID=" + dt_id + " for activivity id /name (" + id + "/" + name + "): row=\n" + str(row))
+    self.logger.info("Looking for decision table ID=" + dt_id + " for activivity id /name (" + id + "/" + name + "): row=\n" + str(row))
     tab_id =stringer.name_to_id(tab)
     if dt_id not in self.tab_data[tab_id]['tables']:
-      logging.getLogger(self.__class__.__name__).info("Could not find " + dt_id + " in sheet " + tab + " among found tables:" + ",".join(self.tab_data[tab_id]['tables'].keys()))
+      self.logger.info("Could not find " + dt_id + " in sheet " + tab + " among found tables:" + ",".join(self.tab_data[tab_id]['tables'].keys()))
       return False
     data = self.tab_data[tab_id]['tables'][dt_id]
     df = self.tab_data[tab_id]["df"]
@@ -511,7 +511,7 @@ The table below provides an overview of the decision-support tables and algorith
     business_rule = data["br"]
 
     row_offset = 0
-    logging.getLogger(self.__class__.__name__).info("input row=" +  str(data["input_row"]))
+    self.logger.info("input row=" +  str(data["input_row"]))
     if stringer.name_to_id(ul_corner) == stringer.name_to_id("Decision ID"):
       table_type = df[data["col"]][data["input_row"]]
       is_contra_table = table_type == "Potential contraindications"
@@ -522,11 +522,11 @@ The table below provides an overview of the decision-support tables and algorith
       table_type = ul_corner
       is_schedule_table = True
     else:
-      logging.getLogger(self.__class__.__name__).info("Could not determine type of table from " + ul_corner + "/" + table_type )
+      self.logger.info("Could not determine type of table from " + ul_corner + "/" + table_type )
       return False
     
-    logging.getLogger(self.__class__.__name__).info("Using decision tab of type (" + table_type + ") " + dt_id + " in sheet " + tab + " at r,c:"  + str(data["row"]) +"," + str(data["col"])  )
-    logging.getLogger(self.__class__.__name__).info("Tab data = \n\t" + pprint.pformat(data).replace("\n","\n\t"))
+    self.logger.info("Using decision tab of type (" + table_type + ") " + dt_id + " in sheet " + tab + " at r,c:"  + str(data["row"]) +"," + str(data["col"])  )
+    self.logger.info("Tab data = \n\t" + pprint.pformat(data).replace("\n","\n\t"))
 
     in_table = True
     dmn = {'rule':[],'input' : [], 'output' : []}
@@ -548,12 +548,12 @@ The table below provides an overview of the decision-support tables and algorith
       row_offset += 1      
       prev_rule = rule
       rule = self.get_rule(df,data ,row_offset,prev_rule)
-      logging.getLogger(self.__class__.__name__).info("Previus rule=" +str(prev_rule)+ "\nRule=" + str(rule))
+      self.logger.info("Previus rule=" +str(prev_rule)+ "\nRule=" + str(rule))
       if not rule:        #end of table
-        logging.getLogger(self.__class__.__name__).info("End of table for " + dt_id)
+        self.logger.info("End of table for " + dt_id)
         break
       if is_regular_table:
-        logging.getLogger(self.__class__.__name__).info("Got input column")
+        self.logger.info("Got input column")
         if len(prev_rule['inputs']) == 0:
           #it is a input variable definition
           dmn['input'].extend(self.get_dmn_input_definition(full_tab_id,full_dt_id,rule))
@@ -565,13 +565,13 @@ The table below provides an overview of the decision-support tables and algorith
       elif is_contra_table:        
         dmn['rule'].extend(self.get_dmn_contraindication_rule(full_tab_id,full_dt_id,row_offset,rule))
       else:
-        logging.getLogger(self.__class__.__name__).info("WARNING - UNKNOWN table type")
+        self.logger.info("WARNING - UNKNOWN table type")
         return False      
     if is_regular_table:
       fsh['plan'] +=  "\n"+ fsh['citations'] + "\n" + fsh['rules']
       #maybe the DT was not in a bpmn, check to see if there is a definition already loaded
       if not self.installer.has_resource('profiles',profile_id):
-        logging.getLogger(self.__class__.__name__).info("WARNING - Decision Table present without representation in BPMN")
+        self.logger.info("WARNING - Decision Table present without representation in BPMN")
         profile_fsh  = f"Profile: {profile_id}\n"
         profile_fsh += "Parent: $SGDecisionTable\n"
         profile_fsh += f"Title: \"{name}\"\n"
@@ -594,7 +594,7 @@ The table below provides an overview of the decision-support tables and algorith
     
     vals = df.iloc[t_row, data["col"]:data["output_col"]].tolist()
     first_val = vals[0]
-    logging.getLogger(self.__class__.__name__).info("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
+    self.logger.info("scanning row=" + str(t_row) + " with first value=" + str( first_val ))
 
     trailing_vals = vals[1:]    
     trailing_blank_input = all([stringer.is_blank(v) for v in trailing_vals])      
@@ -665,7 +665,7 @@ The table below provides an overview of the decision-support tables and algorith
     return dmn_out
 
   def get_contra_dmns(self,dt_id,table_type):
-    logging.getLogger(self.__class__.__name__).info("rendering contraindication input dmn for decision table ")
+    self.logger.info("rendering contraindication input dmn for decision table ")
     contra_id = stringer.name_to_id(table_type + dt_id) 
     contra_dmn_id = "input." + contra_id  + "."
     contra_dmn = "<dmn:input id='" + contra_dmn_id + "' label='" + stringer.xml_escape(table_type) + "'></dmn:input>"    
@@ -700,7 +700,7 @@ The table below provides an overview of the decision-support tables and algorith
     for val in rule['inputs']:
       if stringer.is_blank(val) or stringer.is_dash(val) or stringer.is_nan(val):
         continue
-      logging.getLogger(self.__class__.__name__).info("Adding contra '" + str(val) + "'")
+      self.logger.info("Adding contra '" + str(val) + "'")
       rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"input",str(val)))
 
     rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",rule['output']))
@@ -721,7 +721,7 @@ The table below provides an overview of the decision-support tables and algorith
 
     
   def get_dmn_input_rule(self,tab_id:str,dt_id:str,row_offset,rule):
-    logging.getLogger(self.__class__.__name__).info(rule)
+    self.logger.info(rule)
     rule_data = "".join(rule['inputs'])
     for k in ['output','guidance','annotation','reference']:
       if  isinstance(rule[k],str):
@@ -730,7 +730,7 @@ The table below provides an overview of the decision-support tables and algorith
 
     rule_dmn_entries = []            
     for val in rule['inputs']:
-      logging.getLogger(self.__class__.__name__).info("Processing input defintion: " + str(val))
+      self.logger.info("Processing input defintion: " + str(val))
       rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"input",val))
 
     rule_dmn_entries.append(self.create_dmn_entry(tab_id,dt_id,rule_name,"output",rule['output']))
@@ -751,7 +751,7 @@ The table below provides an overview of the decision-support tables and algorith
       if stringer.is_blank(val) or stringer.is_dash(val) or stringer.is_nan(val):
         continue
 
-      logging.getLogger(self.__class__.__name__).info("Processing input defintion: " + str(val))
+      self.logger.info("Processing input defintion: " + str(val))
       
       val_id = str(val).strip()
       parts = val_id.split("\n",1)
@@ -762,7 +762,7 @@ The table below provides an overview of the decision-support tables and algorith
         val_definition = val_id
 
       val_id = stringer.escape_code(val_id)
-      logging.getLogger(self.__class__.__name__).info("Found code(" + val_id + ")")
+      self.logger.info("Found code(" + val_id + ")")
       if not tab_id in self.cql_definitions:
         self.cql_definitions[tab_id] = {}
       if not dt_id in self.cql_definitions[tab_id]:
@@ -770,21 +770,21 @@ The table below provides an overview of the decision-support tables and algorith
       self.cql_definitions[tab_id][dt_id][val_id] = val_definition
 
       input_dmns.append(self.create_dmn_input_expression(dt_id,val_id,val_definition))
-      logging.getLogger(self.__class__.__name__).info("Added CQL with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + val_id + "\n\tEXPR=" + val_definition)
+      self.logger.info("Added CQL with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + val_id + "\n\tEXPR=" + val_definition)
     return input_dmns
 
   def get_fsh_conditions(self,inputs):
     fsh_conditions = ""
-    logging.getLogger(self.__class__.__name__).info("adding fsh conditions from inputs")
+    self.logger.info("adding fsh conditions from inputs")
     for input in inputs:
-      logging.getLogger(self.__class__.__name__).info(f"\t{input}")
+      self.logger.info(f"\t{input}")
       if stringer.is_blank(input) or stringer.is_dash(input):
-        logging.getLogger(self.__class__.__name__).info(f"\t\tSkipping blank input")
+        self.logger.info(f"\t\tSkipping blank input")
         continue
       input_name = str(input).strip()
       parts = input_name.split("\n",1)
       if not len(parts) == 2:
-        logging.getLogger(self.__class__.__name__).info(f"\t\tSkipping bad parts")
+        self.logger.info(f"\t\tSkipping bad parts")
         continue
       input_name = parts[0].strip()
       input_id = stringer.name_to_id(input_name)
@@ -832,7 +832,7 @@ The table below provides an overview of the decision-support tables and algorith
     fsh_conditions = self.get_fsh_conditions(rule['inputs'])
 
     if stringer.is_blank(rule['output']):
-      logging.getLogger(self.__class__.__name__).info("ERROR: misformed decision table near rule=" + str(rule))
+      self.logger.info("ERROR: misformed decision table near rule=" + str(rule))
       sys.exit(44)
 
     output_name = str(rule['output']).strip()
@@ -928,7 +928,7 @@ The table below provides an overview of the decision-support tables and algorith
 
 
       name = stringer.escape_code(name)
-      logging.getLogger(self.__class__.__name__).info("Found entry code(" + name + ")")
+      self.logger.info("Found entry code(" + name + ")")
       if not (stringer.is_dash(name) or stringer.is_blank(name) or stringer.is_nan(name)):
         if not tab_id in self.cql_definitions:
           self.cql_definitions[tab_id] = {}
@@ -937,7 +937,7 @@ The table below provides an overview of the decision-support tables and algorith
         self.cql_definitions[tab_id][dt_id][name] = expr
         self.cql_definitions_by_type[type][name] = expr
 
-        logging.getLogger(self.__class__.__name__).info("Added CQL via dmn with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + name + "\n\tEXPR=" + expr)
+        self.logger.info("Added CQL via dmn with:\n\tTAB_ID="  + tab_id + "\n\tDT_ID=" + dt_id + "\n\tNAME=" + name + "\n\tEXPR=" + expr)
 
     id = stringer.name_to_id(rule_name + "." + str(name))
     dmn_id = type + "Entry."  + id

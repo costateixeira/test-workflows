@@ -79,7 +79,7 @@ class svg_extractor(extractor):
             svg = str(file.read())
             outputfile_name = "input/images/" + os.path.basename(self.inputfile_name)
             if not self.installer.transform_xml("svg",svg,out_path=outputfile_name):
-                logging.getLogger(self.__class__.__name__).info("Could not transform svg on " + self.inputfile_name)
+                self.logger.info("Could not transform svg on " + self.inputfile_name)
                 return False
         return True
             

@@ -73,7 +73,7 @@ class DHIExtractror(extractor):
     cdhsc_id = 'CDSCv1'
     cm_id = "CDHIv1Hierarchy"
 
-    logging.getLogger(self.__class__.__name__).info ("System Categories")
+    self.logger.info ("System Categories")
     interventions = {}
     for line in open(self.inputfile_name, 'r'):
       parts = line.strip().split(' ',1)
@@ -81,7 +81,7 @@ class DHIExtractror(extractor):
           continue
       code = parts[0].strip().rstrip(".")
       intervention = parts[1].strip()
-      logging.getLogger(self.__class__.__name__).info ("\t" + intervention + ' = ' + code)
+      self.logger.info ("\t" + intervention + ' = ' + code)
       interventions[code] = intervention
     
     self.installer.get_codesystem_manager().add_cs_and_vs_from_dict(cdhsc_id, 'Classification of Digital Health System Categories v1', interventions)
@@ -106,7 +106,7 @@ class DHIExtractror(extractor):
       code = ".".join(codes)
       parent_code = ".".join(codes[:-1])
       intervention = parts[1].strip()
-      logging.getLogger(self.__class__.__name__).info ("\t" + intervention + ' = ' + code)
+      self.logger.info ("\t" + intervention + ' = ' + code)
       interventions[code] = intervention
       if (parent_code):
           parent_map[code] = parent_code
