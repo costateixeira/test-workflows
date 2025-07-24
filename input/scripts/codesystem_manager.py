@@ -114,7 +114,7 @@ class codesystem_manager(object):
 
         existing_code = self.get_code(codesystem_id,code)
         if existing_code:
-            self.logger.info("Trying to create a code '" + code + "'when it already exists in " + codesystem_id)
+            self.logger.info("Trying to create a code '" + code + "'when it already exists in " + codesystem_id
             if not existing_code['display'] == new_code['display']:
                 self.logger.info("Mismatched display of code '" + code + "': '" + existing_code['display'] \
                         + "' !=  '" + new_code['display'] + "'")

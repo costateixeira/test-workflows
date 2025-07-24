@@ -60,8 +60,8 @@ class req_extractor(extractor):
     try: 
       self.extract_resources()
     except ValueError as e:
-      logging.getLogger(self.__class__.__name__).info("Could not process: " +  self.inputfile_name + "\n" )
-      logging.getLogger(self.__class__.__name__).info(f"\tError: {e}")
+      self.logger.info("Could not process: " +  self.inputfile_name + "\n" )
+      self.logger.info(f"\tError: {e}")
     
   
   def extract_resources(self):
@@ -76,10 +76,10 @@ class req_extractor(extractor):
     functional = self.retrieve_data_frame_by_headers(functional_column_maps,sheet_names)
             
     if (not  self.extract_functional_requirements(functional)):
-      logging.getLogger(self.__class__.__name__).info("Could not extract functional requirements from: " + self.inputfile_name)
+      self.logger.info("Could not extract functional requirements from: " + self.inputfile_name)
       return False        
     else:
-        logging.getLogger(self.__class__.__name__).info("Could not find functional requirements in:" + self.inputfile_name) 
+        self.logger.info("Could not find functional requirements in:" + self.inputfile_name) 
 
 
 
@@ -92,10 +92,10 @@ class req_extractor(extractor):
     nonfunctional = self.retrieve_data_frame_by_headers(nonfunctional_column_maps,sheet_names)
         
     if (not  self.extract_nonfunctional_requirements_to_resources(nonfunctional)):
-      logging.getLogger(self.__class__.__name__).info("Could not extract non-functional requirements from: " + self.inputfile_name)
+      self.logger.info("Could not extract non-functional requirements from: " + self.inputfile_name)
       return False        
     else:
-      logging.getLogger(self.__class__.__name__).info("Could not find non-functional requirements in:" + self.inputfile_name)
+      self.logger.info("Could not find non-functional requirements in:" + self.inputfile_name)
 
     return True
 
@@ -103,7 +103,7 @@ class req_extractor(extractor):
         
 
   def extract_nonfunctional_requirements_to_resources(nonfunctional:pd.DataFrame ):
-    logging.getLogger(self.__class__.__name__).info("Reading non-functional requirements")
+    self.logger.info("Reading non-functional requirements")
     nonfunctional.drop(index=0)
 
     categories={}
@@ -113,27 +113,27 @@ class req_extractor(extractor):
 
     for index, row in nonfunctional.iterrows():
         if not "reqid" in row or not isinstance(row["reqid"], str):
-            logging.getLogger(self.__class__.__name__).info("// skipping row "+str(index+1)+": no reqid")
+            self.logger.info("// skipping row "+str(index+1)+": no reqid")
             continue
         reqid = stringer.name_to_id(row["reqid"])
 
-        logging.getLogger(self.__class__.__name__).info("\tRow:\n" + "\t\t" + row.to_string().replace("\n", "\n\t\t"))
+        self.logger.info("\tRow:\n" + "\t\t" + row.to_string().replace("\n", "\n\t\t"))
 
 
         #check if this is setting up the classifications
         if ( row["reqid"].strip().lower().startswith("classification of digital health interventions")):            
             classification = row["reqid"].strip()
             classification_codes = re.findall(r'\d+\.?\d*', classification )
-            logging.getLogger(self.__class__.__name__).info("\tFound classification text: " + classification)
-            logging.getLogger(self.__class__.__name__).info("\tFound classification codes: " , classification_codes)
+            self.logger.info("\tFound classification text: " + classification)
+            self.logger.info("\tFound classification codes: " , classification_codes)
             continue
 
 
         if not "category" in row or not isinstance(row["category"], str):
-            logging.getLogger(self.__class__.__name__).info("// skipping row "+str(index+1)+": no category")
+            self.logger.info("// skipping row "+str(index+1)+": no category")
             continue        
         if not "requirement" in row or not isinstance(row["requirement"], str):
-            logging.getLogger(self.__class__.__name__).info("// skipping row "+str(index+1)+": no requirement")
+            self.logger.info("// skipping row "+str(index+1)+": no requirement")
             continue        
         
         cat = row["category"].strip()
@@ -177,7 +177,7 @@ class req_extractor(extractor):
         self.installer.add_resource('instances',lm_id,lm)
         self.installer.add_resource('requirements',reqid, instance)
 
-    logging.getLogger(self.__class__.__name__).info("Extracted " + str(index) + " functional requirement(s)")
+    self.logger.info("Extracted " + str(index) + " functional requirement(s)")
 
     self.installer.generate_cs_and_vs_from_dict(cat_cs,'Functional Requirement Categories',categories)
     return True
@@ -186,7 +186,7 @@ class req_extractor(extractor):
         
 
   def extract_functional_requirements_to_resources(functional: pd.DataFrame):
-    logging.getLogger(self.__class__.__name__).info("Reading functional requirements")
+    self.logger.info("Reading functional requirements")
     businessprocess_code = ""
     businessprocess_name = ""
     businessprocess_codes = {}
@@ -198,47 +198,47 @@ class req_extractor(extractor):
 
     for index, row in functional.iterrows():
         if not "reqid" in row or not isinstance(row["reqid"], str):
-            logging.getLogger(self.__class__.__name__).info("// skipping row "+str(index+1)+": no reqid")
+            self.logger.info("// skipping row "+str(index+1)+": no reqid")
             continue
         reqid = stringer.name_to_id(row["reqid"])
 
-        logging.getLogger(self.__class__.__name__).info("\tRow:\n" + "\t\t" + row.to_string().replace("\n", "\n\t\t"))
+        self.logger.info("\tRow:\n" + "\t\t" + row.to_string().replace("\n", "\n\t\t"))
 
         #check if this is setting up the classifications
         if ( row["reqid"].strip().lower().startswith("classification of digital health interventions")):            
             classification = row["reqid"].strip()
             classification_codes = re.findall(r'\d+\.?\d*', classification )
-            logging.getLogger(self.__class__.__name__).info("\tFound classification text: " + classification)
-            logging.getLogger(self.__class__.__name__).info("\tFound classification codes: " , classification_codes)
+            self.logger.info("\tFound classification text: " + classification)
+            self.logger.info("\tFound classification codes: " , classification_codes)
             continue
 
         if ( row["reqid"].strip().lower().startswith("business process")):
             businessprocess = row["reqid"].strip()[16:].strip()
-            logging.getLogger(self.__class__.__name__).info("\tFound business process row " + str(index+1) +  ": "+ businessprocess)
+            self.logger.info("\tFound business process row " + str(index+1) +  ": "+ businessprocess)
             parts = businessprocess.split(":",2)
             if (len(parts) == 2):
                 businessprocess_code = parts[0].strip()
                 businessprocess_name = parts[1].strip()
-                logging.getLogger(self.__class__.__name__).info("\tFound business process code (" + businessprocess_code + ") associated to " + businessprocess_name )
+                self.logger.info("\tFound business process code (" + businessprocess_code + ") associated to " + businessprocess_name )
                 businessprocess_codes[businessprocess_code] = businessprocess_name
 
         if (businessprocess_code):
             reqid = reqid + "." + businessprocess_code
 
         if not "activityid-and-name" in row or not isinstance(row["activityid-and-name"], str):
-            logging.getLogger(self.__class__.__name__).info("\t*warning* skipping row "+str(index+1)+": no activityid-and-name")
+            self.logger.info("\t*warning* skipping row "+str(index+1)+": no activityid-and-name")
             continue
         
         if not "as-a" in row or not isinstance(row["as-a"], str):
-            logging.getLogger(self.__class__.__name__).info("\t*warning* skipping row "+str(index+1)+": no as-a")
+            self.logger.info("\t*warning* skipping row "+str(index+1)+": no as-a")
             continue
 
         if not "i-want" in row or not isinstance(row["i-want"], str):
-            logging.getLogger(self.__class__.__name__).info("\t*warning* skipping row "+str(index+1)+": no i-want")
+            self.logger.info("\t*warning* skipping row "+str(index+1)+": no i-want")
             continue
 
         if not "so-that" in row or not isinstance(row["so-that"], str):
-            logging.getLogger(self.__class__.__name__).info("\t*warning* skipping row "+str(index+1)+": no so-that")
+            self.logger.info("\t*warning* skipping row "+str(index+1)+": no so-that")
             continue
         
             
@@ -310,7 +310,7 @@ class req_extractor(extractor):
         instance += description + "\n"
         self.installer.add_resource('requirements',reqid,instance)
         
-    logging.getLogger(self.__class__.__name__).info("Extracted " + str(index) + " functional requirement(s)")
-    logging.getLogger(self.__class__.__name__).info("Business Process Codes:\n\t" , businessprocess_codes)
+    self.logger.info("Extracted " + str(index) + " functional requirement(s)")
+    self.logger.info("Business Process Codes:\n\t" , businessprocess_codes)
     self.installer.generate_cs_and_vs_from_dict(bpid,'Functional Requirements Business Processes',businessprocess_codes)
     return True
