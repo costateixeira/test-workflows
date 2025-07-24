@@ -52,7 +52,7 @@ class installer(object):
   @property
   def logger(self):
     """Get logger instance for this class."""
-    return self.logger
+    return logging.getLogger(self.__class__.__name__)
   
   def __init__(self):
 

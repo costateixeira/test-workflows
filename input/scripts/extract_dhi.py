@@ -35,7 +35,7 @@ class extract_dhi:
     @property
     def logger(self):
         """Get logger instance for this class."""
-        return self.logger
+        return logging.getLogger(self.__class__.__name__)
 
     def usage(self):
         """
