@@ -22,7 +22,7 @@ Usage:
 
 Author: SMART Guidelines Team
 """
-
+from typing import List, Type
 import stringer
 import logging
 from codesystem_manager import codesystem_manager
@@ -32,6 +32,7 @@ from req_extractor import req_extractor
 from bpmn_extractor import bpmn_extractor
 from dt_extractor import dt_extractor
 from svg_extractor import svg_extractor
+from extractor import extractor
 import getopt
 import sys
 
@@ -47,26 +48,26 @@ class extract_dak:
     """
     
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """Get logger instance for this class."""
         return logging.getLogger(self.__class__.__name__)
     
-    def usage():
+    def usage(self) -> None:
         print("Usage: scans for source DAK L2 content for extraction ")
         print("OPTIONS:")
         print(" none")
         print("--help|h : print this information")
         sys.exit(2)
 
-    def extract(self):
+    def extract(self) -> bool:
         try:
             ins = installer()
-            extractors = [dd_extractor,bpmn_extractor,svg_extractor,req_extractor,dt_extractor]
-            for extractor in extractors:
-                self.logger.info("Initializing extractor " + extractor.__name__)
-                ext = extractor(ins)
+            extractors: List[Type[extractor]] = [dd_extractor,bpmn_extractor,svg_extractor,req_extractor,dt_extractor]
+            for extractor_class in extractors:
+                self.logger.info("Initializing extractor " + extractor_class.__name__)
+                ext = extractor_class(ins)
                 if not ext.extract():
-                    classname = extractor.__name__
+                    classname = extractor_class.__name__
                     self.logger.info(f"ERROR: Could not extract on {classname}")
                     return False
             self.logger.info("Installing generated resources and such")
@@ -75,11 +76,11 @@ class extract_dak:
             self.logger.exception(f"ERROR: Could not extract: {e}")
             return False
 
-    def main(self):
+    def main(self) -> bool:
         try:
             opts,args = getopt.getopt(sys.argv[1:], "h", ["help"])
         except getopt.GetoptError:
-            usage()
+            self.usage()
 
         if not self.extract():
             sys.exit(1)

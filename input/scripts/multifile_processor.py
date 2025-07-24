@@ -11,6 +11,7 @@ enabling change tracking and collaborative development processes.
 
 Author: SMART Guidelines Team
 """
+from typing import List, Dict, Optional
 import os
 import sys
 import subprocess
@@ -29,12 +30,18 @@ class MultifileProcessor:
         xml_path (str): Path to the XML configuration file
         repo: Git repository instance for version control operations
     """
+    xml_path: str
+    repo: Optional[str]
+    branch: Optional[str]
+    commit_message: Optional[str]
+    files: List[Dict[str, str]]
+    
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """Get logger instance for this class."""
         return logging.getLogger(self.__class__.__name__)
     
-    def __init__(self, xml_path):
+    def __init__(self, xml_path: str) -> None:
         """
         Initialize the multi-file processor.
         
@@ -47,7 +54,7 @@ class MultifileProcessor:
         self.commit_message = None
         self.files = []
 
-    def is_git_repo(self):
+    def is_git_repo(self) -> bool:
         """Check if the current directory is part of a Git repository."""
         try:
             subprocess.run(
@@ -60,7 +67,7 @@ class MultifileProcessor:
         except subprocess.CalledProcessError:
             return False
 
-    def get_current_branch(self):
+    def get_current_branch(self) -> Optional[str]:
         """Get the current Git branch."""
         try:
             result = subprocess.run(
@@ -72,7 +79,7 @@ class MultifileProcessor:
         except subprocess.CalledProcessError:
             return None
 
-    def switch_to_branch(self):
+    def switch_to_branch(self) -> None:
         """Switch to the branch specified in the XML or create it if it doesn't exist."""
         current_branch = self.get_current_branch()
         if self.branch != current_branch:
@@ -89,7 +96,7 @@ class MultifileProcessor:
                     subprocess.run(["git", "checkout", self.branch], check=True)
                 self.logger.info(f"Switched to branch '{self.branch}'.")
 
-    def parse_multifile_xml(self):
+    def parse_multifile_xml(self) -> None:
         """Parse multifile.xml and extract metadata and file contents."""
         try:
             tree = ET.parse(self.xml_path)
@@ -111,7 +118,7 @@ class MultifileProcessor:
             self.logger.info(f"Error parsing XML: {e}", file=sys.stderr)
             sys.exit(1)
 
-    def apply_changes(self):
+    def apply_changes(self) -> None:
         """Apply the changes specified in the XML to the repository."""
         for file in self.files:
             path = file["path"]
@@ -135,7 +142,7 @@ class MultifileProcessor:
                     f.write(content)
                 self.logger.info(f"Updated file: {path}")
 
-    def run(self):
+    def run(self) -> None:
         """Main execution method."""
         if not self.is_git_repo():
             self.logger.info("Error: This script must be run inside a Git repository.", file=sys.stderr)

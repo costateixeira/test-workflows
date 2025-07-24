@@ -16,13 +16,12 @@ The installer serves as the central orchestrator for:
 Author: SMART Guidelines Team
 """
 import lxml.etree as ET
-from typing import Union
+from typing import Union, List, Dict, Optional
 import glob
 import re
 import os
 import shutil
 import yaml
-from typing import List
 from pathlib import Path
 import pprint
 import sys
@@ -34,10 +33,10 @@ import logging
 
 class installer(object):
 
-    dt_prefix = "DT"
-    dd_prefix = "DD"
+    dt_prefix: str = "DT"
+    dd_prefix: str = "DD"
 
-    resources = {
+    resources: Dict[str, Dict[str, str]] = {
         'requirements': {},
         'codesystems': {},
         'valuesets': {},
@@ -49,23 +48,23 @@ class installer(object):
         'profiles': {},
         'plandefinitions': {},
         'activitydefinitions': {}}
-    cqls = {}
-    pages = {}
-    sushi_config = {}
+    cqls: Dict[str, str] = {}
+    pages: Dict[str, str] = {}
+    sushi_config: Dict = {}
     # relative to the dir containing this file
-    multifile_xsd = "includes/multifile.xsd"
-    sushi_file = "sushi-config.yaml"
+    multifile_xsd: str = "includes/multifile.xsd"
+    sushi_file: str = "sushi-config.yaml"
     multifile_schema = None
     codesystem_manager = None
-    xslts = {}
-    temp_path = "temp"
+    xslts: Dict[str, ET.XSLT] = {}
+    temp_path: str = "temp"
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """Get logger instance for this class."""
         return logging.getLogger(self.__class__.__name__)
 
-    def __init__(self):
+    def __init__(self) -> None:
 
         Path(self.temp_path).mkdir(exist_ok=True)
         logfile_path = self.temp_path + "/" + \
@@ -99,7 +98,7 @@ class installer(object):
 
         # self.add_rulesets()
 
-    def load_multifile_schema(self):
+    def load_multifile_schema(self) -> bool:
         """
             Loads and parses the multifile XML XSD, storing it as self.multifile_schema.
             """
@@ -118,14 +117,14 @@ class installer(object):
             return False
         return True
 
-    def get_base_dir(self):
+    def get_base_dir(self) -> str:
         return os.path.dirname(
             os.path.dirname(
                 os.path.dirname(
                     os.path.abspath(__file__))))
 
     def register_transformer(
-            self, key: str, xsl_file: Union[str, Path], namespaces: dict = {}):
+            self, key: str, xsl_file: Union[str, Path], namespaces: Dict[str, str] = {}) -> None:
         try:
             script_directory = self.get_base_dir() + "/input/scripts"
             xsl_file = script_directory + "/" + xsl_file
@@ -140,7 +139,7 @@ class installer(object):
             self.logger.info(f"\tError: {e}")
             sys.exit(88)
 
-    def read_sushi_config(self):
+    def read_sushi_config(self) -> bool:
         try:
             with open(self.sushi_file, 'r') as file:
                 self.sushi_config = yaml.safe_load(file)
@@ -162,31 +161,31 @@ class installer(object):
             return False
         return True
 
-    def get_ig_config(self):
+    def get_ig_config(self) -> Dict:
         return self.sushi_config
 
-    def get_ig_publisher(self):
+    def get_ig_publisher(self) -> str:
         if 'publisher' not in self.sushi_config or 'name' not in self.sushi_config[
                 'publisher']:
             return "Self Published"
         return self.sushi_config['publisher']['name']
 
-    def get_ig_canonical(self):
+    def get_ig_canonical(self) -> str:
         return self.sushi_config['canonical']
 
-    def get_ig_name(self):
+    def get_ig_name(self) -> str:
         return self.sushi_config['name']
 
-    def get_ig_title(self):
+    def get_ig_title(self) -> str:
         return self.sushi_config['title']
 
-    def get_ig_id(self):
+    def get_ig_id(self) -> str:
         return self.sushi_config['id']
 
-    def get_ig_version(self):
+    def get_ig_version(self) -> str:
         return self.sushi_config['version']
 
-    def install(self):
+    def install(self) -> bool:
         self.install_aliases()
         for cs_id, cs in self.codesystem_manager.render_codesystems().items():
             self.add_resource('codesystems', cs_id, cs)
@@ -196,17 +195,17 @@ class installer(object):
         self.install_cqls()
         return True
 
-    def install_cqls(self):
+    def install_cqls(self) -> None:
         for id, cql in self.cqls.items():
             self.install_cql(id, cql)
 
-    def install_pages(self):
+    def install_pages(self) -> None:
         for id, page in self.pages.items():
             self.install_page(id, page)
 
-    dmn_tables = {}
+    dmn_tables: Dict[str, str] = {}
 
-    def add_dmn_table(self, dt_id: str, dt_dmn: str):
+    def add_dmn_table(self, dt_id: str, dt_dmn: str) -> None:
         if dt_id in self.dmn_tables:
             self.logger.info(
                 "**Warning** found duplicated decitiosn table with id=" + dt_id)
@@ -491,31 +490,31 @@ class installer(object):
                     self.logger.info(f"\tError: {e}")
         return result
 
-    def add_resource(self, dir, id, resource: str):
+    def add_resource(self, dir: str, id: str, resource: str) -> bool:
         self.resources[dir][id] = resource
         return True
 
-    def get_resource(self, dir, id):
+    def get_resource(self, dir: str, id: str) -> Optional[str]:
         if self.has_resource(dir, id):
             return self.resources[dir][id]
         return None
 
-    def has_resource(self, dir, id):
+    def has_resource(self, dir: str, id: str) -> bool:
         return dir in self.resources and id in self.resources[dir]
 
-    def add_cql(self, id, cql: str):
+    def add_cql(self, id: str, cql: str) -> bool:
         self.cqls[id] = cql
         return True
 
-    def add_page(self, id, page: str):
+    def add_page(self, id: str, page: str) -> bool:
         self.pages[id] = page
         return True
 
     def create_cql_library(
             self,
-            lib_name,
-            cql_codes: dict = {},
-            properties: dict = {}):
+            lib_name: str,
+            cql_codes: Dict = {},
+            properties: Dict = {}) -> None:
         lib_id = stringer.name_to_id(lib_name)
         cql = "/*\n"
         cql += "@libname: " + lib_name + "\n"

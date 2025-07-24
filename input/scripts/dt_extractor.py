@@ -11,6 +11,7 @@ of clinical logic with the broader SMART guidelines framework.
 
 Author: SMART Guidelines Team
 """
+from typing import Dict, List, Optional, Any
 import stringer
 import logging
 import sys
@@ -26,34 +27,34 @@ from pathlib import Path
 
 class dt_extractor(extractor):
 
-    xslt_file = "includes/dmn2html.xslt"
-    namespaces = {'dmn': "https://www.omg.org/spec/DMN/20240513/MODEL/"}
+    xslt_file: str = "includes/dmn2html.xslt"
+    namespaces: Dict[str, str] = {'dmn': "https://www.omg.org/spec/DMN/20240513/MODEL/"}
 
     # internal variables
-    cql_definitions: dict
-    cql_definitions_by_type: dict
-    tab_data: dict
+    cql_definitions: Dict[str, Dict[str, Dict[str, str]]]
+    cql_definitions_by_type: Dict[str, Dict[str, str]]
+    tab_data: Dict[str, Dict[str, Any]]
     cql_definitions = {}
     cql_definitions_by_type = {'input': {}, 'output': {}, 'annotation': {}}
     tab_data = {}
-    dt_data = {}
+    dt_data: Dict[str, Dict[str, Any]] = {}
 
-    def __init__(self, installer: installer):
+    def __init__(self, installer: installer) -> None:
         super().__init__(installer)
         self.installer.register_transformer(
             "dmn", self.xslt_file, self.namespaces)
 
-    def find_files(self):
+    def find_files(self) -> List[str]:
         return glob.glob("input/decision-logic/*xlsx")
 
-    def find_cql_files(self):
+    def find_cql_files(self) -> List[str]:
         return glob.glob("input/cql/*cql")
 
-    def extract(self):
+    def extract(self) -> bool:
         super().extract()
         return self.generate_decision_table_page()
 
-    def generate_decision_table_page(self):
+    def generate_decision_table_page(self) -> bool:
         page_id = "decision-logic"
         page_content = "This page describes the decision support logic included in the WHO Digital Adaptation Kit (DAK): " + self.installer.get_ig_title(
         ) + "\n" + """
@@ -101,16 +102,16 @@ The table below provides an overview of the decision-support tables and algorith
         self.installer.add_page(page_id, page_content)
         return True
 
-    def extract_file(self):
-        cover_column_maps = {
+    def extract_file(self) -> bool:
+        cover_column_maps: Dict[str, List[str]] = {
             'id_name': ["Activity ID.Activity name"],
             'tab': ["Tab name"],
             'dt_id': ["Decision-support table (DT), contraindications table and scheduling-logic table (S) identification (ID)"],
             'description': ["Table description"],
             'sources': ["Reference/source"],
         }
-        sheet_names = ['COVER']
-        cover_sheet = self.retrieve_data_frame_by_headers(
+        sheet_names: List[str] = ['COVER']
+        cover_sheet: Optional[pd.DataFrame] = self.retrieve_data_frame_by_headers(
             cover_column_maps, sheet_names, range(0, 20))
 
         if (not self.extract_activities(cover_sheet)):
@@ -124,7 +125,7 @@ The table below provides an overview of the decision-support tables and algorith
 
         return True
 
-    def extract_activities(self, cover_sheet: pd.DataFrame):
+    def extract_activities(self, cover_sheet: pd.DataFrame) -> bool:
         id_name = ""
         id = ""
         name = ""

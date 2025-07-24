@@ -12,7 +12,9 @@ The extractor processes two main types of files:
 
 Author: SMART Guidelines Team
 """
-import installer
+from typing import List
+from installer import installer
+from extractor import extractor
 
 class DHIExtractror(extractor):
     """
@@ -28,8 +30,8 @@ class DHIExtractror(extractor):
     Attributes:
         installer: The installer instance used for resource management
     """
-    installer = None
-    def __init__(self,installer:installer):
+    installer: installer = None
+    def __init__(self, installer: installer) -> None:
         """
         Initialize the DHI extractor with an installer instance.
         
@@ -39,7 +41,7 @@ class DHIExtractror(extractor):
         self.installer = installer
 
     
-    def find_files():
+    def find_files(self) -> List[str]:
         """
         Locate the DHI classification files to be processed.
         
@@ -48,7 +50,7 @@ class DHIExtractror(extractor):
         """
         return ['input/data/system_categories.txt','input/data/dhi_v1.txt']
         
-    def extract_file():
+    def extract_file(self) -> None:
         """
         Process the current input file based on its name and content type.
         
@@ -56,12 +58,12 @@ class DHIExtractror(extractor):
         based on the input file name.
         """
         if (self.inputfile_name == 'input/data/system_categories.txt'):
-            extract_classifications()
+            self.extract_classifications()
         if (self.inputfile_name == 'input/data/dhi_v1.txt'):
-            extract_categories()
+            self.extract_categories()
         
         
-    def extract_categories():
+    def extract_categories(self) -> None:
         """
         Extract digital health system categories from the input file.
         
@@ -87,7 +89,7 @@ class DHIExtractror(extractor):
         self.installer.get_codesystem_manager().add_cs_and_vs_from_dict(cdhsc_id, 'Classification of Digital Health System Categories v1', interventions)
         
 
-    def extract_interventions():
+    def extract_interventions(self) -> None:
         """
         Extract digital health interventions with hierarchical relationships.
         

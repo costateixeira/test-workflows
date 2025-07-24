@@ -14,6 +14,7 @@ The codesystem_manager maintains centralized control over:
 
 Author: SMART Guidelines Team
 """
+from typing import Dict, List, Optional, Any
 import re
 import pprint
 import sys
@@ -34,24 +35,24 @@ class codesystem_manager(object):
         codesystem_titles (dict): Mapping of CodeSystem IDs to display titles
         codesystem_properties (dict): Properties and metadata for CodeSystems
     """
-    codesystems = {}
-    codesystem_titles = {}
-    codesystem_properties = {}
+    codesystems: Dict[str, Dict[str, Any]] = {}
+    codesystem_titles: Dict[str, str] = {}
+    codesystem_properties: Dict[str, Dict[str, Any]] = {}
 
-    publisher:str 
-    version:str
+    publisher: str 
+    version: str
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """Get logger instance for this class."""
         return logging.getLogger(self.__class__.__name__)
 
-    def __init__(self,publisher = "Self Pubished",version = "0.1.0"):
+    def __init__(self, publisher: str = "Self Pubished", version: str = "0.1.0") -> None:
         self.publisher = publisher
         self.version = version
 
 
-    def register(self,codesystem_id:str,title:str):
+    def register(self, codesystem_id: str, title: str) -> bool:
         if self.has_codesystem(codesystem_id):
             self.logger.info("WARNING: reinitializing codesystem " + codesystem_id)
         self.codesystems[codesystem_id] = {}
@@ -60,41 +61,41 @@ class codesystem_manager(object):
             # need to replace this type of logic with exception handling probably
         return True
 
-    def has_codesystem(self,id:str):
+    def has_codesystem(self, id: str) -> bool:
         return id in self.codesystems and id in self.codesystem_titles
 
-    def get_title(self,id:str):
+    def get_title(self, id: str) -> Optional[str]:
         if not self.has_codesystem(id):
             return None
         return self.codesystem_titles[id]
 
 
-    def get_properties(self,id:str):
+    def get_properties(self, id: str) -> Dict[str, Any]:
         if not self.has_codesystem(id):
             return {}
         return self.codesystem_properties[id]
 
 
-    def get_codes(self,id:str):
+    def get_codes(self, id: str) -> Dict[str, Any]:
         if not self.has_codesystem(id):
             return {}
         return self.codesystems[id]
 
-    def get_code(self,codesystem_id:str,code:str):
+    def get_code(self, codesystem_id: str, code: str) -> Optional[Any]:
         if not self.has_code(codesystem_id,code):
             return None
         else:
             return self.codesystems[codesystem_id][code]
 
 
-    def merge_code_with_params(self,codesystem_id,code:str,display:str,definition=None,designation=[],propertyString=[]):
+    def merge_code_with_params(self, codesystem_id: str, code: str, display: str, definition: Optional[str] = None, designation: List = [], propertyString: List = []) -> bool:
         code_defn = {'display':display,
                     'definition':definition,
                     'designation':designation,
                     'propertyString': propertyString}
         return self.merge_code(codesystem_id,code,code_defn)
 
-    def merge_code(self,codesystem_id,code:str,new_code:dict):
+    def merge_code(self, codesystem_id: str, code: str, new_code: Dict[str, Any]) -> bool:
         if not self.has_codesystem(codesystem_id):
             self.logger.info("tyring to create code on non-registered code-system:" + codesystem_id)
             return False

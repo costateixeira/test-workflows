@@ -11,6 +11,7 @@ with the broader SMART guidelines clinical decision support framework.
 
 Author: SMART Guidelines Team
 """
+from typing import List
 import os
 import glob
 import re
@@ -29,10 +30,10 @@ class req_extractor(extractor):
     decision support implementations.
     """
 
-    def __init__(self, installer: installer):
+    def __init__(self, installer: installer) -> None:
         super().__init__(installer)
 
-    def find_files(self):
+    def find_files(self) -> List[str]:
         return glob.glob("input/system-requirements/*xlsx")
 
         # def usage():

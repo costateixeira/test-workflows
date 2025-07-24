@@ -16,9 +16,8 @@ Usage:
 
 Author: SMART Guidelines Team
 """
-
-import installer
-import DHIExtractor
+from installer import installer
+from DHIExtractor import DHIExtractror
 import logging
 import getopt
 import sys
@@ -33,11 +32,11 @@ class extract_dhi:
     """
 
     @property
-    def logger(self):
+    def logger(self) -> logging.Logger:
         """Get logger instance for this class."""
         return logging.getLogger(self.__class__.__name__)
 
-    def usage(self):
+    def usage(self) -> None:
         """
         Display usage information for the DHI extraction script.
         
@@ -51,7 +50,7 @@ class extract_dhi:
         sys.exit(2)
 
 
-    def extract(self):
+    def extract(self) -> bool:
         """
         Execute the DHI extraction process.
         
@@ -63,7 +62,7 @@ class extract_dhi:
         """
         try: 
             ins = installer()
-            if not DHIExtractor(ins).extract():
+            if not DHIExtractror(ins).extract():
                 self.logger.info(f"ERROR: Could not extract: {e}")
                 return False
             return ins.install()
@@ -71,7 +70,7 @@ class extract_dhi:
             self.logger.info(f"ERROR: Could not extract: {e}")
             return False
 
-    def main(self):
+    def main(self) -> bool:
         """
         Main entry point for the DHI extraction script.
         
