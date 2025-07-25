@@ -9,18 +9,65 @@ The extraction pipeline is designed to process L2 (DAK) content and generate the
 ## Quick Start
 
 ### Prerequisites
-- Python 3.x with required dependencies (lxml, pandas, etc.)
+- Python 3.x
+- Required Python dependencies (see installation below)
 - A WHO SMART Guideline FHIR IG repository structure
+
+### Installation
+
+Before running the extraction scripts, install the required Python dependencies:
+
+```bash
+# From the root of any SMART Guideline repository
+pip install -r ../smart-base/input/scripts/requirements.txt
+```
+
+Or if running from within the same repository:
+
+```bash
+pip install -r input/scripts/requirements.txt
+```
 
 ### Usage
 
-To extract DAK content, run the main extraction script from the root of a WHO SMART Guideline FHIR IG repository:
+To extract DAK content from any WHO SMART Guideline repository, run the main extraction script from the root of the target guideline repository:
 
 ```bash
-python input/scripts/extract_dak.py
+# Example: Extract DAK content from smart-immunizations
+gh repo clone WorldHealthOrganization/smart-base
+gh repo clone WorldHealthOrganization/smart-immunizations
+cd smart-immunizations
+
+# Install dependencies
+pip install -r ../smart-base/input/scripts/requirements.txt
+
+# Run the extraction
+python ../smart-base/input/scripts/extract_dak.py
 ```
 
-This will orchestrate the entire extraction pipeline, processing all available content types and generating FHIR resources in the appropriate directories.
+The script will orchestrate the entire extraction pipeline, processing all available content types and generating FHIR resources in the appropriate directories of the current working directory (the target guideline repository).
+
+#### Running Against Different Guidelines
+
+The `extract_dak.py` script can be run against any WHO SMART Guideline repository. Simply:
+
+1. Clone the smart-base repository (contains the extraction scripts)
+2. Clone or navigate to your target guideline repository 
+3. Install the dependencies from smart-base
+4. Run the extraction script from the target repository, pointing to the smart-base scripts
+
+```bash
+# Example with different guideline repositories:
+# For smart-malaria:
+cd smart-malaria
+python ../smart-base/input/scripts/extract_dak.py
+
+# For smart-hiv:
+cd smart-hiv  
+python ../smart-base/input/scripts/extract_dak.py
+```
+
+The extraction will process DAK content from the current directory and generate FHIR resources appropriate for that specific guideline.
 
 ## File Structure and Functionality
 
