@@ -76,7 +76,7 @@ class svg_extractor(extractor):
         Returns:
             True if transformation and copy successful, False otherwise
         """
-        with open(self.inputfile_name, 'r') as file:
+        with open(self.inputfile_name, 'r', encoding="utf-8") as file:
             svg = str(file.read())
             outputfile_name = "input/images/" + os.path.basename(self.inputfile_name)
             if not self.installer.transform_xml("svg",svg,out_path=outputfile_name):

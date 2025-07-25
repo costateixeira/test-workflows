@@ -126,7 +126,7 @@ class MultifileProcessor:
             content = file["content"]
             if diff:
                 try:
-                    with open("temp.diff", "w") as temp_diff:
+                    with open("temp.diff", "w", encoding="utf-8") as temp_diff:
                         temp_diff.write(content)
                     subprocess.run(["git", "apply", "temp.diff"], check=True)
                     os.remove("temp.diff")
@@ -138,7 +138,7 @@ class MultifileProcessor:
                 directory = os.path.dirname(path)
                 if directory:
                     os.makedirs(directory, exist_ok=True)
-                with open(path, "w") as f:
+                with open(path, "w", encoding="utf-8") as f:
                     f.write(content)
                 self.logger.info(f"Updated file: {path}")
 

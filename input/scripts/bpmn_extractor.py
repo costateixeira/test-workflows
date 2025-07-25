@@ -73,7 +73,7 @@ class bpmn_extractor(extractor):
         Returns:
             True if transformation successful, False otherwise
         """
-        with open(self.inputfile_name, 'r') as file:
+        with open(self.inputfile_name, 'r', encoding="utf-8") as file:
             bpmn = str(file.read())
             if not self.installer.transform_xml("bpmn",bpmn,process_multiline=True):
                 self.logger.info("Could not transform bpmn on " + self.inputfile_name)
