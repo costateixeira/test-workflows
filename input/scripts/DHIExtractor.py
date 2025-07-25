@@ -77,7 +77,7 @@ class DHIExtractror(extractor):
 
         self.logger.info ("System Categories")
         interventions = {}
-        for line in open(self.inputfile_name, 'r'):
+        for line in open(self.inputfile_name, 'r', encoding="utf-8"):
             parts = line.strip().split(' ',1)
             if (len(parts) < 2):
                 continue
@@ -100,7 +100,7 @@ class DHIExtractror(extractor):
         interventions = {}
         parent_map = {}
 
-        for line in open(self.inputfile_name, 'r'):
+        for line in open(self.inputfile_name, 'r', encoding="utf-8"):
             parts = line.strip().split(' ',1)
             if (len(parts) < 2):
                 continue

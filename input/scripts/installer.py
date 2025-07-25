@@ -141,7 +141,7 @@ class installer(object):
 
     def read_sushi_config(self) -> bool:
         try:
-            with open(self.sushi_file, 'r') as file:
+            with open(self.sushi_file, 'r', encoding="utf-8") as file:
                 self.sushi_config = yaml.safe_load(file)
                 if not self.sushi_config:
                     self.logger.info("Could not load sushi config")
@@ -229,7 +229,7 @@ class installer(object):
             ruleset_id = str(
                 os.path.splitext(
                     os.path.basename(ruleset_file))[0])
-            with open(ruleset_file, 'r') as file:
+            with open(ruleset_file, 'r', encoding="utf-8") as file:
                 self.logger.info("Opned " + ruleset_file)
                 ruleset = str(file.read())
                 self.add_resource("rulesets", ruleset_id, ruleset)
@@ -239,7 +239,7 @@ class installer(object):
 
     def get_base_aliases(self):
         ig_alias_file = self.get_base_dir() + "/" + self.alias_file
-        with open(ig_alias_file, 'r') as file:
+        with open(ig_alias_file, 'r', encoding="utf-8") as file:
             return str(file.read()).split("\n")
 
     def add_aliases(self, aliases):
@@ -250,7 +250,7 @@ class installer(object):
     def install_aliases(self):
         try:
             if not os.path.exists(self.alias_file):
-                with open(filename, 'w') as file:
+                with open(filename, 'w', encoding="utf-8") as file:
                     for alias in set(self.aliases):
                         self.logger.info("Adding alias:" + alias)
                         file.write(alias + "\n")
@@ -271,7 +271,7 @@ class installer(object):
     def install_page(self, id, page: str):
         try:
             file_path = "input/pagecontent/" + id + ".md"
-            file = open(file_path, "w")
+            file = open(file_path, "w", encoding="utf-8")
             print(page, file=file)
             file.close()
             self.logger.info("Installed " + file_path)
@@ -283,7 +283,7 @@ class installer(object):
     def install_cql(self, id, cql: str):
         try:
             file_path = "input/cql/" + id + ".cql"
-            file = open(file_path, "w")
+            file = open(file_path, "w", encoding="utf-8")
             print(cql, file=file)
             file.close()
             self.logger.info("Installed " + file_path)
@@ -323,8 +323,7 @@ class installer(object):
                 root = multifile_xml.getroot()
             else:
                 self.logger.info(
-                    f"ERROR: multifile_xml is not a recognized XML type: {
-                        type(multifile_xml)}")
+                    f"ERROR: multifile_xml is not a recognized XML type: {type(multifile_xml)}")
                 return False
             self.logger.info(f"Multifile={ET.tostring(multifile_xml)}")
 
@@ -337,8 +336,7 @@ class installer(object):
 
             if root.tag != "files":
                 self.logger.info(
-                    f"ERROR: Expected root element <files>, got <{
-                        root.tag}> instead.")
+                    f"ERROR: Expected root element <files>, got <{root.tag}> instead.")
                 return False
             file_elements = root.findall("file")
             if not file_elements:
@@ -361,8 +359,7 @@ class installer(object):
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
                         self.logger.info(
-                            f"Created file: {file_path} (mime-type: {mime_type}, {
-                                len(content)} bytes) with content:" + str(content))
+                            f"Created file: {file_path} (mime-type: {mime_type}, {len(content)} bytes) with content:" + str(content))
                 except Exception as fe:
                     self.logger.info(
                         f"ERROR: Could not write to file '{file_path}': {fe}")
@@ -418,7 +415,7 @@ class installer(object):
                         encoding="unicode",
                         pretty_print=True,
                         doctype=None))
-                out_file = open(out_path, "w")
+                out_file = open(out_path, "w", encoding="utf-8")
                 out_file.write(out)
                 out_file.close()
             elif process_multiline:
@@ -450,7 +447,7 @@ class installer(object):
 
         try:
             dmn_path = Path("input/dmn/") / f"{id}.dmn"
-            dmn_file = open(dmn_path, "w")
+            dmn_file = open(dmn_path, "w", encoding="utf-8")
             # self.logger.info(ET.tostring(dmn_tree,encoding="unicode"))
             dmn_file.write(ET.tostring(dmn_tree, encoding="unicode"))
             # print(ET.tostring(dmn_tree,encoding="unicode"),file=dmn_file)
