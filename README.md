@@ -11,8 +11,25 @@
 
 # WHO SMART GUIDELINES - Base IG
 
+## Overview
 
-This ImplementationGuide contains base profiles and common dependencies to assist in the creation of SMART Implementation Guides. 
+This repository contains the **core FHIR profiles** that define the common knowledge representation artifacts used by WHO SMART Guidelines. It serves as the foundational Implementation Guide for the WHO SMART Guidelines ecosystem, providing base profiles and common dependencies to assist in the creation of SMART Implementation Guides.
+
+The repository includes both:
+- **L2 (DAK) Content**: Digital Adaptation Kit artifacts that provide the structured knowledge representation
+- **L3 (FHIR IG) Content**: FHIR Implementation Guide profiles, extensions, and resources that enable computable clinical guidelines
+
+## Repository Contents
+
+### Core FHIR Profiles and Extensions
+This ImplementationGuide contains base profiles, extensions, and common dependencies that serve as the foundation for all WHO SMART Guidelines Implementation Guides. These artifacts define the standardized approach for representing clinical knowledge in a computable format.
+
+### DAK Extraction Tools
+As a convenience, this repository currently includes a comprehensive set of Digital Adaptation Kit (DAK) extraction Python scripts under `input/scripts/`. These tools process various input formats (Excel files, BPMN diagrams, CQL logic, etc.) and transform them into FHIR-compatible resources.
+
+**Note**: The DAK extraction scripts will be migrated to their own dedicated repository in the future to better separate the core FHIR profiles from the extraction tooling.
+
+For detailed documentation on the DAK extraction functionality, see [input/scripts/README.md](input/scripts/README.md). 
 
 ## Publication
 Continuous Build: __http://WorldHealthOrganization.github.io/smart-base/index.html__  
