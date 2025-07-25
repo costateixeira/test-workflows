@@ -24,40 +24,46 @@ This will orchestrate the entire extraction pipeline, processing all available c
 
 ## File Structure and Functionality
 
-### Core Extraction Scripts
+### Detailed File Reference
 
-| File Name | Purpose | Input Sources | FHIR Outputs |
-|-----------|---------|---------------|--------------|
-| `extract_dak.py` | **Main orchestrator** - Coordinates all extraction processes in a unified pipeline | Command-line execution, coordinates all other extractors | Complete set of FHIR resources via installer |
-| `installer.py` | **Resource manager** - Handles FHIR resource installation, file management, and XSLT transformations | FHIR resources, CQL content, pages, XSLT files | Organized files in `input/fsh/`, `input/cql/`, `input/pagecontent/` |
-| `extractor.py` | **Base class** - Provides common functionality for all specialized extractors | Generic input processing, logging utilities | Foundation for specialized extractors |
+| File Name                | Goal                                                                 | Inputs                                                                 | Outputs                                                                 |
+|--------------------------|----------------------------------------------------------------------|------------------------------------------------------------------------|-------------------------------------------------------------------------|
+| `codesystem_manager.py`  | Manages FHIR CodeSystem and ValueSet resources by registering, merging, and rendering codes and properties for DAKs. | Code system IDs, titles, codes, display names, definitions, designations, properties; uses `stringer` for escaping/hashing. | FHIR CodeSystem and ValueSet FSH representations stored in dictionaries or rendered for implementation guides. |
+| `bpmn_extractor.py`      | Extracts business process data from BPMN files and transforms them into FHIR FSH format using `bpmn2fhirfsh.xsl`. | BPMN files (`*.bpmn`) from `input/business-processes/`, `bpmn2fhirfsh.xsl`, `installer` object. | FHIR FSH resources (e.g., `SGRequirements`, `SGActor`) stored via `installer.add_resource`, logs transformation success/failure. |
+| `dd_extractor.py`        | Extracts data dictionary entries from Excel files, generating FHIR ValueSets linked to business processes, tasks, decision tables, and indicators. | Excel files (`*.xlsx`) from `input/dictionary/`, cover sheet with tab names/descriptions, `installer` object. | FHIR ValueSet FSH representations stored via `installer.add_resource`, logs extraction details. |
+| `DHIExtractor.py`        | Extracts digital health intervention (DHI) classifications and categories from text files, creating FHIR CodeSystems, ValueSets, and ConceptMaps. | Text files (`system_categories.txt`, `dhi_v1.txt`) from `input/data/`, `installer` object. | FHIR CodeSystem, ValueSet, ConceptMap FSH representations stored via `installer.add_resource`, logs extraction details. |
+| `extractor.py`           | Base class for extracting data from various sources (e.g., Excel, BPMN), providing utility functions for data frame processing and logging. | Input file paths, column mappings, sheet names, `installer` object; subclasses define specific inputs. | Processed data frames with normalized columns, logs, resources stored via `installer` (specific to subclasses). |
+| `extract_dhi.py`         | Orchestrates extraction of DHI data using `DHIExtractor`, coordinating with `installer` to process and store results. | Command-line arguments (optional, e.g., `--help`), text files via `DHIExtractor`. | Installed FHIR resources via `installer.install()`, logs success/failure, exits with status code. |
+| `dt_extractor.py`        | Extracts decision table logic from Excel and CQL files, generating FHIR ValueSets, PlanDefinitions, ActivityDefinitions, and DMN representations. | Excel files (`*.xlsx`) from `input/decision-logic/`, CQL files (`*.cql`) from `input/cql/`, `dmn2html.xslt`, `installer` object. | FHIR ValueSet, PlanDefinition, ActivityDefinition FSH, DMN XML, markdown pages stored via `installer.add_resource`/`add_page`, logs details. |
+| `extract_dak.py`         | Orchestrates extraction of DAK content by coordinating multiple extractors (data dictionary, BPMN, SVG, requirements, decision tables). | Command-line arguments (optional, e.g., `--help`), files processed by extractors (`dd_extractor`, etc.). | Installed FHIR resources via `installer.install()`, logs success/failure, exits with status code. |
+| `installer.py`           | Manages installation of FHIR resources, pages, CQL files, and DMN tables, handling transformations (e.g., via `bpmn2fhirfsh.xsl`, `dmn2html.xslt`, `svg2svg.xsl`) and storage. | FHIR resources, CQL content, markdown pages, DMN XML, XSLT files, `sushi-config.yaml`, `multifile.xsd`, aliases. | Installed files in `input/fsh/`, `input/cql/`, `input/dmn/`, `input/pagecontent/`, logs installation success/failure. |
+| `req_extractor.py`       | Extracts functional and non-functional requirements from Excel files, generating FHIR Requirement and ActorDefinition resources. | Excel files (`*.xlsx`) from `input/system-requirements/`, functional/non-functional sheet column mappings, `installer` object. | FHIR Requirement, ActorDefinition FSH stored via `installer.add_resource`, CodeSystem/ValueSet for categories, logs extraction details. |
+| `svg_extractor.py`       | Extracts and transforms SVG files from business processes into FHIR-compatible formats using `svg2svg.xsl`. | SVG files (`*.svg`) from `input/business-processes/`, `svg2svg.xsl`, `installer` object. | Transformed SVG files stored in `input/images/`, logs transformation success/failure. |
+| `stringer.py`            | Provides utility functions for string manipulation, including escaping, hashing, and ID normalization for FHIR resource generation. | Strings for escaping (XML, markdown, code, rulesets), names for ID conversion, inputs for blank/dash checks. | Escaped strings, hashed IDs, normalized IDs, logs for long ID hashing or errors. |
+| `multifile_processor.py` | Processes multifile XML to apply file changes to a Git repository, handling branching, committing, and pushing. | Multifile XML (`<path_to_multifile.xml>`) with file paths, content, diff formats, Git repository context. | Updated files in repository, Git commits/pushes, logs for parsing and Git operation success/failure. |
+| `includes/bpmn2fhirfsh.xsl` | Transforms BPMN XML into FHIR FSH, generating resources like Requirements, Actors, Questionnaires, and Decision Tables for business processes. | BPMN XML from `input/business-processes/*.bpmn`, processed via `installer.transform_xml`. | FHIR FSH resources (e.g., `SGRequirements`, `SGActor`) stored via `installer.add_resource`, with links to CodeSystems and StructureDefinitions. |
+| `includes/dmn2html.xslt` | Transforms DMN XML into HTML for displaying decision tables in implementation guides, including decision IDs, rules, triggers, inputs, and outputs. | DMN XML from `installer.add_dmn_table`, processed via `installer.transform_xml`. | HTML files in `input/pagecontent/` (e.g., `<id>.xml`), with links to FHIR CodeSystems, logs transformation details. |
+| `includes/svg2svg.xsl`   | Transforms SVG files to ensure compatibility with FHIR implementation guides, likely preserving or modifying business process visualizations. | SVG XML content from `input/business-processes/*.svg`, processed via `installer.transform_xml`. | Transformed SVG files stored in `input/images/`, compatible with FHIR rendering. |
 
-### Specialized Content Extractors
+### Script Categories
 
-| File Name | Purpose | Input Sources | FHIR Outputs |
-|-----------|---------|---------------|--------------|
-| `dd_extractor.py` | **Data Dictionary** - Extracts structured data definitions and terminology | Excel files from `input/dictionary/` | FHIR ValueSets linked to business processes |
-| `req_extractor.py` | **Requirements** - Processes functional and non-functional system requirements | Excel files from `input/system-requirements/` | FHIR Requirement and ActorDefinition resources |
-| `bpmn_extractor.py` | **Business Processes** - Transforms BPMN workflow diagrams into FHIR resources | BPMN files from `input/business-processes/` | FHIR SGRequirements, SGActor resources |
-| `dt_extractor.py` | **Decision Tables** - Converts clinical decision logic into computable formats | Excel/CQL files from `input/decision-logic/`, `input/cql/` | FHIR ValueSets, PlanDefinitions, ActivityDefinitions, DMN |
-| `svg_extractor.py` | **Graphics** - Processes SVG diagrams for IG compatibility | SVG files from `input/business-processes/` | Transformed SVG files in `input/images/` |
-| `DHIExtractor.py` | **Digital Health Interventions** - Extracts DHI classifications and categories | Text files from `input/data/` | FHIR CodeSystems, ValueSets, ConceptMaps |
+#### Core Extraction Scripts
+- `extract_dak.py` - Main orchestrator coordinating all extraction processes
+- `installer.py` - Resource manager handling FHIR installation and transformations  
+- `extractor.py` - Base class providing common functionality for specialized extractors
 
-### Supporting Utilities
+#### Specialized Content Extractors
+- `dd_extractor.py` - Data Dictionary extraction from Excel files
+- `req_extractor.py` - Requirements processing for functional/non-functional specs
+- `bpmn_extractor.py` - Business Process transformation from BPMN to FHIR
+- `dt_extractor.py` - Decision Tables conversion to computable formats
+- `svg_extractor.py` - Graphics processing for IG compatibility
+- `DHIExtractor.py` - Digital Health Interventions classification extraction
 
-| File Name | Purpose | Function |
-|-----------|---------|----------|
-| `codesystem_manager.py` | **Terminology Management** - Manages FHIR CodeSystem and ValueSet resources | Registers, merges, and renders codes and properties for DAKs |
-| `stringer.py` | **String Utilities** - Provides string manipulation functions | Escaping, hashing, ID normalization for FHIR resource generation |
-| `multifile_processor.py` | **Git Integration** - Processes multifile XML and applies changes to repositories | Handles branching, committing, and pushing for automated workflows |
-
-### XSLT Transformation Files
-
-| File Name | Purpose | Input | Output |
-|-----------|---------|--------|--------|
-| `includes/bpmn2fhirfsh.xsl` | **BPMN to FHIR** - Transforms BPMN XML into FHIR FSH resources | BPMN XML from business processes | FHIR FSH resources (Requirements, Actors, Questionnaires) |
-| `includes/dmn2html.xslt` | **DMN to HTML** - Creates decision table displays for IGs | DMN XML from decision tables | HTML files for `input/pagecontent/` |
-| `includes/svg2svg.xsl` | **SVG Optimization** - Ensures SVG compatibility with FHIR IGs | SVG files from business processes | FHIR-compatible SVG files |
+#### Supporting Utilities
+- `codesystem_manager.py` - Terminology management for CodeSystems and ValueSets
+- `stringer.py` - String manipulation utilities for FHIR resource generation
+- `multifile_processor.py` - Git integration for automated repository workflows
 
 ### Schema and Validation Files
 
