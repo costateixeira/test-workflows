@@ -473,8 +473,8 @@ class extractpr(extractor):
         fsh = f"Instance: {persona_id}\n"
         fsh += "InstanceOf: ActorDefinition\n"
         fsh += "Usage: #definition\n"
-        fsh += f"* name = \"{stringer.escape_for_code(persona_id)}\"\n"
-        fsh += f"* title = \"{stringer.escape_for_string(persona['name'])}\"\n"
+        fsh += f"* name = \"{stringer.escape_code(persona_id)}\"\n"
+        fsh += f"* title = \"{stringer.escape(persona['name'])}\"\n"
         fsh += "* status = #active\n"
         fsh += "* experimental = false\n"
         fsh += "* type = #person\n"
@@ -484,18 +484,18 @@ class extractpr(extractor):
             description = persona["description"]
             # Clean up the description
             description = re.sub(r'\s+', ' ', description).strip()
-            fsh += f"* description = \"{stringer.escape_for_string(description)}\"\n"
+            fsh += f"* description = \"{stringer.escape(description)}\"\n"
         
         # Add persona type if available
         if "type" in persona and persona["type"]:
             type_code = stringer.name_to_id(persona["type"])
-            fsh += f"* topic.coding = $PersonaType#{type_code} \"{stringer.escape_for_string(persona['type'])}\"\n"
+            fsh += f"* topic.coding = $PersonaType#{type_code} \"{stringer.escape(persona['type'])}\"\n"
         
         # Add responsibilities as documentation if available
         if "responsibilities" in persona and persona["responsibilities"]:
             resp = persona["responsibilities"]
             resp = re.sub(r'\s+', ' ', resp).strip()
-            fsh += f"* documentation = \"{stringer.escape_for_string(resp)}\"\n"
+            fsh += f"* documentation = \"{stringer.escape(resp)}\"\n"
         
         # Add source information as a comment
         fsh += f"// Source: {persona['source_file']} - {persona['source_location']}\n"
