@@ -1,6 +1,3 @@
-
-
-
 Profile: SGQuestionnaire
 Parent: http://hl7.org/fhir/uv/crmi/StructureDefinition/crmi-shareablequestionnaire
 Title: "SMART Guidelines Questionnaire"
