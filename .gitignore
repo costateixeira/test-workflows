@@ -22,6 +22,10 @@ Thumbs.db
 ################
 *.bak
 
+# python #
+##########
+__pycache__/
+
 # java settings 
 ################
 
@@ -30,6 +34,18 @@ Thumbs.db
 .idea/
 .idea/*
 
+
+# emacs #
+#########
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.swp
 
 # word #
 ########

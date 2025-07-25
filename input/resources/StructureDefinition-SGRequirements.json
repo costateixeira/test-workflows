@@ -9,7 +9,7 @@
   ],
   "url": "http://smart.who.int/base/StructureDefinition/SGRequirements",
   "version": "1.0.0",
-  "name": "SGRequirements",
+  "name": "SMART Guidelines Requirements",
   "description": "Smart Guidelines Requirements",
   "fhirVersion": "4.0.1",
   "kind": "resource",
@@ -34,7 +34,22 @@
         }
       },
       {
-        "id": "Requirements.extension:satisfies",
+        "id": "Requirements.extension:task",
+        "path": "Requirements.extension",
+        "sliceName": "task",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": [
+              "http://smart.who.int/base/StructureDefinition/SGTask"
+            ]
+          }
+        ]
+      },
+      {
+        "Id": "Requirements.extension:satisfies",
         "path": "Requirements.extension",
         "sliceName": "satisfies",
         "min": 0,
@@ -47,7 +62,7 @@
             ]
           }
         ]
-      },
+      },	
       {
         "id": "Requirements.extension:userstory",
         "path": "Requirements.extension",

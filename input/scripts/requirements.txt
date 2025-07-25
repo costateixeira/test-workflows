@@ -1,0 +1,14 @@
+# Python dependencies for SMART Guidelines DAK extraction scripts
+# Install with: pip install -r requirements.txt
+
+# PDF processing for personas extraction (extractpr.py)
+pdfplumber>=0.11.0
+
+# Data processing for Excel files (dd_extractor.py, dt_extractor.py, req_extractor.py)
+pandas>=2.0.0
+
+# XML processing and transformations (installer.py)
+lxml>=6.0.0
+
+# YAML configuration processing (installer.py)
+PyYAML>=6.0.0
