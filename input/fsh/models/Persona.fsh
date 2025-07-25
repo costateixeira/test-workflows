@@ -9,4 +9,4 @@ Description:   "Logical Model for representing Personas from a DAK"
 * ISCO 1..1 CodeableConcept "ISCO Code" "ISCO Code"
 * type 1..1 code "Type of Persona" "Persona Types: Key/Related/System/Hardware Device"
 * type from SGPersonaTypesVS
-//* ISCO from Canonical(http://www.fhir.org/guides/stats2/ValueSet/isco-codes)
+* ISCO from urn:oid:2.16.840.1.113883.2.9.6.2.7
