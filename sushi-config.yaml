@@ -152,11 +152,11 @@ resources:
     description: Structure and constraints for ActorDefinition resources used in SMART Guidelines
 
   StructureDefinition/SGGraphDefinition:
-    name: SMART Guidelines GraphDefinition	
+    name: SMART Guidelines GraphDefinition    
     description: The minimum expectations for GraphDefinition resources used in SMART Guidelines
 
   StructureDefinition/SGTransaction:
-    name: SMART Guidelines Transaction	
+    name: SMART Guidelines Transaction    
     description: Structure and constraints for TransactionDefinition resources used in SMART Guidelines
 
   StructureDefinition/SGActivityDefinition:
