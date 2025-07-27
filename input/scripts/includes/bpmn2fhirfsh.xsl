@@ -76,8 +76,8 @@
     <xsl:if test="$requirementActors">
       <xsl:text>This requirement is fulfilled by the following actors:</xsl:text><xsl:value-of select="$newline"/>
       <xsl:for-each select="$requirementActors">
-	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](ActorDefinition-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
-	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](ActorDefinition-DAK.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>  (see [Concept Defintion](Codesystem-DAK.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
       </xsl:for-each>
     </xsl:if>
   </xsl:template>
@@ -94,7 +94,7 @@
       <xsl:variable name="actorQuestionnaire"
 		  select="$actorProcesses//bpmn:userTask[@name != '' and @id = $questionnaireId]"/>
       <xsl:if test="$actorQuestionnaire">
-	<xsl:text>* extension[actor].valueReference = Reference(DD.</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
+	<xsl:text>* extension[actor].valueReference = Reference(DAK.</xsl:text><xsl:value-of select="$actorId"/><xsl:text>)</xsl:text>
 	<xsl:value-of select="$newline"/>
       </xsl:if>
     </xsl:for-each>
@@ -123,8 +123,8 @@
       <xsl:text>The actor participates in the following requirements:</xsl:text>
       <xsl:value-of select="$newline"/>
       <xsl:for-each select="$actorTasks">
-	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](Requirements-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
-	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>* [</xsl:text><xsl:value-of select="@name"/><xsl:text>](Requirements-DAK.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	<xsl:text>  (see [Concept Defintion](Codesystem-DAK.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
       </xsl:for-each>
     </xsl:if>
     
@@ -134,7 +134,7 @@
       <xsl:for-each select="$actorProcesses">
 	<xsl:variable name="url" select="concat(@name,'.svg')"/>
 	<xsl:text>* </xsl:text><xsl:value-of select="@name"/><xsl:text>(</xsl:text><xsl:value-of select="@name"/><xsl:text>)</xsl:text><xsl:value-of select="$newline"/>
-	<xsl:text>  (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/><xsl:value-of select="$newline"/>
+	<xsl:text>  (see [Concept Defintion](Codesystem-DAK.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/><xsl:value-of select="$newline"/>
 	<!-- <xsl:text >  </xsl:text><div style="width:90%; display:block" class='businessprocess'><object width="90%"  type="image/svg+xml"><xsl:attribute name="data"><xsl:value-of select="@name"/></xsl:attribute></object></div><xsl:value-of select="$newline"/>-->
 	<!-- <xsl:text >  &lt;div style="width:90%; display:block" class='businessprocess'&gt;&lt;object width="90%"  type="image/svg+xml" data="</xsl:text><xsl:value-of select="@name"/><xsl:text>"&gt;&lt;/object&gt;&lt;/div&gt;></xsl:text><xsl:value-of select="$newline"/> -->
 	<xsl:text disable-output-escaping="yes">&lt;div style="width:90%; display:block" class='businessprocess'&gt;
@@ -149,8 +149,8 @@
 	  <xsl:value-of select="$newline"/>
 	  <xsl:for-each select="$actorQuestionnaires">
 	    <!-- markdown link to questionnaire -->
-	    <xsl:text>  * [</xsl:text><xsl:value-of select="@name"/><xsl:text>](StructureDefinition-DD.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
-	    <xsl:text>    (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>  * [</xsl:text><xsl:value-of select="@name"/><xsl:text>](StructureDefinition-DAK.</xsl:text><xsl:value-of select="@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>    (see [Concept Defintion](Codesystem-DAK.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
 	  </xsl:for-each>
 	</xsl:if>
 
@@ -164,7 +164,7 @@
 	    <xsl:variable name="actorDecision" select="."/>
 	    <!-- markdown link to plan defintiion -->
 	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](StructureDefinition-DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
-	    <xsl:text>    (see [Concept Defintion](Codesystem-DD.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>    (see [Concept Defintion](Codesystem-DAK.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
 	  </xsl:for-each>
 	</xsl:if>
       </xsl:for-each>
@@ -180,14 +180,14 @@
       <!-- Generate requirements from Tasks in bpmn -->
       <xsl:for-each select="$requirements"> <!-- a bpmn:lane -->
 	<xsl:variable name="requirementCode" select="local-name()"/> <!-- use the element name as a code -->
-        <file name="input/fsh/requirements/Requirement-DD.{@id}.fsh" mime-type="text/fsh">
-Instance: DD.<xsl:value-of select="@id"/>
+        <file name="input/fsh/requirements/Requirement-DAK.{@id}.fsh" mime-type="text/fsh">
+Instance: DAK.<xsl:value-of select="@id"/>
 InstanceOf: $SGRequirements
 Title: "<xsl:value-of select="@name"/>"
 Description: """<xsl:call-template name="requirementDescription"/>
 """
 Usage: #definition
-* id = "DD.<xsl:value-of select="@id"/>"
+* id = "DAK.<xsl:value-of select="@id"/>"
 * name = "<xsl:value-of select="@name"/>"
 // * type = #non-system
 * status = #draft
@@ -215,9 +215,9 @@ Usage: #definition
       
       <!-- Generate ActorDefinition resources in FSH -->
       <xsl:for-each select="$uniqueActors"> <!-- a bpmn:lane -->
-        <file name="input/fsh/actors/ActorDefinition-DD.{@id}.fsh" mime-type="text/fsh">
+        <file name="input/fsh/actors/ActorDefinition-DAK.{@id}.fsh" mime-type="text/fsh">
 
-Instance: DD.<xsl:value-of select="@id"/>
+Instance: DAK.<xsl:value-of select="@id"/>
 InstanceOf: $SGActor
 Title: "<xsl:value-of select="@name"/>"
 Description: """<xsl:call-template name="actorDescription"/>
@@ -241,7 +241,7 @@ Usage: #definition
         <xsl:variable name="questionnaireName" select="@name"/>
         <file name="input/fsh/profiles/{$questionnaireId}.fsh" mime-type="text/fsh">
 
-Profile: DD.<xsl:value-of select="$questionnaireId"/>
+Profile: DAK.<xsl:value-of select="$questionnaireId"/>
 Parent: $SGQuestionnaire
 Title: "<xsl:value-of select="$questionnaireName"/>"
 * name = "Questionnaire profile: <xsl:value-of select="$questionnaireName"/>"
@@ -255,7 +255,7 @@ Title: "<xsl:value-of select="$questionnaireName"/>"
         <xsl:variable name="ruleName" select="@name"/>
         <file name="input/fsh/profiles/{$ruleId}.fsh" mime-type="text/fsh">
 
-Profile: DD.<xsl:value-of select="$ruleId"/>
+Profile: DAK.<xsl:value-of select="$ruleId"/>
 Parent: $SGDecisionTable
 Title: "<xsl:value-of select="$ruleName"/>"
 * name = "Decision Table profile: <xsl:value-of select="$ruleName"/>"
