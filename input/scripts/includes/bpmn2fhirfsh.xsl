@@ -8,7 +8,7 @@
 		xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 		exclude-result-prefixes="bpmn">
 
-  <xsl:variable name='prefix'><xsl:text>DT</xsl:text></xsl:variable>
+  <xsl:variable name='prefix'><xsl:text>DAK.DT</xsl:text></xsl:variable>
   <xsl:variable name='newline'><xsl:text>&#xa;</xsl:text></xsl:variable>
       
   <xsl:variable name="collab" select="/bpmn:definitions/bpmn:collaboration[1]"/>
@@ -163,7 +163,7 @@
 	  <xsl:for-each select="$actorDecisions">
 	    <xsl:variable name="actorDecision" select="."/>
 	    <!-- markdown link to plan defintiion -->
-	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](StructureDefinition-DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>  * [</xsl:text><xsl:value-of select="$actorDecision/@name"/><xsl:text>](StructureDefinition-DAK.DT.</xsl:text><xsl:value-of select="$actorDecision/@id"/><xsl:text>.html)</xsl:text><xsl:value-of select="$newline"/>
 	    <xsl:text>    (see [Concept Defintion](Codesystem-DAK.html#</xsl:text><xsl:value-of select="@id"/><xsl:text>))</xsl:text><xsl:value-of select="$newline"/>
 	  </xsl:for-each>
 	</xsl:if>
