@@ -33,8 +33,8 @@ import logging
 
 class installer(object):
 
-    dt_prefix: str = "DT"
-    dd_prefix: str = "DD"
+    dt_prefix: str = "DAK.DT"
+    dd_prefix: str = "DAK"
 
     resources: Dict[str, Dict[str, str]] = {
         'requirements': {},

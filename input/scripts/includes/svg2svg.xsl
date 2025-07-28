@@ -14,7 +14,7 @@
 
   <xsl:template match="svg:text[ancestor::svg:g[@data-element-id != '']]">
     <xsl:variable name="id" select="ancestor::svg:g[@data-element-id != ''][1]/@data-element-id"/>
-    <xsl:variable name="url"><xsl:text>DD.html#</xsl:text><xsl:value-of select="$id"/></xsl:variable>
+    <xsl:variable name="url"><xsl:text>DAK.html#</xsl:text><xsl:value-of select="$id"/></xsl:variable>
     <svg:a >
       <xsl:attribute name="href"><xsl:value-of select="$url"/></xsl:attribute>
       <xsl:copy-of select="." />
