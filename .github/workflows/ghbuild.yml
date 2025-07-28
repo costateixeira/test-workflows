@@ -14,6 +14,10 @@ name: CI
 # Controls when the action will run. 
 on: 
   workflow_call: # Reusable by other workflows
+    inputs:
+      tx:
+        required: false
+        type: string
   # Triggers the workflow on push or pull request events for any branch
   push:
     branches-ignore:    
@@ -22,6 +26,10 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      tx:
+        description: 'Optional Custom terminology server URL'
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -90,12 +98,28 @@ jobs:
           entrypoint: /bin/sh
           args: -c "mkdir -p /var/lib/.fhir && chown $(id -u):$(id -g) /var/lib/.fhir"
 
-      - name: Run the IG publisher
-        uses: docker://hl7fhir/ig-publisher-base:latest
-        with:
-          # Run the publisher - don't run the batch script but run the line directly
-          args: java -Xmx6g -jar ./input-cache/publisher.jar publisher -ig . -auto-ig-build -repo https://github.com/${{github.repository}}/tree/${{github.ref_name}} -package-cache-folder ./fhir-package-cache
+      - name: Run the IG publisher with optional tx
+        run: |
+          echo "TX input: ${{ inputs.tx }}"
 
+          CMD="java -Xmx6g -jar ./input-cache/publisher.jar publisher \
+            -ig . \
+            -auto-ig-build \
+            -repo https://github.com/${GITHUB_REPOSITORY}/tree/${GITHUB_REF_NAME} \
+            -package-cache-folder ./fhir-package-cache"
+
+          if [ ! -z "${{ inputs.tx }}" ]; then
+            CMD="$CMD -tx ${{ inputs.tx }}"
+          fi
+
+          echo "Running command: $CMD"
+          
+          docker run --rm \
+            -v ${{ github.workspace }}:/work \
+            -w /work \
+            hl7fhir/ig-publisher-base:latest \
+            sh -c "$CMD"
+     
       # Additional step to upload qa.json as an artifact
       - name: Upload qa.json artifact
         if: success()
@@ -104,6 +128,10 @@ jobs:
           name: qa-json-artifact
           path: ./output/qa.json  # Adjust the path based on where qa.json is located
 
+      - name: Delete files >100MB before deployment
+        run: |
+          echo "Removing files over 100 MB from ./output..."
+          find ./output -type f -size +100M -print -delete
 
       - name: Get branch name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
@@ -115,7 +143,7 @@ jobs:
           branch: gh-pages # The branch the action should deploy to.
           folder: ./output # The folder the action should deploy.
           commit-message: Deploy candidate branch
-          target-folder: branches/${{ steps.branch-name.outputs.current_branch }}
+          target-folder: branches/${{ env.BRANCH_NAME }}
           single-commit: true
           clean: false 
 
